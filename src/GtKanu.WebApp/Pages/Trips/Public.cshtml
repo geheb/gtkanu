@@ -1,0 +1,60 @@
+@page
+@model GtKanu.Ui.Pages.Trips.PublicModel
+@{
+    ViewData["Title"] = "Öffentlicher Fahrtenplan";
+    var dateTimeConverter = new GermanDateTimeConverter();
+    var tripCategoryConverter = new TripCategoryConverter();
+}
+
+<nav class="navbar is-transparent">
+    <div class="navbar-brand">
+        <a class="navbar-item" href="#">
+            <span>@appSettings.Value.HeaderTitle</span>
+        </a>
+    </div>
+</nav>
+
+<div class="m-5">
+
+    <div class="has-text-centered">
+        <h3 class="title is-3 m-5">@ViewData["Title"]</h3>
+    </div>
+
+    <div class="table-container">
+        <table class="table is-striped is-hoverable is-fullwidth">
+            <thead>
+                <tr>
+                    <th>Datum</th>
+                    <th>Ziel</th>
+                    <th>Zielgruppe</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Items.Length == 0)
+                {
+                    <tr>
+                        <td colspan="3"><div class="has-text-centered">Zurzeit sind keine Fahrten geplant.</div></td>
+                    </tr>
+                }
+                @foreach(var i in Model.Items)
+                {
+                    <tr>
+                        <td>@dateTimeConverter.Format(i.Start, i.End)</td>
+                        <td>@i.Target</td>
+                        <td>
+                            @if(i.Categories != TripCategory.None)
+                            {
+                                @foreach(var c in Enum.GetValues<TripCategory>().Where(v => v != TripCategory.None && i.Categories.HasFlag(v)))
+                                {
+                                    <span class="tag @tripCategoryConverter.CategoryToClass(c)">@tripCategoryConverter.CategoryToName(c)</span>
+                                }
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+</div>
+

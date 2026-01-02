@@ -1,0 +1,75 @@
+@page
+@model GtKanu.Ui.Pages.Fleet.VehiclesModel
+@{
+    ViewData["Title"] = Model.GetNode().Title;
+    ViewData["HasFooter"] = true;
+
+    var createUrl = Url.PageLink("AddVehicle");
+    var dateConverter = new GermanDateTimeConverter();
+}
+
+@await Html.PartialAsync("_Header")
+
+<section class="section">
+    <div class="container">
+
+        <div class="columns is-gapless is-mobile">
+            <div class="column is-flex is-align-items-center">@Html.CreateBreadcrumb()</div>
+            <div class="column is-narrow">
+                <div class="dropdown is-hoverable is-right">
+                    <div class="dropdown-trigger">
+                        <button class="button" aria-haspopup="true" aria-controls="user-action">
+                            <span class="icon is-small">
+                                <i class="fa-solid fa-ellipsis-vertical"></i>
+                            </span>
+                        </button>
+                    </div>
+                    <div class="dropdown-menu" id="user-action" role="menu">
+                        <div class="dropdown-content">
+                            <a href="@createUrl" class="dropdown-item">
+                                @(Model.GetNode<AddVehicleModel>().Title)
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <a href="@createUrl" class="button is-floating is-link">
+                <i class="fa-solid fa-square-plus"></i>
+            </a>
+        </div>
+
+        <div class="list has-hoverable-list-items has-visible-pointer-controls">
+            @if (Model.Items.Length < 1)
+            {
+                <div class="list-item">Keine Fahrzeuge vorhanden.</div>
+            }
+            @foreach (var i in Model.Items)
+            {
+                <div class="list-item">
+                    <div class="list-item-image">
+                        <i class="fa-solid fa-car-side fa-2x @(i.IsInUse ? "has-text-info" : string.Empty)"></i>
+                    </div>
+                    <div class="list-item-content">
+                        <div class="list-item-title">@i.Name</div>
+                        <div class="list-item-description">
+                            <span class="tag is-rounded">@i.Identifier</span>
+                        </div>
+                    </div>
+                    <div class="list-item-controls">
+                        <div class="buttons">
+                            <a class="button is-dark is-inverted" href="@(Url.PageLink("EditVehicle", null, new { id = i.Id }))">
+                                <span class="icon"><i class="fas fa-pencil-alt"></i></span>
+                            </a>
+                        </div>
+                     </div>
+                </div>
+            }
+        </div>
+
+    </div>
+</section>
+
+@await Html.PartialAsync("_Footer")

@@ -1,0 +1,87 @@
+@page "/Mailings/Edit/{id:guid}"
+@model GtKanu.Ui.Pages.Mailings.EditModel
+@{
+	ViewData["include-trumbowyg"] = true;
+	ViewData["Title"] = Model.GetNode().Title;
+	ViewData["HasFooter"] = true;
+}
+
+@await Html.PartialAsync("_Header")
+
+<section class="section">
+	<div class="container">
+
+		@Html.CreateBreadcrumb()
+
+		<div class="columns">
+			<div class="column is-three-quarters">
+
+				@if (!ModelState.IsValid)
+				{
+					<div class="notification is-danger">
+						<button class="delete"></button>
+						<div asp-validation-summary="All"></div>
+					</div>
+				}
+
+				<form method="post">
+					<fieldset disabled="@Model.IsDisabled">
+					<div class="field">
+						<label class="label" asp-for="Input.ReplyAddress"></label>
+						<div class="control">
+							<input class="input" type="email" asp-for="Input.ReplyAddress" />
+						</div>
+						<span asp-validation-for="Input.ReplyAddress"></span>
+					</div>
+					<div class="field">
+						<label class="label">Empfänger</label>
+					</div>
+					<div class="field">
+						<div class="control">
+							<label class="checkbox"><input type="checkbox" asp-for="Input.IsYoungPeople" /> @Html.DisplayNameFor(e => e.Input.IsYoungPeople)</label>
+							<label class="checkbox"><input type="checkbox" asp-for="Input.IsMemberOnly" /> @Html.DisplayNameFor(e => e.Input.IsMemberOnly)</label>
+						</div>
+					</div>
+					<div class="field">
+						<label class="label" asp-for="Input.OtherRecipients"></label>
+						<div class="control">
+							<input class="input" type="text" asp-for="Input.OtherRecipients" />
+						</div>
+						<span asp-validation-for="Input.OtherRecipients"></span>
+					</div>
+					<div class="field">
+						<label class="label" asp-for="Input.Subject"></label>
+						<div class="control">
+							<input class="input" type="text" asp-for="Input.Subject" />
+						</div>
+						<span asp-validation-for="Input.Subject"></span>
+					</div>
+					<div class="field">
+						<label class="label" asp-for="Input.Body"></label>
+						<div class="control">
+							<textarea class="textarea" asp-for="Input.Body" rows="50" disabled="@Model.IsDisabled"></textarea>
+						</div>
+						<span asp-validation-for="Input.Body"></span>
+					</div>
+
+					<button class="button is-primary" type="submit" name="action" value="0">Speichern</button>
+					<button class="button is-warning" type="submit" name="action" value="1">Abschließen und Senden</button>
+					</fieldset>
+				</form>
+
+			</div>
+		</div>
+	</div>
+</section>
+
+@await Html.PartialAsync("_Footer")
+
+
+@section Scripts
+{
+	<script type="text/javascript">
+		$(function () {
+			$('#@Html.IdFor(m => m.Input.Body)').trumbowyg(trumbowygConfig);
+		});
+	</script>
+}

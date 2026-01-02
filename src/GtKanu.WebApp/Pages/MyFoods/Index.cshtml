@@ -1,0 +1,156 @@
+@page
+@model GtKanu.Ui.Pages.MyFoods.IndexModel
+@{
+    ViewData["Title"] = Model.GetNode().Title;
+    ViewData["HasFooter"] = true;
+
+    var datetimeConverter = new GermanDateTimeConverter();
+    var bookingStatusConverter = new BookingStatusConverter();
+    var createUrl = Url.PageLink("CreateFoodBooking");
+}
+
+@await Html.PartialAsync("_Header")
+
+<section class="section">
+    <div class="container">
+
+        <div class="columns is-gapless is-mobile">
+            <div class="column is-flex is-align-items-center">@Html.CreateBreadcrumb()</div>
+            <div class="column is-narrow">
+                <div class="dropdown is-hoverable is-right">
+                    <div class="dropdown-trigger">
+                        <button class="button" aria-haspopup="true" aria-controls="user-action">
+                            <span class="icon is-small">
+                                <i class="fa-solid fa-ellipsis-vertical"></i>
+                            </span>
+                        </button>
+                    </div>
+                    <div class="dropdown-menu" id="user-action" role="menu">
+                        <div class="dropdown-content">
+                            <div class="dropdown-item">
+                                <div>Getränke: @Model.DrinksTotal.ToString("0.00") €</div>
+                                <div>Speisen: @Model.DishesTotal.ToString("0.00") €</div>
+                                <div>Spenden: @Model.DonationTotal.ToString("0.00") €</div>
+                                <div>Gesamt: @Model.Total.ToString("0.00") €</div>
+                                <div>Offen: @Model.OpenTotal.ToString("0.00") €</div>
+                            </div>
+                            <hr class="dropdown-divider" />
+                            <a id="book" href="@createUrl" class="dropdown-item">
+                                Getränke/Speisen buchen
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <a href="@createUrl" class="button is-floating is-link">
+                <i class="fas fa-cart-plus"></i>
+            </a>
+        </div>
+
+        <div class="columns is-variable is-1">
+            <div class="column is-narrow">
+                <div id="filterByDate" class="select">
+                    <select asp-items="Model.FilterItems"></select>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table class="table is-striped is-hoverable is-fullwidth">
+                <thead>
+                    <tr>
+                        <th>Gebucht am</th>
+                        <th>Getränk/Speise</th>
+                        <th>Summe</th>
+                        <th>Status</th>
+                        <th>Aktion</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Bookings.Length < 1)
+                    {
+                        <tr>
+                            <td colspan="6"><div class="has-text-centered">Keine Buchungen vorhanden.</div></td>
+                        </tr>
+                    }
+                    @foreach(var i in Model.Bookings)
+                    {
+                        <tr>
+                            <td>@datetimeConverter.ToDateTime(i.BookedOn)</td>
+                            <td>@i.Count x @i.Name für @i.Price.ToString("0.00") €</td>
+                            <td>@i.Sum.ToString("0.00") €</td>
+                            <td>
+                                <i class="@bookingStatusConverter.StatusToCssClass(i)"></i>
+                            </td>
+                            <td>
+                                @if (i.IsCancelable)
+                                {
+                                    <a class="open-modal" href="#"
+                                       data-target="#cancelBookingModal"
+                                       data-booking="@i.Count x @i.Name für @i.Price.ToString("0.00") €"
+                                       data-url="@(Url.PageLink(string.Empty, "cancel", new { bookingId = @i.Id }))">Stornieren</a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</section>
+
+@await Html.PartialAsync("_Footer")
+
+@Html.CreateModalTemplateWithOkCancel(
+    "cancelBookingModal",
+    "Buchung stornieren?",
+    @"Möchtest du wirklich die Buchung ""<span class=""modal-boooking""></span>"" stornieren?")
+
+@section Scripts 
+{
+    <script type="text/javascript">
+        $(function () {
+
+            $('#filterByDate').change(function() {
+                const filter = $(this).find(':selected').val();
+                const url = new URL(window.location.href);
+                url.searchParams.set('filter', filter);
+                window.location.href = url.href;
+            });
+
+            $(document).on('keypress', function (e) {
+                const tag = e.target.tagName.toLowerCase();
+                // check '+' character
+                if (e.which == 43 && tag != 'input' && tag != 'textarea') {
+                    $('#book')[0].click();
+                }
+            });
+
+            handleModal({
+                id: '#cancelBookingModal',
+                token: {@Html.AjaxCsrfToken()},
+                init: {
+                    datainfo: 'booking',
+                    action: function(target, data) {
+                        $(target).find('.modal-boooking').text(data);
+                    }
+                },
+                confirm: {
+                    dataurl: 'url',
+                    post: function () {
+                        sleep(1000).then(() => window.location.reload());
+                        return true;
+                    },
+                    toast: {
+                        success: 'Buchung wurde storniert.',
+                        failed: 'Buchung konnte nicht storniert werden.'
+                    }
+                }
+            });
+        });
+    </script>
+}

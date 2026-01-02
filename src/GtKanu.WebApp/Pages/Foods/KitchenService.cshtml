@@ -1,0 +1,142 @@
+@page
+@model GtKanu.Ui.Pages.Foods.KitchenServiceModel
+@{
+    ViewData["Title"] = Model.GetNode().Title;
+    var dateTimeConverter = new GermanDateTimeConverter();
+}
+
+<nav class="navbar is-transparent">
+    <div class="navbar-brand">
+        <a class="navbar-item" href="/">
+            <span class="icon mr-2">
+                <i class="fa-solid fa-coins"></i>
+            </span>
+            <span>GT Kanu - @appSettings.Value.HeaderTitle</span>
+        </a>
+        <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+    </div>
+    <div id="navMenu" class="navbar-menu">
+        <div class="navbar-end">
+                        
+            <a class="navbar-item" href="/">
+                <span class="icon">
+                    <i class="fas fa-home" aria-hidden="true"></i>
+                </span>
+                <span>Startseite</span>
+            </a>
+            <a class="navbar-item" href="@Url.PageLink(string.Empty, null, new { filter = Model.BookingDate, status = Model.HideCompleted ? 1 : 0 })">
+                <span class="icon">
+                    <i class="fas fa-sync" aria-hidden="true"></i>
+                </span>
+                <span>Aktualisieren</span>
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div class="m-3">
+
+    <div style="width: 15em">
+        <label class="label" asp-for="BookingDate"></label>
+        <div class="control">
+            <input class="input" type="date" asp-for="BookingDate" />
+        </div>
+    </div>
+    <div class="mt-3" style="width: 15em">
+        <label class="checkbox">
+            <input type="checkbox" asp-for="HideCompleted" />
+            Abgeschlossene ausblenden
+        </label>
+    </div>
+
+    <h3 class="title is-3 mt-4">Getränke: @Model.DrinksTotal.ToString("0.00") €, Speisen: @Model.DishesTotal.ToString("0.00") €, Gesamt: @Model.Total.ToString("0.00") €</h3>
+
+    <div class="table-container">
+        <table class="table is-striped is-hoverable is-fullwidth">
+            <thead>
+                <tr>
+                    <th>Gebucht am</th>
+                    <th>Gebucht von</th>
+                    <th>Getränk/Speise</th>
+                    <th>Anzahl</th>
+                    <th>Summe</th>
+                    <th>Aktion</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Bookings.Length < 1)
+                {
+                    <tr>
+                        <td colspan="6"><div class="has-text-centered">Keine Buchungen vorhanden.</div></td>
+                    </tr>
+                }
+                @foreach(var i in Model.Bookings)
+                {
+                    <tr class="@(i.Status == BookingStatus.Confirmed ? "has-text-weight-bold" : string.Empty)">
+                        <td>@dateTimeConverter.ToDateTime(i.BookedOn)</td>
+                        <td>@i.User</td>
+                        <td>@i.Name für @i.Price.ToString("0.00") €</td>
+                        <td>@i.Count</td>
+                        <td>@i.Sum.ToString("0.00") €</td>
+                        <td>
+                            @if (i.Status == BookingStatus.Confirmed)
+                            {
+                                <a href="#" class="call-url"
+                                    data-info="@i.Name für @i.User ist abgeschlossen."
+                                    data-url="@(Url.PageLink(string.Empty, "completed", new { id = @i.Id }))">Abschließen</a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+@section Scripts 
+{
+<script type="text/javascript">
+
+    $(function () {
+        
+        window.setTimeout(function () { window.location.reload(); }, 60000);
+
+        $('#@Html.IdFor(e => e.BookingDate)').change(function() {
+            const filter = $(this).val();
+            const url = new URL(window.location.href);
+            url.searchParams.set('filter', filter);
+            window.location.href = url.href;
+        });
+
+        $('#@Html.IdFor(e => e.HideCompleted)').change(function() {
+            const status = this.checked ? 1 : 0;
+            const url = new URL(window.location.href);
+            url.searchParams.set('status', status);
+            window.location.href = url.href;
+        });
+
+        $('.call-url').click(function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            const url = $(this).data('url');
+            const info = $(this).data('info');
+            $.post(url, {@Html.AjaxCsrfToken()}).done(function (data) {
+                if (data) {
+                    createToast(info);
+                    window.location.reload();
+                } else {
+                    createToast('Buchung kann nicht abgeschlossen werden.', 'is-danger');
+                }
+            });
+        });
+
+    });
+    
+</script>
+}
+

@@ -1,0 +1,108 @@
+@page
+@model GtKanu.Ui.Pages.Tryouts.CreateRecurringModel
+@{
+	ViewData["Title"] = Model.GetNode().Title;
+	ViewData["HasFooter"] = true;
+}
+
+@await Html.PartialAsync("_Header")
+
+<section class="section">
+	<div class="container">
+
+		@Html.CreateBreadcrumb()
+
+		<div class="columns">
+			<div class="column is-half">
+
+				@if (!ModelState.IsValid)
+				{
+					<div class="notification is-danger">
+						<button class="delete"></button>
+						<div asp-validation-summary="All"></div>
+					</div>
+				}
+
+				<form method="post">
+					<div class="field">
+						<label class="label" asp-for="Input.Type"></label>
+						<div class="control">
+							<input class="input" type="text" asp-for="Input.Type" />
+						</div>
+						<span asp-validation-for="Input.Type"></span>
+					</div>
+
+					<div class="field">
+						<label class="label">Terminserie Start & Ende</label>
+					</div>
+					<div class="field is-grouped">
+						<div class="control">
+							<input class="input" type="date" asp-for="Input.RecurringStart" />
+						</div>
+						<span asp-validation-for="Input.RecurringStart"></span>
+						<div class="control">
+							<input class="input" type="date" asp-for="Input.RecurringEnd" />
+						</div>
+						<span asp-validation-for="Input.RecurringEnd"></span>
+					</div>
+					<div class="field">
+						<label class="label" asp-for="Input.Time"></label>
+						<div class="control">
+							<input class="input" type="time" asp-for="Input.Time" />
+						</div>
+						<span asp-validation-for="Input.Time"></span>
+					</div>
+					<div class="field">
+						<label class="label">Wöchentliche Wiederholung</label>
+						<div class="control">
+							<label class="checkbox"><input type="checkbox" asp-for="Input.RecurringDays[0]" /> Montag</label>
+							<label class="checkbox"><input type="checkbox" asp-for="Input.RecurringDays[1]" /> Dienstag</label>
+							<label class="checkbox"><input type="checkbox" asp-for="Input.RecurringDays[2]" /> Mittwoch</label>
+							<label class="checkbox"><input type="checkbox" asp-for="Input.RecurringDays[3]" /> Donnerstag</label>
+							<label class="checkbox"><input type="checkbox" asp-for="Input.RecurringDays[4]" /> Freitag</label>
+							<label class="checkbox"><input type="checkbox" asp-for="Input.RecurringDays[5]" /> Samstag</label>
+							<label class="checkbox"><input type="checkbox" asp-for="Input.RecurringDays[6]" /> Sonntag</label>
+						</div>
+					</div>
+
+					<div class="field">
+						<label class="label" asp-for="Input.UserId"></label>
+						<div class="select">
+							<select asp-for="Input.UserId" asp-items="Model.Users"></select>
+						</div>
+						<span asp-validation-for="Input.UserId"></span>
+					</div>
+					<div class="field">
+						<label class="label" asp-for="Input.MaxBookings"></label>
+						<div class="control">
+							<input class="input" type="number" asp-for="Input.MaxBookings" />
+						</div>
+						<span asp-validation-for="Input.MaxBookings"></span>
+					</div>
+					<div class="field">
+						<label class="label">Anmeldungen von</label>
+					</div>
+					<div class="field is-grouped">
+						<div class="control">
+							<input class="input" type="datetime-local" asp-for="Input.BookingStart" />
+						</div>
+						<span asp-validation-for="Input.BookingStart"></span>
+					</div>
+
+					<div class="field">
+						<label class="label" asp-for="Input.Description"></label>
+						<div class="control">
+							<textarea class="textarea" asp-for="Input.Description" rows="10"></textarea>
+						</div>
+						<span asp-validation-for="Input.Description"></span>
+					</div>
+
+					<button class="button is-primary" type="submit">Anlegen</button>
+				</form>
+
+			</div>
+		</div>
+	</div>
+</section>
+
+@await Html.PartialAsync("_Footer")

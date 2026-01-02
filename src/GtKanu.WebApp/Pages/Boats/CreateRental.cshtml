@@ -1,0 +1,69 @@
+@page "/Boats/{id:guid}/Rentals/Add"
+@model GtKanu.Ui.Pages.Boats.CreateRentalModel
+@{
+    ViewData["Title"] = Model.GetNode().Title;
+    ViewData["HasFooter"] = true;
+
+    Guid.TryParse(Request.RouteValues["id"] as string, out var id);
+}
+
+@await Html.PartialAsync("_Header")
+
+<section class="section">
+    <div class="container">
+
+        @Html.CreateBreadcrumb(new { id }, new { id })
+
+        <div class="columns">
+            <div class="column is-half">
+
+                @if (!ModelState.IsValid)
+                {
+                    <div class="notification is-danger">
+                        <button class="delete"></button>
+                        <div asp-validation-summary="All"></div>
+                    </div>
+                }
+
+                <h1 class="title is-4">Boot: @Model.BoatDetails</h1>
+
+                <form method="post">
+                    <fieldset disabled="@Model.IsDisabled">
+                        <div class="field">
+                            <label class="label" asp-for="Input.UserId"></label>
+                            <div class="select">
+                                <select asp-for="Input.UserId" asp-items="Model.Users"></select>
+                            </div>
+                            <span asp-validation-for="Input.UserId"></span>
+                        </div>
+                        <div class="field">
+                            <label class="label">Zeitraum von/bis</label>
+                        </div>
+                        <div class="field is-grouped">
+                            <div class="control">
+                                <input class="input" type="date" asp-for="Input.Start" readonly="@Model.IsLongterm" />
+                            </div>
+                            <span asp-validation-for="Input.Start"></span>
+                            <div class="control">
+                                <input class="input" type="date" asp-for="Input.End" readonly="@Model.IsLongterm" />
+                            </div>
+                            <span asp-validation-for="Input.End"></span>
+                        </div>
+                        <div class="field">
+                            <label class="label" asp-for="Input.Purpose"></label>
+                            <div class="control">
+                                <input class="input" type="text" asp-for="Input.Purpose" />
+                            </div>
+                            <span asp-validation-for="Input.Purpose"></span>
+                        </div>
+
+                        <button class="button is-primary" type="submit">Boot mieten</button>
+                    </fieldset>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+@await Html.PartialAsync("_Footer")

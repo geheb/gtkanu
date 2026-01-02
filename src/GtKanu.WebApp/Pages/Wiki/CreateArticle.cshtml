@@ -1,0 +1,76 @@
+@page "/Wiki/Create"
+@model GtKanu.Ui.Pages.Wiki.CreateArticleModel
+@{
+    ViewData["include-trumbowyg"] = true;
+    ViewData["Title"] = Model.GetNode().Title;
+    ViewData["HasFooter"] = true;
+}
+
+@await Html.PartialAsync("_Header")
+
+<section class="section">
+    <div class="container">
+
+        @Html.CreateBreadcrumb()
+
+        <div class="columns">
+			<div class="column is-three-quarters">
+
+            @if (!ModelState.IsValid)
+            {
+                <div class="notification is-danger">
+                    <button class="delete"></button>
+                    <div asp-validation-summary="All"></div>
+                </div>
+            }
+
+                <form method="post">
+
+                    <div class="field">
+                        <label class="label" asp-for="Input.Title"></label>
+                        <div class="control">
+                            <input class="input" type="text" asp-for="Input.Title" />
+                        </div>
+                        <span asp-validation-for="Input.Title"></span>
+                    </div>
+                    <div class="field">
+                        <label class="label" asp-for="Input.Identifier"></label>
+                        <div class="control">
+                            <input class="input" type="text" asp-for="Input.Identifier" />
+                        </div>
+                        <span asp-validation-for="Input.Identifier"></span>
+                    </div>
+                    <div class="field">
+                        <label class="label" asp-for="Input.UserId"></label>
+                        <div class="select">
+                            <select asp-for="Input.UserId" asp-items="Model.Users"></select>
+                        </div>
+                        <span asp-validation-for="Input.UserId"></span>
+                    </div>
+                    <div class="field">
+						<label class="label" asp-for="Input.Content"></label>
+                        <div class="control">
+							<textarea class="textarea" asp-for="Input.Content" rows="30"></textarea>
+                        </div>
+						<span asp-validation-for="Input.Content"></span>
+                    </div>
+                    <button class="button is-primary" type="submit">Anlegen</button>
+                </form>
+
+            </div>
+        </div>
+
+
+    </div>
+</section>
+
+@await Html.PartialAsync("_Footer")
+
+@section Scripts
+{
+<script type="text/javascript">
+  $(function () {
+	  $('#@Html.IdFor(m => m.Input.Content)').trumbowyg(trumbowygConfig);
+  });
+</script>
+}

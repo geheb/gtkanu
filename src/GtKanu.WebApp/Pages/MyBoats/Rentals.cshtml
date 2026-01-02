@@ -1,0 +1,49 @@
+@page "/MyBoats/{id:guid}/Rentals"
+@model GtKanu.Ui.Pages.MyBoats.RentalsModel
+@{
+    ViewData["Title"] = Model.GetNode().Title;
+    ViewData["HasFooter"] = true;
+
+    Guid.TryParse(Request.RouteValues["id"] as string, out var id);
+    var dateConverter = new GermanDateTimeConverter();
+}
+
+@await Html.PartialAsync("_Header")
+
+<section class="section">
+    <div class="container">
+
+        @Html.CreateBreadcrumb()
+
+        @if (!ModelState.IsValid)
+        {
+            <div class="notification is-danger">
+                <button class="delete"></button>
+                <div asp-validation-summary="All"></div>
+            </div>
+        }
+
+        <h1 class="title is-4">Boot: @Model.BoatDetails</h1>
+
+        <div class="list has-hoverable-list-items has-visible-pointer-controls">
+            @if (Model.Items.Length < 1)
+            {
+                <div class="list-item">Keine Mieten vorhanden.</div>
+            }
+            @foreach (var i in Model.Items)
+            {
+                <div class="list-item">
+                    <div class="list-item-image">
+                        <i class="fa-solid @(i.IsFinished ? "fa-calendar has-text-grey-light" : "fa-calendar-days has-text-info") fa-2x"></i>
+                    </div>
+                    <div class="list-item-content">
+                        <div class="list-item-title @(i.IsCancelled ? "is-line-through": string.Empty) @(i.IsFinished ? "has-text-grey-light" : string.Empty)">@dateConverter.Format(i.Start, i.End) - @i.Purpose</div>
+                    </div>
+                </div>
+            }
+        </div>
+
+    </div>
+</section>
+
+@await Html.PartialAsync("_Footer")

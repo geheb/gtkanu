@@ -1,0 +1,83 @@
+@page
+@model GtKanu.Ui.Pages.Boats.IndexModel
+@{
+    ViewData["Title"] = Model.GetNode().Title;
+    ViewData["HasFooter"] = true;
+
+    var createUrl = Url.PageLink("AddBoat");
+}
+
+@await Html.PartialAsync("_Header")
+
+<section class="section">
+    <div class="container">
+
+        <div class="columns is-gapless is-mobile">
+            <div class="column is-flex is-align-items-center">@Html.CreateBreadcrumb()</div>
+            <div class="column is-narrow">
+                <div class="dropdown is-hoverable is-right">
+                    <div class="dropdown-trigger">
+                        <button class="button" aria-haspopup="true" aria-controls="user-action">
+                            <span class="icon is-small">
+                                <i class="fa-solid fa-ellipsis-vertical"></i>
+                            </span>
+                        </button>
+                    </div>
+                    <div class="dropdown-menu" id="user-action" role="menu">
+                        <div class="dropdown-content">
+                            <a href="@Url.PageLink(string.Empty)" class="dropdown-item">
+                                Alle anzeigen
+                            </a>
+                            <a href="@Url.PageLink(string.Empty, values: new { filter = 1 })" class="dropdown-item">
+                                Nur Kurzzeitmiete anzeigen
+                            </a>
+                            <a href="@Url.PageLink(string.Empty, values: new { filter = 2 })" class="dropdown-item">
+                                Nur Langzeitmiete anzeigen
+                            </a>
+                            <hr class="dropdown-divider" />
+                            <a href="@createUrl" class="dropdown-item">
+                                @(Model.GetNode<AddBoatModel>().Title)
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="list has-hoverable-list-items has-visible-pointer-controls">
+            @if (Model.Items.Length < 1)
+            {
+                <div class="list-item">Keine Boote vorhanden.</div>
+            }
+            @foreach (var i in Model.Items)
+            {
+                <div class="list-item">
+                    <div class="list-item-image">
+                        <i class="fa-solid fa-anchor fa-2x @(i.Boat?.IsLocked == true ? "has-text-danger" : string.Empty)"></i>
+                    </div>
+                    <div class="list-item-content">
+                        <div class="list-item-title">@i.Boat?.NameDetails</div>
+                        <div class="list-item-description">
+                            <span class="tag is-rounded">@i.Boat?.Location</span>
+                            <span class="tag is-rounded">@i.Boat?.RentalDetails</span>
+                            <span class="tag is-rounded">@i.Count Miete(n)</span>
+                        </div>
+                    </div>
+                    <div class="list-item-controls">
+                        <div class="buttons">
+                            <a class="button is-dark is-inverted" href="@(Url.PageLink("EditBoat", null, new { id = i.Boat?.Id }))">
+                                <span class="icon"><i class="fas fa-pencil-alt"></i></span>
+                            </a>
+                            <a class="button is-dark is-inverted" href="@(Url.PageLink("Rentals", null, new { id = i.Boat?.Id }))">
+                                <span class="icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+    </div>
+</section>
+
+@await Html.PartialAsync("_Footer")

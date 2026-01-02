@@ -1,0 +1,166 @@
+@page
+@model GtKanu.Ui.Pages.MyTryouts.IndexModel
+@{
+    ViewData["Title"] = Model.GetNode().Title;
+    ViewData["HasFooter"] = true;
+
+    var dateConverter = new GermanDateTimeConverter();
+    var createUrl = Url.PageLink("CreateTryoutBooking");
+}
+
+@await Html.PartialAsync("_Header")
+
+<section class="section">
+    <div class="container">
+
+        <div class="columns is-gapless is-mobile">
+            <div class="column is-flex is-align-items-center">@Html.CreateBreadcrumb()</div>
+            <div class="column is-narrow">
+                <div class="dropdown is-hoverable is-right">
+                    <div class="dropdown-trigger">
+                        <button class="button" aria-haspopup="true" aria-controls="user-action">
+                            <span class="icon is-small">
+                                <i class="fa-solid fa-ellipsis-vertical"></i>
+                            </span>
+                        </button>
+                    </div>
+                    <div class="dropdown-menu" id="user-action" role="menu">
+                        <div class="dropdown-content">
+                            <a id="book" href="@createUrl" class="dropdown-item">
+                                Trainings ansehen/buchen
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <a href="@createUrl" class="button is-floating is-link">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </a>
+        </div>
+
+        <div class="list has-hoverable-list-items has-visible-pointer-controls">
+            @if (Model.Items.Length < 1)
+            {
+                <div class="list-item">Keine Anmeldungen gefunden.&nbsp;<a href="@createUrl">Trainings ansehen/buchen</a>.</div>
+            }
+            @foreach (var i in Model.Items)
+            {
+                <div class="list-item">
+                    <div class="list-item-image">
+                        <i class="fa-solid fa-handshake fa-2x @(i.IsExpired ? string.Empty : "has-text-info")"></i>
+                    </div>
+                    <div class="list-item-content">
+                        <div class="list-item-title">@i.Type (@dateConverter.ToDateTime(i.Date))</div>
+                        <div class="list-item-description">
+                            @if (i.ContactEmail is not null)
+                            {
+                                <span class="tag is-rounded is-warning"><a href="mailto:@i.ContactEmail">@i.ContactName</a></span>
+                            }
+                            else
+                            {
+                                <span class="tag is-rounded is-warning">@i.ContactName</span>
+                            }
+                            @if (i.BookingBookedOn is not null)
+                            {
+                                <span class="tag is-rounded is-info">
+                                    <span class="icon"><i class="fas fa-book"></i></span>
+                                    @dateConverter.ToDateTime(i.BookingBookedOn.Value) @i.BookingName
+                                </span>
+                            }
+                            @if (i.BookingConfirmedOn.HasValue)
+                            {
+                                <span class="tag is-rounded is-success">
+                                    <span class="icon"><i class="fas fa-check"></i></span>
+                                </span>
+                            }
+                            @if (i.BookingCancelledOn.HasValue)
+                            {
+                                <span class="tag is-rounded is-danger">
+                                    <span class="icon"><i class="fas fa-ban"></i></span>
+                                </span>
+                            }
+                        </div>
+                    </div>
+                    <div class="list-item-controls">
+                        <div class="buttons">
+                            <a class="button is-dark is-inverted click-info open-modal" href="#" data-target="#infoModal"
+                               data-info='@Json.Serialize(new { type = i.Type, date = dateConverter.ToDateTime(i.Date), contact = i.ContactName, contactemail = i.ContactEmail, description = i.Description, users = i.BookingUsers })'>
+                                <span class="icon"><i class="fas fa-info"></i></span>
+                            </a>
+                            <a class="button is-dark is-inverted" href="@Url.PageLink("TryoutChat", null, new { id = i.TryoutId })">
+                                @if (i.ChatMessageCount > 0)
+                                {
+                                    <span class="icon mr-0"><i class="fas fa-comments"></i></span> @i.ChatMessageCount
+                                }
+                                else
+                                {
+                                    <span class="icon"><i class="far fa-comments"></i></span>
+                                }
+                            </a>
+                            @if (i.CanDelete)
+                            {
+                                <a class="button is-dark is-inverted click-deny" href="#" data-info="@dateConverter.ToDateTime(i.Date)" data-url="@(Url.PageLink(string.Empty, "delete", new { id = i.BookingId }))">
+                                    <span class="icon"><i class="fas fa-trash-can"></i></span>
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+    </div>
+</section>
+
+@await Html.PartialAsync("_Footer")
+
+@Html.CreateModalTemplateStart("infoModal", "Über das Training")
+<div class="content">
+    <div>Trainingsart: <span class="tryoutType"></span></div>
+    <div>Zeitpunkt: <span class="tryoutDate"></span></div>
+    <div>Ansprechpartner: <span class="tag is-rounded is-warning"><a href="#" class="tryoutContact"></a></span></div>
+    <div>Anmeldungen: <span class="tryoutUsers"></span></div>
+    <hr />
+    <p class="tryoutDescription"></p>
+</div>
+@Html.CreateModalTemplateEnd(false)
+
+@await Html.PartialAsync("_Footer")
+
+@section Scripts {
+    <script type="text/javascript">
+        $(function () {
+
+            handleModal({
+                id: '#infoModal',
+                init: {
+                    datainfo: 'info',
+                    action: function (target, data) {
+                        const d = JSON.parse(data);
+                        $(target).find('.tryoutType').text(d.type);
+                        $(target).find('.tryoutDate').text(d.date);
+                        $(target).find('.tryoutContact').attr('href', d.contactemail ? `mailto:${d.contactemail}` : '#').text(d.contact);
+                        const tagUsers = $.map(d.users, function (u) { return `<span class="tag is-rounded is-info">${u}</span>`; });
+                        $(target).find('.tryoutUsers').html(tagUsers.join(' '));
+                        $(target).find('.tryoutDescription').html(d.description);
+                    }
+                }
+            });
+
+            $(".click-deny").click(function (e) {
+                const url = $(this).data('url');
+                const info = $(this).data('info');
+                $.post(url, {@Html.AjaxCsrfToken()}).done(function () {
+                    createToast(`Anmeldung zum Training "${info}" wurde storniert.`, 'is-warning');
+                }).always(function () {
+                    window.location.reload();
+                });
+        });
+
+            });
+    </script>
+}
+

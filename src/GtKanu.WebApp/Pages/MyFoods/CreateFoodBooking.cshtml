@@ -1,0 +1,102 @@
+@page
+@model GtKanu.Ui.Pages.MyFoods.CreateFoodBookingModel
+@{
+    ViewData["Title"] = Model.GetNode().Title;
+    ViewData["HasFooter"] = true;
+
+    var foodTypeConverter = new FoodTypeConverter();
+}
+
+@await Html.PartialAsync("_Header")
+
+<section class="section">
+    <div class="container">
+
+        @Html.CreateBreadcrumb()
+
+        <div class="columns">
+            <div class="column is-half">
+
+                @if (!ModelState.IsValid)
+                {
+                    <div class="notification is-danger">
+                        <button class="delete"></button>
+                        <div asp-validation-summary="All"></div>
+                    </div>
+                }
+
+                <h4 class="title is-4">Summe: <span id="sum">0 €</span></h4>
+
+                <form method="post">
+                    <fieldset disabled="@Model.IsDisabled">
+                        <div class="field">
+                            <label class="label" asp-for="SelectedFoodId"></label>
+                            <div class="select">
+                                <select asp-for="SelectedFoodId">
+                                    <option>Bitte auswählen!</option>
+                                    <optgroup label="@foodTypeConverter.TypeToString(FoodType.Drink)">
+                                    @foreach(var f in Model.Foods.Where(f => f.Type == FoodType.Drink))
+                                    {
+                                        <option value="@f.Id" data-price="@f.Price.ToString("0.00")">@f.Name für @f.Price.ToString("0.00") €</option>
+                                    }
+                                    </optgroup>
+                                    <optgroup label="@foodTypeConverter.TypeToString(FoodType.Dish)">
+                                    @foreach(var f in Model.Foods.Where(f => f.Type == FoodType.Dish))
+                                    {
+                                        <option value="@f.Id" data-price="@f.Price.ToString("0.00")">@f.Name für @f.Price.ToString("0.00") €</option>
+                                    }
+                                    </optgroup>
+                                    <optgroup label="@foodTypeConverter.TypeToString(FoodType.Donation)">
+                                    @foreach(var f in Model.Foods.Where(f => f.Type == FoodType.Donation))
+                                    {
+                                        <option value="@f.Id" data-price="@f.Price.ToString("0.00")">@f.Name für @f.Price.ToString("0.00") €</option>
+                                    }
+                                    </optgroup>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label class="label" asp-for="CountFood"></label>
+                            <div class="control">
+                                <input class="input" type="number" asp-for="CountFood" 
+                                    min="@CreateFoodBookingModel.MinCountFood" 
+                                    max="@CreateFoodBookingModel.MaxCountFood" />
+                            </div>
+                            <span asp-validation-for="CountFood"></span>
+                        </div>
+
+                        <button class="button is-primary" type="submit">Buchen</button>
+                    </fieldset>
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</section>
+
+@await Html.PartialAsync("_Footer")
+
+@section Scripts {
+<script type="text/javascript">
+    function updateSum(idFood, idCount) {
+        const price = parseFloat(idFood.find(':selected').data('price').replace(',', '.'));
+        const count = parseFloat(idCount.val());
+        const sum = isNaN(count) || count < @CreateFoodBookingModel.MinCountFood || count > @CreateFoodBookingModel.MaxCountFood ? 0 : price * count;
+        $('#sum').text(`${sum.toLocaleString()} €`);
+    }
+    $(function () {
+        const idCount = '@Html.IdFor(m => m.CountFood)';
+        const idFood = '@Html.IdFor(m => m.SelectedFoodId)';
+        $(`#${idFood}`).change(function () {
+            const ctlCount = $(`#${idCount}`);
+            updateSum($(this), ctlCount);
+            ctlCount.focus().select();
+        });
+        $(`#${idCount}`).on('input', function () {
+            updateSum($(`#${idFood}`), $(this));
+        });
+    });
+</script>
+}

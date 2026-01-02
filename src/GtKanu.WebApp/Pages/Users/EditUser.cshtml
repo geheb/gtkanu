@@ -1,0 +1,224 @@
+@page "/Users/Edit/{id:guid}"
+@model GtKanu.Ui.Pages.Users.EditUserModel
+@{
+    ViewData["Title"] = Model.GetNode().Title;
+    ViewData["HasFooter"] = true;
+
+    Guid.TryParse(Request.RouteValues["id"] as string, out var id);
+    var roleConverter = new RoleConverter();
+    var usersUrl = Url.PageLink("Index");
+}
+
+@await Html.PartialAsync("_Header")
+
+<section class="section">
+    <div class="container">
+
+        <div class="columns is-gapless is-mobile">
+            <div class="column is-flex is-align-items-center">@Html.CreateBreadcrumb(new { id })</div>
+            <div class="column is-narrow">
+                <div class="dropdown is-hoverable is-right">
+                    <div class="dropdown-trigger">
+                        <button class="button" aria-haspopup="true" aria-controls="user-action">
+                            <span class="icon is-small">
+                                <i class="fa-solid fa-ellipsis-vertical"></i>
+                            </span>
+                        </button>
+                    </div>
+                    <div class="dropdown-menu" id="user-action" role="menu">
+                        <div class="dropdown-content">
+                        @if (!Model.IsDisabled)
+                        {
+                            <a class="confirm-email dropdown-item" href="#"
+                                data-user="@Model.Name"
+                                data-url="@(Url.PageLink(string.Empty, "confirmemail", new { id }))">
+                                Bestätigung anfordern
+                            </a>
+                            <a class="dropdown-item open-modal" href="#"
+                                data-target="#removeUserModal"
+                                data-user="@Model.Name"
+                                data-url="@(Url.PageLink(string.Empty, "removeuser", new { id }))">
+                                Benutzer entfernen
+                            </a>
+                            <a class="dropdown-item open-modal" href="#"
+                                data-target="#resetTwoFactorModal"
+                                data-url="@(Url.PageLink(string.Empty, "resettwofactor", new { id }))">
+                                Zwei-Faktor-Authentifizierung zurücksetzen
+                            </a>
+                        }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="columns">
+            <div class="column is-half">
+
+                @if (!ModelState.IsValid)
+                {
+                    <div class="notification is-danger">
+                        <button class="delete"></button>
+                        <div asp-validation-summary="All"></div>
+                    </div>
+                }
+
+                <form method="post">
+                    <fieldset disabled="@Model.IsDisabled">
+                        <div class="field">
+                            <label class="label" asp-for="Input.Name"></label>
+                            <div class="control">
+                                <input class="input" type="text" asp-for="Input.Name" />
+                            </div>
+                            <span asp-validation-for="Input.Name"></span>
+                        </div>
+                        <div class="field">
+                            <label class="label" asp-for="Input.Email"></label>
+                            <div class="control">
+                                <input class="input" type="email" asp-for="Input.Email" />
+                            </div>
+                            <span asp-validation-for="Input.Email"></span>
+                        </div>
+                        <div class="field">
+                            <label class="label" asp-for="Input.PhoneNumber"></label>
+                            <div class="control">
+                                <input class="input" type="text" asp-for="Input.PhoneNumber" />
+                            </div>
+                            <span asp-validation-for="Input.PhoneNumber"></span>
+                        </div>
+                        <div class="field">
+                            <label class="label" asp-for="Input.Password"></label>
+                            <div class="control has-icons-right">
+                                <input class="input" type="password" asp-for="Input.Password" />
+                                <span class="icon is-right is-toggle-password">
+                                    <i class="fas fa-eye"></i>
+                                </span>
+                            </div>
+                            <span asp-validation-for="Input.Password"></span>
+                        </div>
+                        <div class="field">
+                            <label class="label">Rollen</label>
+                        </div>
+                        <div class="field">
+                            <div class="control">
+                                <label class="checkbox"><input type="checkbox" asp-for="Input.Roles[0]" /> @roleConverter.RoleToName(Roles.Admin)</label>
+                                <label class="checkbox"><input type="checkbox" asp-for="Input.Roles[1]" /> @roleConverter.RoleToName(Roles.Treasurer)</label>
+                                <label class="checkbox"><input type="checkbox" asp-for="Input.Roles[2]" /> @roleConverter.RoleToName(Roles.Kitchen)</label>
+                                <label class="checkbox"><input type="checkbox" asp-for="Input.Roles[3]" /> @roleConverter.RoleToName(Roles.Member)</label>
+                                <label class="checkbox"><input type="checkbox" asp-for="Input.Roles[4]" /> @roleConverter.RoleToName(Roles.Interested)</label>
+                                <label class="checkbox"><input type="checkbox" asp-for="Input.Roles[5]" /> @roleConverter.RoleToName(Roles.TripManager)</label>
+                                <label class="checkbox"><input type="checkbox" asp-for="Input.Roles[6]" /> @roleConverter.RoleToName(Roles.Chairperson)</label>
+                                <label class="checkbox"><input type="checkbox" asp-for="Input.Roles[7]" /> @roleConverter.RoleToName(Roles.UserManager)</label>
+                                <label class="checkbox"><input type="checkbox" asp-for="Input.Roles[8]" /> @roleConverter.RoleToName(Roles.FleetManager)</label>
+                                <label class="checkbox"><input type="checkbox" asp-for="Input.Roles[9]" /> @roleConverter.RoleToName(Roles.BoatManager)</label>
+                                <label class="checkbox"><input type="checkbox" asp-for="Input.Roles[10]" /> @roleConverter.RoleToName(Roles.HouseManager)</label>
+                                <label class="checkbox"><input type="checkbox" asp-for="Input.Roles[11]" /> @roleConverter.RoleToName(Roles.MailingManager)</label>
+                                <label class="checkbox"><input type="checkbox" asp-for="Input.Roles[12]" /> @roleConverter.RoleToName(Roles.WikiManager)</label>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label" asp-for="Input.DebtorNumber"></label>
+                            <div class="control">
+                                <input class="input" type="text" asp-for="Input.DebtorNumber" />
+                            </div>
+                            <span asp-validation-for="Input.DebtorNumber"></span>
+                        </div>
+                        <div class="field">
+                            <label class="label" asp-for="Input.AddressNumber"></label>
+                            <div class="control">
+                                <input class="input" type="text" asp-for="Input.AddressNumber" />
+                            </div>
+                            <span asp-validation-for="Input.AddressNumber"></span>
+                        </div>
+                        <div class="field">
+                            <label class="label">Anmeldung für Mailings</label>
+                        </div>
+                        <div class="field">
+                            <div class="control">
+                                <label class="checkbox"><input type="checkbox" asp-for="Input.IsMailingYoungPeople" /> @Html.DisplayNameFor(e => e.Input.IsMailingYoungPeople)</label>
+                            </div>
+                        </div>
+                        <button class="button is-primary" type="submit">Speichern</button>
+                    </fieldset>
+                </form>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+</section>
+
+@await Html.PartialAsync("_Footer")
+
+@Html.CreateModalTemplateWithOkCancel(
+    "removeUserModal",
+    "Benutzer entfernen",
+    @"Möchtest du wirklich den Benutzer ""<span class=""modal-item""></span>"" entfernen? <b>WICHTIG:</b><br/>Dieser Schritt is nicht umkehrbar! Der Benutzer wird unkenntlich gemacht, damit Buchungen und Rechnungen bestehen bleiben.")
+
+@Html.CreateModalTemplateWithOkCancel(
+    "resetTwoFactorModal",
+    "Zwei-Faktor-Authentifizierung zurücksetzen",
+    "Möchtest du wirklich die Zwei-Faktor-Authentifizierung für den aktuellen Benutzer zurücksetzen?")
+
+@section Scripts {
+<script type="text/javascript">
+    $(function () {
+
+        $(".confirm-email").click(function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const user = $(this).data('user');
+            const url = $(this).data('url');
+            const spinner = $('<i class="fas fa-spinner fa-spin"></i>');
+            $(this).append(spinner);
+            $.post(url, {@Html.AjaxCsrfToken()}).done(function () {
+                createToast(`Eine Bestätigung für "${user}" wurde angefordert.`);
+            }).always(function () {
+                spinner.remove();
+            });
+        });
+
+        handleModal({
+            id: '#removeUserModal',
+            token: {@Html.AjaxCsrfToken()},
+            init: {
+                datainfo: 'user',
+                action: function(target, data) {
+                    $(target).find('.modal-item').text(data);
+                }
+            },
+            confirm: {
+                dataurl: 'url',
+                post: function () {
+                    sleep(1000).then(() => window.location.replace('@usersUrl'));
+                    return true;
+                },
+                toast: {
+                    success: 'Benutzer wurde entfernt.',
+                    failed: 'Benutzer konnte nicht entfernt werden.'
+                }
+            }
+        });
+
+        handleModal({
+            id: '#resetTwoFactorModal',
+            token: {@Html.AjaxCsrfToken()},
+            confirm: {
+                dataurl: 'url',
+                post: function () {
+                    sleep(1000).then(() => window.location.replace('@usersUrl'));
+                    return true;
+                },
+                toast: {
+                    success: 'Die Zwei-Faktor-Authentifizierung wurde zurückgesetzt.',
+                    failed: 'Die Zwei-Faktor-Authentifizierung konnte nicht zurückgesetzt werden.'
+                }
+            }
+        });
+
+    });
+</script>
+}

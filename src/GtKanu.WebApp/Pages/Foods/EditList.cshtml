@@ -1,0 +1,53 @@
+@page "/Foods/EditList/{id:guid}"
+@model GtKanu.Ui.Pages.Foods.EditListModel
+@{
+    ViewData["Title"] = Model.GetNode().Title;
+    ViewData["HasFooter"] = true;
+    Guid.TryParse(Request.RouteValues["id"] as string, out var foodListId);
+}
+
+@await Html.PartialAsync("_Header")
+
+<section class="section">
+    <div class="container">
+
+        @Html.CreateBreadcrumb(new { id = foodListId })
+
+        <div class="columns">
+            <div class="column is-half">
+
+                @if (!ModelState.IsValid)
+                {
+                    <div class="notification is-danger">
+                        <button class="delete"></button>
+                        <div asp-validation-summary="All"></div>
+                    </div>
+                }
+
+                <form method="post">
+                    <fieldset disabled="@Model.IsDisabled">
+                        <div class="field">
+                            <label class="label" asp-for="Name"></label>
+                            <div class="control">
+                                <input class="input" type="text" autofocus="" asp-for="Name" />
+                            </div>
+                            <span asp-validation-for="Name"></span>
+                        </div>
+                        <div class="field">
+                            <label class="label" asp-for="ValidFrom"></label>
+                            <div class="control">
+                                <input class="input" type="datetime-local" asp-for="ValidFrom" />
+                            </div>
+                            <span asp-validation-for="ValidFrom"></span>
+                        </div>
+                        <button class="button is-primary" type="submit">Speichern</button>
+                    </fieldset>
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</section>
+
+@await Html.PartialAsync("_Footer")

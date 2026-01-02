@@ -1,0 +1,130 @@
+@page
+@model GtKanu.Ui.Pages.Fleet.IndexModel
+@{
+    ViewData["Title"] = Model.GetNode().Title;
+    ViewData["HasFooter"] = true;
+
+    var dateConverter = new GermanDateTimeConverter();
+}
+
+@await Html.PartialAsync("_Header")
+
+<section class="section">
+    <div class="container">
+
+        <div class="columns is-gapless is-mobile">
+            <div class="column is-flex is-align-items-center">@Html.CreateBreadcrumb()</div>
+            <div class="column is-narrow">
+                <div class="dropdown is-hoverable is-right">
+                    <div class="dropdown-trigger">
+                        <button class="button" aria-haspopup="true" aria-controls="user-action">
+                            <span class="icon is-small">
+                                <i class="fa-solid fa-ellipsis-vertical"></i>
+                            </span>
+                        </button>
+                    </div>
+                    <div class="dropdown-menu" id="user-action" role="menu">
+                        <div class="dropdown-content">
+                            <a href="@Url.PageLink("Vehicles")" class="dropdown-item">
+                                @(Model.GetNode<VehiclesModel>().Title)
+                            </a>
+                            <hr class="dropdown-divider" />
+                            <a href="@Url.PageLink(string.Empty)" class="dropdown-item">
+                                Geplante anzeigen
+                            </a>
+                            <a href="@Url.PageLink(string.Empty, values: new { filter = 1 })" class="dropdown-item">
+                                Abgelaufene anzeigen
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="list has-hoverable-list-items has-visible-pointer-controls">
+            @if (Model.Items.Length < 1)
+            {
+                <div class="list-item">Keine Buchungen vorhanden.</div>
+            }
+            @foreach (var i in Model.Items)
+            {
+                <div class="list-item">
+                    <div class="list-item-image">
+                        <i class="fa-solid fa-car-side fa-2x @(i.IsExpired ? string.Empty : "has-text-info")"></i>
+                    </div>
+                    <div class="list-item-content">
+                        <div class="list-item-title">@dateConverter.Format(i.Start, i.End) - @i.Purpose</div>
+                        <div class="list-item-description">
+                            <span class="tag is-rounded">@i.VehicleName / @i.VehicleIdentifier</span>
+                            @if (i.UserEmail is not null)
+                            {
+                                <span class="tag is-rounded is-warning"><a href="mailto:@i.UserEmail">@i.User</a></span>
+                            }
+                            else
+                            {
+                                <span class="tag is-rounded is-warning">@i.User</span>
+                            }
+                            @if (i.ConfirmedOn.HasValue)
+                            {
+                                <span class="tag is-rounded is-success">
+                                    <span class="icon"><i class="fas fa-check"></i></span>@dateConverter.ToDateTime(i.ConfirmedOn.Value)
+                                </span>
+                            }
+                            else if (i.CancelledOn.HasValue)
+                            {
+                                <span class="tag is-rounded is-danger">
+                                    <span class="icon"><i class="fas fa-ban"></i></span>@dateConverter.ToDateTime(i.CancelledOn.Value)
+                                </span>
+                            }
+                        </div>
+                    </div>
+                    <div class="list-item-controls">
+                        <div class="buttons">
+                            <a class="button is-dark is-inverted click-accept" href="#" data-user="@i.User" data-url="@(Url.PageLink(string.Empty, "confirm", new { id = i.Id }))">
+                                <span class="icon"><i class="fas fa-check"></i></span>
+                            </a>
+                            <a class="button is-dark is-inverted click-deny" href="#" data-user="@i.User" data-url="@(Url.PageLink(string.Empty, "cancel", new { id = i.Id }))">
+                                <span class="icon"><i class="fas fa-ban"></i></span>
+                            </a>
+                        </div>
+                     </div>
+                </div>
+            }
+        </div>
+
+    </div>
+</section>
+
+@await Html.PartialAsync("_Footer")
+
+@section Scripts 
+{
+    <script type="text/javascript">
+        $(function () {
+            $(".click-accept").click(function (e) {
+                const url = $(this).data('url');
+                const user = $(this).data('user');
+                $.post(url, {@Html.AjaxCsrfToken()}).done(function (data) {
+                    if (data) {
+                        createToast(`Buchung für "${user}" wurde bestätigt.`);
+                    } else {
+                        createToast(`Buchung für "${user}" ist fehlgeschlagen.`, 'is-danger');
+                    }
+                }).always(function () {
+                    window.location.reload();
+                });
+            });
+            $(".click-deny").click(function (e) {
+                const url = $(this).data('url');
+                const user = $(this).data('user');
+                $.post(url, {@Html.AjaxCsrfToken()}).done(function () {
+                    createToast(`Buchung für "${user}" wurde abgelehnt.`, 'is-warning');
+                }).always(function () {
+                    window.location.reload();
+                });
+            });
+        });
+    </script>
+}
+
+

@@ -1,0 +1,94 @@
+@page "/Trips/Bookings/{id:guid}"
+@model GtKanu.Ui.Pages.Trips.TripBookingsModel
+@{
+    ViewData["Title"] = Model.GetNode().Title;
+    ViewData["HasFooter"] = true;
+
+    Guid.TryParse(Request.RouteValues["id"] as string, out var id);
+    var dateConverter = new GermanDateTimeConverter();
+}
+
+@await Html.PartialAsync("_Header")
+
+<section class="section">
+    <div class="container">
+
+        @Html.CreateBreadcrumb()
+
+        <h1 class="title is-4">@Model.TripDetails</h1>
+
+        <div class="list has-hoverable-list-items has-visible-pointer-controls">
+            @if (Model.Items.Length < 1)
+            {
+                <div class="list-item">Keine Anmeldungen vorhanden.</div>
+            }
+            @foreach (var i in Model.Items)
+            {
+                <div class="list-item">
+                    <div class="list-item-image">
+                        <i class="fas fa-user-circle fa-2x has-text-info"></i>
+                    </div>
+                    <div class="list-item-content">
+                        <div class="list-item-title">@i.BookingName</div>
+                        <div class="list-item-description">
+                            <span class="tag is-rounded is-info">
+                                <span class="icon"><i class="fas fa-book"></i></span>@dateConverter.ToDateTime(i.BookedOn)
+                            </span>
+                            @if (i.ConfirmedOn.HasValue)
+                            {
+                               <span class="tag is-rounded is-success">
+                                   <span class="icon"><i class="fas fa-check"></i></span>@dateConverter.ToDateTime(i.ConfirmedOn.Value)
+                               </span>
+                            } 
+                            else if (i.CancelledOn.HasValue)
+                            {
+                               <span class="tag is-rounded is-danger">
+                                   <span class="icon"><i class="fas fa-ban"></i></span>@dateConverter.ToDateTime(i.CancelledOn.Value)
+                               </span> 
+                            }
+                        </div>
+                    </div>
+                    <div class="list-item-controls">
+                        <div class="buttons">
+                            <a class="button is-dark is-inverted click-accept" href="#" data-user="@i.BookingName" data-url="@(Url.PageLink(string.Empty, "confirm", new { id = i.Id }))">
+                                <span class="icon"><i class="fas fa-check"></i></span>
+                            </a>
+                            <a class="button is-dark is-inverted click-deny" href="#" data-user="@i.BookingName" data-url="@(Url.PageLink(string.Empty, "cancel", new { id = i.Id }))">
+                                <span class="icon"><i class="fas fa-ban"></i></span>
+                            </a>
+                        </div>
+                     </div>
+                </div>
+            }
+        </div>
+
+    </div>
+</section>
+
+@await Html.PartialAsync("_Footer")
+
+@section Scripts 
+{
+    <script type="text/javascript">
+        $(function () {
+            $(".click-accept").click(function (e) {
+                const url = $(this).data('url');
+                const user = $(this).data('user');
+                $.post(url, {@Html.AjaxCsrfToken()}).done(function () {
+                    createToast(`Buchung für ${user} wurde bestätigt.`);
+                }).always(function () {
+                    window.location.reload();
+                });
+            });
+            $(".click-deny").click(function (e) {
+                const url = $(this).data('url');
+                const user = $(this).data('user');
+                $.post(url, {@Html.AjaxCsrfToken()}).done(function () {
+                    createToast(`Buchung für ${user} wurde abgelehnt.`, 'is-warning');
+                }).always(function () {
+                    window.location.reload();
+                });
+            });
+        });
+    </script>
+}

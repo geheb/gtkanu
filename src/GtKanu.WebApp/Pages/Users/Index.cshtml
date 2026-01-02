@@ -1,0 +1,91 @@
+@page
+@model GtKanu.Ui.Pages.Users.IndexModel
+@{
+    ViewData["Title"] = Model.GetNode().Title;
+    ViewData["HasFooter"] = true;
+
+    var roleConverter = new RoleConverter();
+    var dateConverter = new GermanDateTimeConverter();
+}
+
+@await Html.PartialAsync("_Header")
+
+<section class="section">
+    <div class="container">
+
+        <div class="columns is-gapless is-mobile">
+            <div class="column is-flex is-align-items-center">@Html.CreateBreadcrumb()</div>
+            <div class="column is-narrow">
+                <div class="dropdown is-hoverable is-right">
+                    <div class="dropdown-trigger">
+                        <button class="button" aria-haspopup="true" aria-controls="user-action">
+                            <span class="icon is-small">
+                                <i class="fa-solid fa-ellipsis-vertical"></i>
+                            </span>
+                        </button>
+                    </div>
+                    <div class="dropdown-menu" id="user-action" role="menu">
+                        <div class="dropdown-content">
+                            <div class="dropdown-item">
+                                <div>Bestätigt: @Model.UsersConfirmed</div>
+                                <div>Unbestätigt: @Model.UsersNotConfirmed</div>
+                                <div>Gesperrt: @Model.UsersLocked</div>
+                            </div>
+                            <hr class="dropdown-divider" />
+                            <a href="@Url.PageLink(string.Empty)" class="dropdown-item">
+                                Alle anzeigen
+                            </a>
+                            <a href="@Url.PageLink(string.Empty, null, new { filter = 1 })" class="dropdown-item">
+                                Interessenten anzeigen
+                            </a>
+                            <a href="@Url.PageLink(string.Empty, null, new { filter = 2 })" class="dropdown-item">
+                                Mitglieder mit Rollen anzeigen
+                            </a>
+                            <hr class="dropdown-divider" />
+                            <a href="@Url.PageLink(string.Empty, null, new { filter = 3 })" class="dropdown-item">
+                                Anmeldung für Jugend-Mailings anzeigen
+                            </a>
+                            <hr class="dropdown-divider" />
+                            <a href="@Url.PageLink("CreateUser")" class="dropdown-item">
+                                Benutzer anlegen
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table class="table is-striped is-hoverable is-fullwidth">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>E-Mail bestätigt?</th>
+                        <th>Letzte Anmeldung</th>
+                        <th>Debitoren-/Adress-Nr.</th>
+                        <th>Aktion</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var u in Model.Users)
+                    {
+                        <tr class="clickable-row" data-url="@(Url.PageLink("EditUser", null, new { id = u.Id }))">
+                            <td class=""><span class="icon is-small @roleConverter.RoleToClass(u.Roles)"><i class="fas fa-user-circle"></i></span> @u.Name</td>
+                            <td>@(u.IsEmailConfirmed ? "Ja" : "Nein")</td>
+                            <td>@(u.LastLogin.HasValue ? dateConverter.ToDateTime(u.LastLogin.Value) : "n.v.")</td>
+                            <td>@(u.DebtorNumber ?? "n.v.") / @(u.AddressNumber ?? "n.v.")</td>
+                            <td>
+                                <a href="@(Url.PageLink("EditUser", null, new { id = u.Id }))">Bearbeiten</a>
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+</section>
+
+@await Html.PartialAsync("_Footer")

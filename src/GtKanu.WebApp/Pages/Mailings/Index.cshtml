@@ -1,0 +1,96 @@
+@page
+@model GtKanu.Ui.Pages.Mailings.IndexModel
+@{
+	ViewData["Title"] = Model.GetNode().Title;
+	ViewData["HasFooter"] = true;
+
+	var createUrl = Url.PageLink("Create");
+	var dateTimeConverter = new GermanDateTimeConverter();
+}
+
+@await Html.PartialAsync("_Header")
+
+<section class="section">
+	<div class="container">
+
+		<div class="columns is-gapless is-mobile">
+			<div class="column is-flex is-align-items-center">@Html.CreateBreadcrumb()</div>
+			<div class="column is-narrow">
+				<div class="dropdown is-hoverable is-right">
+					<div class="dropdown-trigger">
+						<button class="button" aria-haspopup="true" aria-controls="user-action">
+							<span class="icon is-small">
+								<i class="fa-solid fa-ellipsis-vertical"></i>
+							</span>
+						</button>
+					</div>
+					<div class="dropdown-menu" id="user-action" role="menu">
+						<div class="dropdown-content">
+							<a href="@createUrl" class="dropdown-item">
+								@(Model.GetNode<CreateModel>().Title)
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div>
+			<a href="@createUrl" class="button is-floating is-link">
+				<i class="fa-solid fa-square-plus"></i>
+			</a>
+		</div>
+
+		<div class="list has-hoverable-list-items has-visible-pointer-controls">
+			@if (Model.Items.Length < 1)
+			{
+				<div class="list-item">Keine Mailings gefunden.</div>
+			}
+			@foreach (var i in Model.Items)
+			{
+				<div class="list-item">
+					<div class="list-item-image">
+						<i class="fa-solid fa-envelope fa-2x"></i>
+					</div>
+					<div class="list-item-content">
+						<div class="list-item-title">@i.Subject</div>
+						<div class="list-item-description">
+							<span class="tag is-rounded">@(dateTimeConverter.ToDateTime(i.LastUpdate))</span>
+							@if (i.IsMemberOnly)
+							{
+								<span class="tag is-rounded is-danger">Alle Mitglieder</span>
+							}
+							@if (i.IsYoungPeople)
+							{
+								<span class="tag is-rounded is-info">Jugend</span>
+							}
+							@if (i.OtherRecipients?.Length > 0)
+							{
+								<span class="tag is-rounded is-info">Individuelle Empfänger</span>
+							}
+							@if (i.IsClosed)
+							{
+								<span class="tag is-rounded is-success">Abgeschlossen - @i.EmailCount @(i.EmailCount == 1 ? "E-Mail" : "E-Mails")</span>
+							}
+							else
+							{
+								<span class="tag is-rounded is-warning">Offen</span>
+							}
+						</div>
+					</div>
+					<div class="list-item-controls">
+						<div class="buttons">
+							<a class="button is-dark is-inverted" href="@(Url.PageLink("Edit", null, new { id = i.Id }))">
+								<span class="icon"><i class="fa-solid fa-pencil-alt"></i></span>
+							</a>
+						</div>
+					</div>
+				</div>
+			}
+		</div>
+
+
+	</div>
+</section>
+
+@await Html.PartialAsync("_Footer")
