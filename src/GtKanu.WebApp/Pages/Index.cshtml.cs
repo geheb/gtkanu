@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Options;
 using System.ComponentModel.DataAnnotations;
 
-namespace GtKanu.Ui.Pages;
+namespace GtKanu.WebApp.Pages;
 
 [Node("Startseite", IsDefault = true)]
 [AllowAnonymous]

@@ -1,4 +1,4 @@
-namespace GtKanu.Ui.Pages.MyFleet;
+namespace GtKanu.WebApp.Pages.MyFleet;
 
 using GtKanu.Core.Models;
 using GtKanu.Core.Repositories;

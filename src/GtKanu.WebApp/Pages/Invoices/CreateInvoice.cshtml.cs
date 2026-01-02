@@ -1,4 +1,4 @@
-using GtKanu.Ui.Annotations;
+using GtKanu.WebApp.Annotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 
-namespace GtKanu.Ui.Pages.Invoices
+namespace GtKanu.WebApp.Pages.Invoices
 {
     [Node("Rechnungen anlegen", FromPage = typeof(IndexModel))]
     [Authorize(Roles = "administrator,treasurer")]

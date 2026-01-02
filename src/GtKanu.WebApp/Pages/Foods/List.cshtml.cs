@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace GtKanu.Ui.Pages.Foods
+namespace GtKanu.WebApp.Pages.Foods
 {
     [Node("Getränke-/Speisen-/Spendenliste", FromPage = typeof(IndexModel))]
     [Authorize(Roles = "administrator,treasurer")]

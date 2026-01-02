@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel.DataAnnotations;
 
-namespace GtKanu.Ui.Annotations;
+namespace GtKanu.WebApp.Annotations;
 
 /// <summary>
 /// for client side validation: 

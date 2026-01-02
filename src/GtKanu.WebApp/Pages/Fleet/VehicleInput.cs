@@ -1,6 +1,6 @@
-namespace GtKanu.Ui.Pages.Fleet;
+namespace GtKanu.WebApp.Pages.Fleet;
 
-using GtKanu.Ui.Annotations;
+using GtKanu.WebApp.Annotations;
 using System.ComponentModel.DataAnnotations;
 
 public sealed class VehicleInput

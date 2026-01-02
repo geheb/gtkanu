@@ -2,7 +2,7 @@ using GtKanu.Core.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace GtKanu.Ui.Pages.MyBoats;
+namespace GtKanu.WebApp.Pages.MyBoats;
 
 [Node("Mieten", FromPage = typeof(IndexModel))]
 [Authorize(Roles = "administrator,member")]

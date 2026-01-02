@@ -1,8 +1,8 @@
 using GtKanu.Core.Email;
-using GtKanu.Ui.Annotations;
+using GtKanu.WebApp.Annotations;
 using System.ComponentModel.DataAnnotations;
 
-namespace GtKanu.Ui.Pages.Mailings;
+namespace GtKanu.WebApp.Pages.Mailings;
 
 public sealed class MailingInput
 {

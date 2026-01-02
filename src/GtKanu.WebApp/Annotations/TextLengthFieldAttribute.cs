@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace GtKanu.Ui.Annotations;
+namespace GtKanu.WebApp.Annotations;
 
 /// <summary>
 /// min 2 and max 256 chars

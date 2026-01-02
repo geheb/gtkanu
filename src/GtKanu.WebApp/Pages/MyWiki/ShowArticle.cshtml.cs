@@ -1,4 +1,4 @@
-namespace GtKanu.Ui.Pages.MyWiki;
+namespace GtKanu.WebApp.Pages.MyWiki;
 
 using GtKanu.Core.Repositories;
 using Microsoft.AspNetCore.Authorization;

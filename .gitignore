@@ -401,5 +401,6 @@ FodyWeavers.xsd
 **/wwwroot/html
 **/wwwroot/lib
 appsettings.*.json
-logs/
+.logs/
+.dataprotection/
 

@@ -1,4 +1,4 @@
-namespace GtKanu.Ui.Pages.MyTryouts;
+namespace GtKanu.WebApp.Pages.MyTryouts;
 
 using GtKanu.Core.Repositories;
 using GtKanu.Core.User;

@@ -1,4 +1,4 @@
-namespace GtKanu.Ui.Converter;
+namespace GtKanu.WebApp.Converter;
 
 public class RoleConverter
 {

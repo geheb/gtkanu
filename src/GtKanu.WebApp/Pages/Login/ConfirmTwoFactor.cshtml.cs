@@ -1,10 +1,10 @@
-using GtKanu.Ui.Annotations;
+using GtKanu.WebApp.Annotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
 
-namespace GtKanu.Ui.Pages.Login;
+namespace GtKanu.WebApp.Pages.Login;
 
 [AllowAnonymous]
 public sealed class ConfirmTwoFactorModel : PageModel

@@ -1,7 +1,7 @@
-using GtKanu.Ui.Annotations;
+using GtKanu.WebApp.Annotations;
 using System.ComponentModel.DataAnnotations;
 
-namespace GtKanu.Ui.Pages.Users;
+namespace GtKanu.WebApp.Pages.Users;
 
 public class EditUserInput
 {

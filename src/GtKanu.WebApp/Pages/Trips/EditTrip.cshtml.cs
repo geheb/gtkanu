@@ -1,9 +1,9 @@
-namespace GtKanu.Ui.Pages.Trips;
+namespace GtKanu.WebApp.Pages.Trips;
 
 using GtKanu.Core.Models;
 using GtKanu.Core.Repositories;
 using GtKanu.Core.User;
-using GtKanu.Ui.Routing;
+using GtKanu.WebApp.Routing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;

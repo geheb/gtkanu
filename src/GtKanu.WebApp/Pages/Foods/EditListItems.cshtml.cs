@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace GtKanu.Ui.Pages.Foods;
+namespace GtKanu.WebApp.Pages.Foods;
 
 [Node("Einträge verwalten", FromPage = typeof(EditListModel))]
 [Authorize(Roles = "administrator,treasurer")]

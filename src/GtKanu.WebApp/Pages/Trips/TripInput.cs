@@ -1,7 +1,7 @@
-using GtKanu.Ui.Annotations;
+using GtKanu.WebApp.Annotations;
 using System.ComponentModel.DataAnnotations;
 
-namespace GtKanu.Ui.Pages.Trips;
+namespace GtKanu.WebApp.Pages.Trips;
 
 public class TripInput
 {

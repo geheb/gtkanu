@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace GtKanu.Ui.Pages.Login;
+namespace GtKanu.WebApp.Pages.Login;
 
 [Authorize]
 public class ExitModel : PageModel

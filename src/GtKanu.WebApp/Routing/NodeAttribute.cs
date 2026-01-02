@@ -1,4 +1,4 @@
-namespace GtKanu.Ui.Routing;
+namespace GtKanu.WebApp.Routing;
 
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
 public class NodeAttribute : Attribute

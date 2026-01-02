@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Options;
 
-namespace GtKanu.Ui.Pages.Mailings;
+namespace GtKanu.WebApp.Pages.Mailings;
 
 [Node("Mailing anlegen", FromPage = typeof(IndexModel))]
 [Authorize(Roles = "administrator,mailingmanager")]

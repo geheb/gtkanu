@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
-namespace GtKanu.Ui.Pages.Foods
+namespace GtKanu.WebApp.Pages.Foods
 {
     [Node("Getränke/Speisen/Spenden", FromPage = typeof(Pages.IndexModel))]
     [Authorize(Roles = "administrator,treasurer", Policy = Policies.TwoFactorAuth)]

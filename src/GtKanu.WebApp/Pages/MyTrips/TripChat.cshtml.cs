@@ -1,4 +1,4 @@
-namespace GtKanu.Ui.Pages.MyTrips;
+namespace GtKanu.WebApp.Pages.MyTrips;
 
 using GtKanu.Core.Repositories;
 using GtKanu.Core.User;

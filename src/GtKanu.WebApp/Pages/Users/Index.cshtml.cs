@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace GtKanu.Ui.Pages.Users;
+namespace GtKanu.WebApp.Pages.Users;
 
 [Node("Benutzer", FromPage = typeof(Pages.IndexModel))]
 [Authorize(Roles = "administrator,usermanager", Policy = Policies.TwoFactorAuth)]

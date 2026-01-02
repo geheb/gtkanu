@@ -1,7 +1,7 @@
-using GtKanu.Ui.Annotations;
+using GtKanu.WebApp.Annotations;
 using System.ComponentModel.DataAnnotations;
 
-namespace GtKanu.Ui.Pages.MyFleet;
+namespace GtKanu.WebApp.Pages.MyFleet;
 
 public class CreateBookingInput
 {

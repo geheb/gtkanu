@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace GtKanu.Ui.Filters;
+namespace GtKanu.WebApp.Filters;
 
 public sealed class OperationCancelledExceptionFilter : ExceptionFilterAttribute
 {

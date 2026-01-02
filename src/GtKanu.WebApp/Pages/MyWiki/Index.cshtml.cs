@@ -2,7 +2,7 @@ using GtKanu.Core.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace GtKanu.Ui.Pages.MyWiki;
+namespace GtKanu.WebApp.Pages.MyWiki;
 
 [Node("Mein Wiki", FromPage = typeof(Pages.IndexModel))]
 [Authorize(Roles = "administrator,member")]

@@ -1,7 +1,7 @@
-using GtKanu.Ui.Annotations;
+using GtKanu.WebApp.Annotations;
 using System.ComponentModel.DataAnnotations;
 
-namespace GtKanu.Ui.Pages.Clubhouse;
+namespace GtKanu.WebApp.Pages.Clubhouse;
 
 public class ClubhouseBookingInput
 {

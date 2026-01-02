@@ -1,6 +1,6 @@
 using GtKanu.Core.User;
-using GtKanu.Ui.Annotations;
-using GtKanu.Ui.Constants;
+using GtKanu.WebApp.Annotations;
+using GtKanu.WebApp.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 using QRCoder;
 using System.ComponentModel.DataAnnotations;
 
-namespace GtKanu.Ui.Pages.MyAccount;
+namespace GtKanu.WebApp.Pages.MyAccount;
 
 [Node("Zwei-Faktor-Authentifizierung bearbeiten", FromPage = typeof(IndexModel))]
 [Authorize]

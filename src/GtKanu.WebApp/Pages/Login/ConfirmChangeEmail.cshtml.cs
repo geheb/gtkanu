@@ -1,9 +1,9 @@
-using GtKanu.Ui.Converter;
-using GtKanu.Ui.I18n;
+using GtKanu.WebApp.Converter;
+using GtKanu.WebApp.I18n;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace GtKanu.Ui.Pages.Login;
+namespace GtKanu.WebApp.Pages.Login;
 
 [AllowAnonymous]
 public class ConfirmChangeEmailModel : PageModel

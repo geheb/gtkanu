@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace GtKanu.Ui.Pages;
+namespace GtKanu.WebApp.Pages;
 
 [AllowAnonymous]
 public class PrivacyModel : PageModel

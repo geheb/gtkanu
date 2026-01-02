@@ -17,6 +17,7 @@
 	<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
 	<PackageReference Include="Microsoft.AspNetCore.Identity.UI" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.Relational "/>
 	<PackageReference Include="Scriban" />
   </ItemGroup>
 

@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace GtKanu.Ui.Pages.MyClubhouse;
+namespace GtKanu.WebApp.Pages.MyClubhouse;
 
 [Node("Vereinsheimbelegung", FromPage = typeof(Pages.IndexModel))]
 [Authorize(Roles = "administrator,member")]

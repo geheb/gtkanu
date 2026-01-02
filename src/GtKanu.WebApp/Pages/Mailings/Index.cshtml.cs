@@ -2,7 +2,7 @@ using GtKanu.Core.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace GtKanu.Ui.Pages.Mailings;
+namespace GtKanu.WebApp.Pages.Mailings;
 
 [Node("Mailings", FromPage = typeof(Pages.IndexModel))]
 [Authorize(Roles = "administrator,mailingmanager")]

@@ -1,4 +1,4 @@
-namespace GtKanu.Ui.Pages.Fleet;
+namespace GtKanu.WebApp.Pages.Fleet;
 
 using GtKanu.Core.Repositories;
 using Microsoft.AspNetCore.Authorization;

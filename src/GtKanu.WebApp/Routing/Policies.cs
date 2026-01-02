@@ -1,4 +1,4 @@
-namespace GtKanu.Ui.Routing;
+namespace GtKanu.WebApp.Routing;
 
 public static class Policies
 {

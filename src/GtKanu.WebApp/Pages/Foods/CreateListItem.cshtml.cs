@@ -1,10 +1,10 @@
-using GtKanu.Ui.Annotations;
+using GtKanu.WebApp.Annotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
 
-namespace GtKanu.Ui.Pages.Foods;
+namespace GtKanu.WebApp.Pages.Foods;
 
 [Node("Eintrag anlegen", FromPage = typeof(EditListItemsModel))]
 [Authorize(Roles = "administrator,treasurer")]

@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace GtKanu.Ui.Annotations;
+namespace GtKanu.WebApp.Annotations;
 
 public sealed class CompareFieldAttribute : CompareAttribute
 {

@@ -1,4 +1,4 @@
-namespace GtKanu.Ui.Pages.Trips;
+namespace GtKanu.WebApp.Pages.Trips;
 
 using GtKanu.Core.Repositories;
 using Microsoft.AspNetCore.Authorization;

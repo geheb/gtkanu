@@ -1,4 +1,4 @@
-namespace GtKanu.Ui.Routing;
+namespace GtKanu.WebApp.Routing;
 
 using System.Reflection;
 using Microsoft.AspNetCore.Authorization;

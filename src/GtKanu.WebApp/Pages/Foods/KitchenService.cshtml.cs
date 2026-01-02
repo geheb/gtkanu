@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
 
-namespace GtKanu.Ui.Pages.Foods
+namespace GtKanu.WebApp.Pages.Foods
 {
     [Node("Küchendienst", FromPage = typeof(Pages.IndexModel))]
     [Authorize(Roles = "administrator,kitchen")]

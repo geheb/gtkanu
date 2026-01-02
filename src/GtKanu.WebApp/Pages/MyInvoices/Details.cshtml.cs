@@ -2,7 +2,7 @@ using GtKanu.Core.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace GtKanu.Ui.Pages.MyInvoices;
+namespace GtKanu.WebApp.Pages.MyInvoices;
 
 [Node("Rechnungsdetails", FromPage = typeof(IndexModel))]
 [Authorize(Roles = "administrator,member")]

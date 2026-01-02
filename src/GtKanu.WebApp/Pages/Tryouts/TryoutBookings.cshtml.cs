@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace GtKanu.Ui.Pages.Tryouts;
+namespace GtKanu.WebApp.Pages.Tryouts;
 
 [Node("Anmeldungen zum Training", FromPage = typeof(IndexModel))]
 [Authorize(Roles = "administrator,tripmanager")]

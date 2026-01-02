@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace GtKanu.Ui.Pages.Trips;
+namespace GtKanu.WebApp.Pages.Trips;
 
 [AllowAnonymous]
 public class PublicModel : PageModel

@@ -1,4 +1,4 @@
-namespace GtKanu.Ui.Middlewares;
+namespace GtKanu.WebApp.Middlewares;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;

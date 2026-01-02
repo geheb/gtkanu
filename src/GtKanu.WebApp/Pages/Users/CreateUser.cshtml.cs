@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Routing;
 using Scriban.Parsing;
 
-namespace GtKanu.Ui.Pages.Users;
+namespace GtKanu.WebApp.Pages.Users;
 
 [Node("Benutzer anlegen", FromPage = typeof(IndexModel))]
 [Authorize(Roles = "administrator,usermanager")]

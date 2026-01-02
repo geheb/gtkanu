@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace GtKanu.Ui.Pages.MyTryouts;
+namespace GtKanu.WebApp.Pages.MyTryouts;
 
 [Node("Chat zum Training", FromPage = typeof(IndexModel))]
 [Authorize(Roles = "administrator,member")]

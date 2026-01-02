@@ -1,7 +1,7 @@
-using GtKanu.Ui.Annotations;
+using GtKanu.WebApp.Annotations;
 using System.ComponentModel.DataAnnotations;
 
-namespace GtKanu.Ui.Pages.Boats;
+namespace GtKanu.WebApp.Pages.Boats;
 
 public sealed class RentalInput
 {

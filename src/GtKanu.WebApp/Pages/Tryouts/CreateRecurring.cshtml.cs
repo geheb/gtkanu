@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace GtKanu.Ui.Pages.Tryouts;
+namespace GtKanu.WebApp.Pages.Tryouts;
 
 [Node("Trainingsserie anlegen", FromPage = typeof(IndexModel))]
 [Authorize(Roles = "administrator,tripmanager")]

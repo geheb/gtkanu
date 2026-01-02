@@ -3,11 +3,11 @@ using GtKanu.Core.Database;
 using GtKanu.Core.Email;
 using GtKanu.Core.Entities;
 using GtKanu.Core.User;
-using GtKanu.Ui.Annotations;
-using GtKanu.Ui.Bindings;
-using GtKanu.Ui.Constants;
-using GtKanu.Ui.Filters;
-using GtKanu.Ui.Middlewares;
+using GtKanu.WebApp.Annotations;
+using GtKanu.WebApp.Bindings;
+using GtKanu.WebApp.Constants;
+using GtKanu.WebApp.Filters;
+using GtKanu.WebApp.Middlewares;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -122,6 +122,8 @@ void ConfigureApp(WebApplicationBuilder builder)
     services.Configure<ForwardedHeadersOptions>(options =>
     {
         options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+        options.KnownIPNetworks.Clear();
+        options.KnownProxies.Clear();
     });
 
     services.Configure<AntiforgeryOptions>(options =>
@@ -138,7 +140,7 @@ void ConfigureApp(WebApplicationBuilder builder)
 
 void ConfigurePipeline(WebApplication app)
 {
-    app.UseNodeGenerator();
+    app.UseForwardedHeaders();
 
     app.UseSerilogRequestLogging(o =>
     {
@@ -148,7 +150,6 @@ void ConfigurePipeline(WebApplication app)
         // Attach additional properties to the request completion event
         o.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
         {
-            diagnosticContext.Set("RequestHost", httpContext.Request.Host.Value);
             diagnosticContext.Set("RemoteIpAddress", httpContext.Connection.RemoteIpAddress);
         };
     });
@@ -168,15 +169,22 @@ void ConfigurePipeline(WebApplication app)
 
     app.UseAuthentication();
     app.UseAuthorization();
-    app.UseForwardedHeaders();
+
+    app.UseNodeGenerator();
 }
 
 try
-{ 
-    Log.Logger = new LoggerConfiguration()
-        .Enrich.FromLogContext()
-        .WriteTo.Console()
-        .CreateBootstrapLogger();
+{
+    var configuration = new ConfigurationBuilder()
+        .SetBasePath(Directory.GetCurrentDirectory())
+        .AddJsonFile("logging.json")
+        .Build();
+
+    var logger = new LoggerConfiguration()
+        .ReadFrom.Configuration(configuration)
+        .CreateLogger();
+
+    Log.Logger = logger;
 
     Log.Information("Application started");
 
@@ -204,5 +212,5 @@ catch (Exception ex) when (ex is not HostAbortedException && ex.Source != "Micro
 finally
 {
     Log.Information("Application exited");
-    Log.CloseAndFlush();
+    await Log.CloseAndFlushAsync();
 }

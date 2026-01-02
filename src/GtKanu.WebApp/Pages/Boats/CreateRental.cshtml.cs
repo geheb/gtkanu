@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace GtKanu.Ui.Pages.Boats;
+namespace GtKanu.WebApp.Pages.Boats;
 
 [Node("Boot mieten", FromPage = typeof(RentalsModel))]
 [Authorize(Roles = "administrator,boatmanager")]

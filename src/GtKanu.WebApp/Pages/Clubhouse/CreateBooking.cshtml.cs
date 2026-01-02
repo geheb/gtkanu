@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace GtKanu.Ui.Pages.Clubhouse;
+namespace GtKanu.WebApp.Pages.Clubhouse;
 
 [Node("Buchung anlegen", FromPage = typeof(IndexModel))]
 [Authorize(Roles = "administrator,housemanager")]

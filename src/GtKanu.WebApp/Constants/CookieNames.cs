@@ -1,4 +1,4 @@
-namespace GtKanu.Ui.Constants;
+namespace GtKanu.WebApp.Constants;
 
 internal static class CookieNames
 {

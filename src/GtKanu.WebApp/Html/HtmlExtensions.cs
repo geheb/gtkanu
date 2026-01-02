@@ -1,4 +1,4 @@
-namespace GtKanu.Ui.Html;
+namespace GtKanu.WebApp.Html;
 
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Html;

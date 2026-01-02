@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace GtKanu.Ui.Pages.Boats;
+namespace GtKanu.WebApp.Pages.Boats;
 
 [Node("Bootslager", FromPage = typeof(Pages.IndexModel))]
 [Authorize(Roles = "administrator,boatmanager")]

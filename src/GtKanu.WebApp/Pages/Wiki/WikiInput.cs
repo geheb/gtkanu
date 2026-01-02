@@ -1,7 +1,7 @@
-using GtKanu.Ui.Annotations;
+using GtKanu.WebApp.Annotations;
 using System.ComponentModel.DataAnnotations;
 
-namespace GtKanu.Ui.Pages.Wiki;
+namespace GtKanu.WebApp.Pages.Wiki;
 
 public class WikiInput
 {

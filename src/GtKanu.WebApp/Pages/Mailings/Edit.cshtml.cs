@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace GtKanu.Ui.Pages.Mailings;
+namespace GtKanu.WebApp.Pages.Mailings;
 
 [Node("Mailing bearbeiten", FromPage = typeof(IndexModel))]
 [Authorize(Roles = "administrator,mailingmanager")]

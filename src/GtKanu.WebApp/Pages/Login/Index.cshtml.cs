@@ -1,11 +1,11 @@
-using GtKanu.Ui.Annotations;
-using GtKanu.Ui.I18n;
+using GtKanu.WebApp.Annotations;
+using GtKanu.WebApp.I18n;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
 
-namespace GtKanu.Ui.Pages.Login;
+namespace GtKanu.WebApp.Pages.Login;
 
 [AllowAnonymous]
 public class IndexModel : PageModel

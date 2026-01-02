@@ -1,4 +1,4 @@
-namespace GtKanu.Ui.Pages.Wiki;
+namespace GtKanu.WebApp.Pages.Wiki;
 
 using GtKanu.Core.Models;
 using GtKanu.Core.Repositories;

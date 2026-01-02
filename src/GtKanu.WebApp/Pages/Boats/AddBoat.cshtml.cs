@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace GtKanu.Ui.Pages.Boats;
+namespace GtKanu.WebApp.Pages.Boats;
 
 [Node("Boot anlegen", FromPage = typeof(IndexModel))]
 [Authorize(Roles = "administrator,boatmanager")]

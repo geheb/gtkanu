@@ -1,7 +1,7 @@
-using GtKanu.Ui.I18n;
+using GtKanu.WebApp.I18n;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 
-namespace GtKanu.Ui.Bindings;
+namespace GtKanu.WebApp.Bindings;
 
 public static class DefaultModelBindingExtensions
 {

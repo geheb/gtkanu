@@ -1,4 +1,4 @@
-namespace GtKanu.Ui.Routing;
+namespace GtKanu.WebApp.Routing;
 
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.RazorPages;
