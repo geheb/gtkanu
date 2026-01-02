@@ -1,3 +1,4 @@
+using GtKanu.Core.Extensions;
 using GtKanu.WebApp.Annotations;
 using GtKanu.WebApp.I18n;
 using Microsoft.AspNetCore.Authorization;
@@ -56,7 +57,7 @@ public class IndexModel : PageModel
         var result = await _loginService.SignIn(Email!, Password!, cancellationToken);
         if (result.IsFailed)
         {
-            result.Errors.ForEach(e => ModelState.AddModelError(string.Empty, e.Message));
+            result.Errors.ToModelState(ModelState);
             return Page();
         }
 

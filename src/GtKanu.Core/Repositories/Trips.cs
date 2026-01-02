@@ -411,6 +411,6 @@ public sealed class Trips : IDisposable
                 End = new CalDateTime(dateTimeConverter.ToLocal(trip.End).DateTime),
             });
         }
-        return new ComponentSerializer().SerializeToString(calendar);
+        return new ComponentSerializer().SerializeToString(calendar)!;
     }
 }

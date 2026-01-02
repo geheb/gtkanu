@@ -1,3 +1,4 @@
+using GtKanu.Core.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -61,7 +62,7 @@ public class EditUserModel : PageModel
         var result = await _identityRepository.Update(dto, cancellationToken);
         if (result.IsFailed)
         {
-            result.Errors.ForEach(e => ModelState.AddModelError(string.Empty, e.Message));
+            result.Errors.ToModelState(ModelState);
             return Page();
         }
 
@@ -70,7 +71,7 @@ public class EditUserModel : PageModel
             result = await _userService.UpdatePassword(user.Value.Id, Input.Password);
             if (result.IsFailed)
             {
-                result.Errors.ForEach(e => ModelState.AddModelError(string.Empty, e.Message));
+                result.Errors.ToModelState(ModelState);
                 return Page();
             }
         }

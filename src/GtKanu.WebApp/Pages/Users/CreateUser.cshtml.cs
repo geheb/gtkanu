@@ -1,4 +1,5 @@
 using GtKanu.Core.Email;
+using GtKanu.Core.Extensions;
 using GtKanu.Core.Migrations;
 using GtKanu.Core.User;
 using Microsoft.AspNetCore.Authorization;
@@ -52,7 +53,7 @@ public class CreateUserModel : PageModel
 
         if (result.IsFailed)
         {
-            result.Errors.ForEach(e => ModelState.AddModelError(string.Empty, e.Message));
+            result.Errors.ToModelState(ModelState);
             return Page();
         }
 
@@ -61,7 +62,7 @@ public class CreateUserModel : PageModel
         result = await _userService.NotifyConfirmRegistration(dto.Email!, callbackUrl!, cancellationToken);
         if (result.IsFailed)
         {
-            result.Errors.ForEach(e => ModelState.AddModelError(string.Empty, e.Message));
+            result.Errors.ToModelState(ModelState);
             return Page();
         }
 

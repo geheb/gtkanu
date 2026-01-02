@@ -1,3 +1,4 @@
+using GtKanu.Core.Extensions;
 using GtKanu.Core.User;
 using GtKanu.WebApp.Annotations;
 using Microsoft.AspNetCore.Authorization;
@@ -50,7 +51,7 @@ public class ChangeEmailModel : PageModel
         var result = await _userService.VerifyPassword(User.GetId(), CurrentPassword!);
         if (result.IsFailed)
         {
-            result.Errors.ForEach(e => ModelState.AddModelError(string.Empty, e.Message));
+            result.Errors.ToModelState(ModelState);
             return Page();
         }
 
@@ -65,7 +66,7 @@ public class ChangeEmailModel : PageModel
         result = await _userService.NotifyChangeEmail(User.GetId(), NewEmail!, callbackUrl!, cancellationToken);
         if (result.IsFailed)
         {
-            result.Errors.ForEach(e => ModelState.AddModelError(string.Empty, e.Message));
+            result.Errors.ToModelState(ModelState);
             return Page();
         }
 

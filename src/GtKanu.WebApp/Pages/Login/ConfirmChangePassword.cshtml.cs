@@ -1,3 +1,4 @@
+using GtKanu.Core.Extensions;
 using GtKanu.WebApp.Annotations;
 using GtKanu.WebApp.Converter;
 using GtKanu.WebApp.I18n;
@@ -92,7 +93,7 @@ public class ConfirmChangePasswordModel : PageModel
         var result = await _userService.ConfirmChangePassword(id, token, Password!);
         if (result.IsFailed)
         {
-            result.Errors.ForEach(e => ModelState.AddModelError(string.Empty, e.Message));
+            result.Errors.ToModelState(ModelState);
             return Page();
         }
 

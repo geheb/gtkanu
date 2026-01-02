@@ -204,7 +204,7 @@ try
 
     await app.RunAsync();
 }
-catch (Exception ex) when (ex is not HostAbortedException && ex.Source != "Microsoft.EntityFrameworkCore.Design") // see https://github.com/dotnet/efcore/issues/29923
+catch (Exception ex)
 {
     Log.Fatal(ex, "Application terminated unexpectedly");
     throw;

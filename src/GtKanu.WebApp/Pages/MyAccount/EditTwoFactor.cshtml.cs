@@ -1,3 +1,4 @@
+using GtKanu.Core.Extensions;
 using GtKanu.Core.User;
 using GtKanu.WebApp.Annotations;
 using GtKanu.WebApp.Constants;
@@ -54,7 +55,7 @@ public class EditTwoFactorModel : PageModel
         var result = await _userService.EnableTwoFactor(User.GetId(), enable, Code!);
         if (result.IsFailed)
         {
-            result.Errors.ForEach(e => ModelState.AddModelError(string.Empty, e.Message));
+            result.Errors.ToModelState(ModelState);
             return Page();
         }
 
@@ -72,7 +73,7 @@ public class EditTwoFactorModel : PageModel
 
         if (result.IsFailed)
         {
-            result.Errors.ForEach(e => ModelState.AddModelError(string.Empty, e.Message));
+            result.Errors.ToModelState(ModelState);
             IsDisabled = true;
             return false;
         }

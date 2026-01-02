@@ -1,5 +1,4 @@
 using GtKanu.Core.Entities;
-using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
@@ -7,12 +6,9 @@ using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 namespace GtKanu.Core.Database;
 
 public sealed class AppDbContext :
-    IdentityDbContext<IdentityUserGuid, IdentityRoleGuid, Guid, IdentityUserClaimGuid, IdentityUserRoleGuid, IdentityUserLoginGuid, IdentityRoleClaimGuid, IdentityUserTokenGuid>,
-    IDataProtectionKeyContext
+    IdentityDbContext<IdentityUserGuid, IdentityRoleGuid, Guid, IdentityUserClaimGuid, IdentityUserRoleGuid, IdentityUserLoginGuid, IdentityRoleClaimGuid, IdentityUserTokenGuid>
 {
     const string KeyType = "binary(16)";
-
-    public DbSet<DataProtectionKey> DataProtectionKeys { get; set; } = null!;
 
     public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options)
@@ -83,12 +79,6 @@ public sealed class AppDbContext :
             eb.Property(e => e.Id).UseMySqlIdentityColumn();
             eb.Property(e => e.RoleId).HasColumnType(KeyType);
             eb.ToTable("role_claims");
-        });
-
-        modelBuilder.Entity<DataProtectionKey>(eb =>
-        {
-            eb.Property(e => e.Id).UseMySqlIdentityColumn();
-            eb.ToTable("data_protection_keys");
         });
 
         modelBuilder.ApplyConfiguration(new RoleSeeder());

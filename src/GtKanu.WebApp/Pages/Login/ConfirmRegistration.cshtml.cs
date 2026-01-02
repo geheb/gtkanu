@@ -1,3 +1,4 @@
+using GtKanu.Core.Extensions;
 using GtKanu.WebApp.Annotations;
 using GtKanu.WebApp.Converter;
 using GtKanu.WebApp.I18n;
@@ -96,7 +97,7 @@ public class ConfirmRegistrationModel : PageModel
         result = await _userService.UpdatePassword(id, Password!);
         if (result.IsFailed)
         {
-            result.Errors.ForEach(e => ModelState.AddModelError(string.Empty, e.Message));
+            result.Errors.ToModelState(ModelState);
             return Page();
         }
 

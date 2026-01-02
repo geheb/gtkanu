@@ -1,3 +1,4 @@
+using GtKanu.Core.Extensions;
 using GtKanu.Core.User;
 using GtKanu.WebApp.Annotations;
 using Microsoft.AspNetCore.Authorization;
@@ -69,7 +70,7 @@ public class IndexModel : PageModel
         var result = await _identityRepository.Update(dto, cancellationToken);
         if (result.IsFailed)
         {
-            result.Errors.ForEach(e => ModelState.AddModelError(string.Empty, e.Message));
+            result.Errors.ToModelState(ModelState);
             return Page();
         }
 

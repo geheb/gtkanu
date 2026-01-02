@@ -1,4 +1,4 @@
-name: Release
+name: CD
 
 on:
   push:
@@ -14,12 +14,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Setup .NET Core
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: '10.0.x'
 
     - name: Restore dependencies
       run: dotnet restore
@@ -32,12 +32,14 @@ jobs:
 
     - name: Publish files
       run: |
-        dotnet publish ./src/GtKasse.Cli -c Release -o ./dist/cli -r linux-x64 --self-contained true /p:UseAppHost=true /p:Version=${SEMVER}
-        dotnet publish ./src/GtKasse.Ui -c Release -o ./dist/ui -r linux-x64 --self-contained true /p:UseAppHost=true /p:Version=${SEMVER}
+        dotnet publish ./src/GtKanu.WebApp -c Release -o ./dist/app -r linux-x64 --self-contained true /p:UseAppHost=true /p:Version=${SEMVER}
 
     - name: Create archive
       run: |
-        cd dist ; tar cfJ release-linux-x64.tar.xz *
+        cd dist
+        chmod -x -R app/*.dll
+        chmod -x -R app/*.so
+        tar cfJ release-linux-x64.tar.xz *
 
     - name: Create release
       env:

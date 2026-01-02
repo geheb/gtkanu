@@ -1,3 +1,4 @@
+using GtKanu.Core.Extensions;
 using GtKanu.Core.User;
 using GtKanu.WebApp.Annotations;
 using Microsoft.AspNetCore.Authorization;
@@ -40,7 +41,7 @@ public class ChangePasswordModel : PageModel
         var result = await _userService.ChangePassword(User.GetId(), CurrentPassword!, NewPassword!);
         if (result.IsFailed)
         {
-            result.Errors.ForEach(e => ModelState.AddModelError(string.Empty, e.Message));
+            result.Errors.ToModelState(ModelState);
             return Page();
         }
 
