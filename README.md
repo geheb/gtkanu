@@ -1,4 +1,4 @@
-﻿# GtKasse
+﻿# GT Kanu
 Die Web-App hilft bei der Abrechnung im Kanu Verein.
 
 ## Frontend
@@ -20,4 +20,5 @@ Die Web-App hilft bei der Abrechnung im Kanu Verein.
 * https://github.com/MichaCo/DnsClient.NET
 * https://github.com/codebude/QRCoder
 * https://github.com/serilog/serilog-aspnetcore
+
 * https://github.com/JoshClose/CsvHelper
