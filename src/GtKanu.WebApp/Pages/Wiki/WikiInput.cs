@@ -1,4 +1,5 @@
-using GtKanu.WebApp.Annotations;
+using GtKanu.Application.Models;
+using GtKanu.Infrastructure.AspNetCore.Annotations;
 using System.ComponentModel.DataAnnotations;
 
 namespace GtKanu.WebApp.Pages.Wiki;

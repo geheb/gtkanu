@@ -1,4 +1,8 @@
-using GtKanu.WebApp.Annotations;
+using GtKanu.Application.Converter;
+using GtKanu.Application.Models;
+using GtKanu.Application.Repositories;
+using GtKanu.Infrastructure.AspNetCore.Annotations;
+using GtKanu.Infrastructure.AspNetCore.Routing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -8,9 +12,9 @@ namespace GtKanu.WebApp.Pages.Foods;
 
 [Node("Buchungsliste anlegen", FromPage = typeof(ListModel))]
 [Authorize(Roles = "administrator,treasurer")]
-public class CreateListModel : PageModel
+public sealed class CreateListModel : PageModel
 {
-    private readonly Core.Repositories.Foods _foods;
+    private readonly IFoods _foods;
 
     [Display(Name = "Name")]
     [BindProperty, RequiredField, TextLengthField]
@@ -20,7 +24,7 @@ public class CreateListModel : PageModel
     [BindProperty, RequiredField]
     public string? ValidFrom { get; set; }
 
-    public CreateListModel(Core.Repositories.Foods foods)
+    public CreateListModel(IFoods foods)
     {
         _foods = foods;
         var dc = new GermanDateTimeConverter();

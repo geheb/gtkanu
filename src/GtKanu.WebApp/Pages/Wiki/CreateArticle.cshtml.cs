@@ -1,7 +1,8 @@
 namespace GtKanu.WebApp.Pages.Wiki;
 
-using GtKanu.Core.Repositories;
-using GtKanu.Core.User;
+using GtKanu.Application.Models;
+using GtKanu.Application.Repositories;
+using GtKanu.Infrastructure.AspNetCore.Routing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -11,16 +12,16 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 [Authorize(Roles = "administrator,wikimanager")]
 public class CreateArticleModel : PageModel
 {
-    private readonly UnitOfWork _unitOfWork;
-    private readonly IdentityRepository _identityRepository;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IIdentities _identityRepository;
 
     [BindProperty]
     public WikiInput Input { get; set; } = new();
     public SelectListItem[] Users { get; set; } = Array.Empty<SelectListItem>();
 
     public CreateArticleModel(
-        UnitOfWork unitOfWork, 
-        IdentityRepository identityRepository)
+        IUnitOfWork unitOfWork, 
+        IIdentities identityRepository)
     {
         _unitOfWork = unitOfWork;
         _identityRepository = identityRepository;
@@ -43,7 +44,7 @@ public class CreateArticleModel : PageModel
 
         var dto = Input.ToDto();
 
-        await _unitOfWork.WikiArticles.Create(dto, cancellationToken);
+        _unitOfWork.WikiArticles.Create(dto);
         var result = await _unitOfWork.Save(cancellationToken) > 0;
         if (!result)
         {

@@ -1,6 +1,8 @@
 namespace GtKanu.WebApp.Pages.Fleet;
 
-using GtKanu.Core.Repositories;
+using GtKanu.Application.Models;
+using GtKanu.Application.Repositories;
+using GtKanu.Infrastructure.AspNetCore.Routing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -9,12 +11,12 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 [Authorize(Roles = "administrator,fleetmanager")]
 public class AddVehicleModel : PageModel
 {
-    private readonly Vehicles _vehicles;
+    private readonly IVehicles _vehicles;
 
     [BindProperty]
     public VehicleInput Input { get; set; } = new();
 
-    public AddVehicleModel(Vehicles vehicles)
+    public AddVehicleModel(IVehicles vehicles)
     {
         _vehicles = vehicles;
     }
@@ -29,11 +31,11 @@ public class AddVehicleModel : PageModel
         {
             if (result == VehicleStatus.Exists)
             {
-                ModelState.AddModelError(string.Empty, I18n.LocalizedMessages.ItemExists);
+                ModelState.AddModelError(string.Empty, "Fahrzeug existiert bereits");
             }
             else
             {
-                ModelState.AddModelError(string.Empty, I18n.LocalizedMessages.ItemCreateFailed);
+                ModelState.AddModelError(string.Empty, "Fehler beim Anlegen des Fahrzeugs");
             }
 
             return Page();

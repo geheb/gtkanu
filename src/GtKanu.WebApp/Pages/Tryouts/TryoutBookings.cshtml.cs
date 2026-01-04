@@ -1,3 +1,7 @@
+using GtKanu.Application.Converter;
+using GtKanu.Application.Models;
+using GtKanu.Application.Repositories;
+using GtKanu.Infrastructure.AspNetCore.Routing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -8,12 +12,12 @@ namespace GtKanu.WebApp.Pages.Tryouts;
 [Authorize(Roles = "administrator,tripmanager")]
 public class TryoutBookingsModel : PageModel
 {
-    private readonly Core.Repositories.Tryouts _tryouts;
+    private readonly ITryouts _tryouts;
 
     public string? TryoutDetails { get; private set; }
-    public TryoutBookingDto[] Items { get; private set; } = Array.Empty<TryoutBookingDto>();
+    public TryoutBookingDto[] Items { get; private set; } = [];
 
-    public TryoutBookingsModel(Core.Repositories.Tryouts tryouts)
+    public TryoutBookingsModel(ITryouts tryouts)
     {
         _tryouts = tryouts;
     }

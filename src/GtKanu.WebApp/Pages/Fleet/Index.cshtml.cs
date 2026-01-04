@@ -1,6 +1,8 @@
 namespace GtKanu.WebApp.Pages.Fleet;
 
-using GtKanu.Core.Repositories;
+using GtKanu.Application.Models;
+using GtKanu.Application.Repositories;
+using GtKanu.Infrastructure.AspNetCore.Routing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -9,11 +11,11 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 [Authorize(Roles = "administrator,fleetmanager")]
 public class IndexModel : PageModel
 {
-    private readonly Vehicles _vehicles;
+    private readonly IVehicles _vehicles;
 
-    public VehicleBookingDto[] Items { get; set; } = Array.Empty<VehicleBookingDto>();
+    public VehicleBookingDto[] Items { get; set; } = [];
 
-    public IndexModel(Vehicles vehicles)
+    public IndexModel(IVehicles vehicles)
     {
         _vehicles = vehicles;
     }

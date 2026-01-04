@@ -1,5 +1,8 @@
-using GtKanu.Core.Email;
-using GtKanu.Core.Repositories;
+using GtKanu.Application.Models;
+using GtKanu.Application.Repositories;
+using GtKanu.Application.Services;
+using GtKanu.Infrastructure.AspNetCore.Routing;
+using GtKanu.Infrastructure.Email;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -11,8 +14,8 @@ namespace GtKanu.WebApp.Pages.Mailings;
 [Authorize(Roles = "administrator,mailingmanager")]
 public class CreateModel : PageModel
 {
-    private readonly EmailValidatorService _emailValidator;
-    private readonly UnitOfWork _unitOfWork;
+    private readonly IEmailValidatorService _emailValidator;
+    private readonly IUnitOfWork _unitOfWork;
 
     [BindProperty]
     public MailingInput Input { get; set; } = new();
@@ -21,8 +24,8 @@ public class CreateModel : PageModel
     public CreateModel(
         IOptions<SmtpConnectionOptions> smtpOptions,
         IOptions<AppSettings> appOptions,
-        EmailValidatorService emailValidator,
-        UnitOfWork unitOfWork)
+        IEmailValidatorService emailValidator,
+        IUnitOfWork unitOfWork)
     {
         Input.ReplyAddress = appOptions.Value.MailingReplyTo ?? smtpOptions.Value.SenderEmail;
         _emailValidator = emailValidator;
@@ -38,7 +41,7 @@ public class CreateModel : PageModel
             return Page();
         }
 
-        await _unitOfWork.Mailings.Create(Input.ToDto(), cancellationToken);
+        _unitOfWork.Mailings.Create(Input.ToDto());
         if (await _unitOfWork.Save(cancellationToken) < 1)
         {
             ModelState.AddModelError(string.Empty, "Fehler beim Anlegen des Mailings.");

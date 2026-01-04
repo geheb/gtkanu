@@ -1,6 +1,8 @@
 namespace GtKanu.WebApp.Pages.Fleet;
 
-using GtKanu.Core.Repositories;
+using GtKanu.Application.Models;
+using GtKanu.Application.Repositories;
+using GtKanu.Infrastructure.AspNetCore.Routing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -9,11 +11,11 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 [Authorize(Roles = "administrator,fleetmanager")]
 public class VehiclesModel : PageModel
 {
-    private readonly Vehicles _vehicles;
+    private readonly IVehicles _vehicles;
 
-    public VehicleDto[] Items { get; set; } = Array.Empty<VehicleDto>();
+    public VehicleDto[] Items { get; set; } = [];
 
-    public VehiclesModel(Vehicles vehicles)
+    public VehiclesModel(IVehicles vehicles)
     {
         _vehicles = vehicles;
     }

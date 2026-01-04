@@ -1,6 +1,8 @@
-using GtKanu.Core.Extensions;
-using GtKanu.Core.User;
-using GtKanu.WebApp.Annotations;
+using GtKanu.Application.Services;
+using GtKanu.Infrastructure.AspNetCore.Annotations;
+using GtKanu.Infrastructure.AspNetCore.Routing;
+using GtKanu.Infrastructure.Extensions;
+using GtKanu.Infrastructure.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -13,8 +15,8 @@ namespace GtKanu.WebApp.Pages.MyAccount;
 [Authorize]
 public class ChangeEmailModel : PageModel
 {
-    private readonly Core.Email.EmailValidatorService _emailValidatorService;
-    private readonly Core.User.UserService _userService;
+    private readonly IEmailValidatorService _emailValidatorService;
+    private readonly IUserService _userService;
 
     [Display(Name = "Aktuelle E-Mail-Adresse")]
     public string? CurrentEmail { get; private set; }
@@ -30,8 +32,8 @@ public class ChangeEmailModel : PageModel
     public bool IsDisabled { get; set; }
 
     public ChangeEmailModel(
-        Core.Email.EmailValidatorService emailValidatorService,
-        Core.User.UserService userService)
+        IEmailValidatorService emailValidatorService,
+        IUserService userService)
     {
         _emailValidatorService = emailValidatorService;
         _userService = userService;

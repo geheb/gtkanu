@@ -1,5 +1,8 @@
-using GtKanu.Core.User;
-using GtKanu.WebApp.Annotations;
+using GtKanu.Application.Models;
+using GtKanu.Application.Repositories;
+using GtKanu.Infrastructure.AspNetCore.Annotations;
+using GtKanu.Infrastructure.AspNetCore.Routing;
+using GtKanu.Infrastructure.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -11,9 +14,9 @@ namespace GtKanu.WebApp.Pages.MyFoods;
 [Authorize(Roles = "administrator,member")]
 public class CreateFoodBookingModel : PageModel
 {
-    private readonly Core.Repositories.IdentityRepository _identityRepository;
-    private readonly Core.Repositories.Foods _foods;
-    private readonly Core.Repositories.Bookings _bookings;
+    private readonly IIdentities _identityRepository;
+    private readonly IFoods _foods;
+    private readonly IBookings _bookings;
 
     [Display(Name = "Getränk/Speise/Spende")]
     [BindProperty, RequiredField]
@@ -28,13 +31,13 @@ public class CreateFoodBookingModel : PageModel
     [RangeField(MinCountFood, MaxCountFood)]
     public int CountFood { get; set; } = MinCountFood;
     
-    public FoodDto[] Foods { set; get; } = Array.Empty<FoodDto>();
+    public FoodDto[] Foods { set; get; } = [];
     public bool IsDisabled { get; set; }
 
     public CreateFoodBookingModel(
-        Core.Repositories.IdentityRepository identityRepository,
-        Core.Repositories.Foods foods, 
-        Core.Repositories.Bookings bookings)
+        IIdentities identityRepository,
+        IFoods foods, 
+        IBookings bookings)
     {
         _identityRepository = identityRepository;
         _foods = foods;

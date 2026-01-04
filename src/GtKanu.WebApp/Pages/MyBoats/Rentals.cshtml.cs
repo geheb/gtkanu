@@ -1,4 +1,7 @@
-using GtKanu.Core.User;
+using GtKanu.Application.Models;
+using GtKanu.Application.Repositories;
+using GtKanu.Infrastructure.AspNetCore.Routing;
+using GtKanu.Infrastructure.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -8,13 +11,13 @@ namespace GtKanu.WebApp.Pages.MyBoats;
 [Authorize(Roles = "administrator,member")]
 public class RentalsModel : PageModel
 {
-    private readonly Core.Repositories.Boats _boats;
+    private readonly IBoats _boats;
 
-    public MyBoatRentalListDto[] Items { get; set; } = Array.Empty<MyBoatRentalListDto>();
+    public MyBoatRentalListDto[] Items { get; set; } = [];
 
     public string? BoatDetails { get; set; }
 
-    public RentalsModel(Core.Repositories.Boats boats)
+    public RentalsModel(IBoats boats)
     {
         _boats = boats;
     }

@@ -1,3 +1,6 @@
+using GtKanu.Application.Models;
+using GtKanu.Application.Repositories;
+using GtKanu.Infrastructure.AspNetCore.Routing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -10,16 +13,16 @@ namespace GtKanu.WebApp.Pages.Invoices;
 [Authorize(Roles = "administrator,treasurer", Policy = Policies.TwoFactorAuth)]
 public class IndexModel : PageModel
 {
-    private readonly Core.Repositories.Invoices _invoices;
+    private readonly IInvoices _invoices;
 
-    public InvoiceDto[] Invoices { get; set; } = Array.Empty<InvoiceDto>();
-    public SelectListItem[] FilterItems { get; set; } = Array.Empty<SelectListItem>();
+    public InvoiceDto[] Invoices { get; set; } = [];
+    public SelectListItem[] FilterItems { get; set; } = [];
     public decimal InvoicesTotal { get; set; }
     public decimal InvoicesOpenTotal { get; set; }
     public decimal InvoicesPaidTotal { get; set; }
     public string? FilterPeriodId { get; set; }
 
-    public IndexModel(Core.Repositories.Invoices invoices)
+    public IndexModel(IInvoices invoices)
     {
         _invoices = invoices;
     }

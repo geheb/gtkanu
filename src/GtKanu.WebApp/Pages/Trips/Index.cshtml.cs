@@ -1,6 +1,8 @@
 namespace GtKanu.WebApp.Pages.Trips;
 
-using GtKanu.Core.Repositories;
+using GtKanu.Application.Models;
+using GtKanu.Application.Repositories;
+using GtKanu.Infrastructure.AspNetCore.Routing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -8,11 +10,11 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 [Authorize(Roles = "administrator,tripmanager")]
 public class IndexModel : PageModel
 {
-    private readonly Trips _trips;
+    private readonly ITrips _trips;
 
-    public TripListDto[] Items { get; set; } = Array.Empty<TripListDto>();
+    public TripListDto[] Items { get; set; } = [];
 
-    public IndexModel(Trips trips)
+    public IndexModel(ITrips trips)
     {
         _trips = trips;
     }

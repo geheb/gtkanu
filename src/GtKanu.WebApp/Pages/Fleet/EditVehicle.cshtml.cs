@@ -1,6 +1,8 @@
 namespace GtKanu.WebApp.Pages.Fleet;
 
-using GtKanu.Core.Repositories;
+using GtKanu.Application.Models;
+using GtKanu.Application.Repositories;
+using GtKanu.Infrastructure.AspNetCore.Routing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -9,14 +11,14 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 [Authorize(Roles = "administrator,fleetmanager")]
 public class EditVehicleModel : PageModel
 {
-    private readonly Vehicles _vehicles;
+    private readonly IVehicles _vehicles;
 
     [BindProperty]
     public VehicleInput Input { get; set; } = new();
 
     public bool IsDisabled { get; set; }
 
-    public EditVehicleModel(Vehicles vehicles)
+    public EditVehicleModel(IVehicles vehicles)
     {
         _vehicles = vehicles;
     }
@@ -26,7 +28,7 @@ public class EditVehicleModel : PageModel
         var dto = await _vehicles.FindVehicle(id, cancellationToken);
         if (dto is null)
         {
-            ModelState.AddModelError(string.Empty, I18n.LocalizedMessages.ItemNotFound);
+            ModelState.AddModelError(string.Empty, "Fahrzeug wurde nicht gefunden.");
             IsDisabled = true;
             return;
         }
@@ -39,7 +41,7 @@ public class EditVehicleModel : PageModel
         var dto = await _vehicles.FindVehicle(id, cancellationToken);
         if (dto is null)
         {
-            ModelState.AddModelError(string.Empty, I18n.LocalizedMessages.ItemNotFound);
+            ModelState.AddModelError(string.Empty, "Fahrzeug wurde nicht gefunden.");
             IsDisabled = true;
             return Page();
         }
@@ -51,11 +53,11 @@ public class EditVehicleModel : PageModel
         {
             if (result == VehicleStatus.Exists)
             {
-                ModelState.AddModelError(string.Empty, I18n.LocalizedMessages.ItemExists);
+                ModelState.AddModelError(string.Empty, "Fahrzeug existiert bereits.");
             }
             else
             {
-                ModelState.AddModelError(string.Empty, I18n.LocalizedMessages.ItemCreateFailed);
+                ModelState.AddModelError(string.Empty, "Fehler beim Speichern des Fahrzeugs.");
             }
             return Page();
         }

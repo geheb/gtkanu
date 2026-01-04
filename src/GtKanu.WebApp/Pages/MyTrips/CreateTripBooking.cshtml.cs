@@ -1,7 +1,9 @@
 namespace GtKanu.WebApp.Pages.MyTrips;
 
-using GtKanu.Core.Repositories;
-using GtKanu.Core.User;
+using GtKanu.Application.Models;
+using GtKanu.Application.Repositories;
+using GtKanu.Infrastructure.AspNetCore.Routing;
+using GtKanu.Infrastructure.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -10,11 +12,11 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 [Authorize(Roles = "administrator,member")]
 public class CreateTripBookingModel : PageModel
 {
-    private readonly Trips _trips;
+    private readonly ITrips _trips;
 
-    public TripListDto[] Items { get; set; } = Array.Empty<TripListDto>();
+    public TripListDto[] Items { get; set; } = [];
 
-    public CreateTripBookingModel(Trips trips)
+    public CreateTripBookingModel(ITrips trips)
     {
         _trips = trips;
     }

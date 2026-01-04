@@ -16,22 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\GtKanu.Core\GtKanu.Core.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="I18n\LocalizedMessages.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>LocalizedMessages.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Update="I18n\LocalizedMessages.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>LocalizedMessages.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
+    <ProjectReference Include="..\GtKanu.Infrastructure\GtKanu.Infrastructure.csproj" />
   </ItemGroup>
 
   <Target Name="RemoveIdentityAssets">

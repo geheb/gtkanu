@@ -1,3 +1,6 @@
+using GtKanu.Application.Models;
+using GtKanu.Application.Repositories;
+using GtKanu.Infrastructure.AspNetCore.Routing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -7,14 +10,14 @@ namespace GtKanu.WebApp.Pages.Users;
 [Authorize(Roles = "administrator,usermanager", Policy = Policies.TwoFactorAuth)]
 public class IndexModel : PageModel
 {
-    private readonly Core.Repositories.IdentityRepository _identityRepository;
+    private readonly IIdentities _identityRepository;
 
     public IdentityDto[] Users { get; private set; } = [];
     public int UsersConfirmed { get; set; }
     public int UsersNotConfirmed { get; set; }
     public int UsersLocked { get; set; }
 
-    public IndexModel(Core.Repositories.IdentityRepository identityRepository)
+    public IndexModel(IIdentities identityRepository)
     {
         _identityRepository = identityRepository;
     }

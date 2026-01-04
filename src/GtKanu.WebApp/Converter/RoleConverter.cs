@@ -1,3 +1,5 @@
+using GtKanu.Application.Models;
+
 namespace GtKanu.WebApp.Converter;
 
 public class RoleConverter

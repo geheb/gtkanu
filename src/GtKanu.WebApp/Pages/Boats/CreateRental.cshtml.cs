@@ -1,4 +1,8 @@
-using GtKanu.Core.User;
+using GtKanu.Application.Converter;
+using GtKanu.Application.Models;
+using GtKanu.Application.Repositories;
+using GtKanu.Infrastructure.AspNetCore.Routing;
+using GtKanu.Infrastructure.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -10,8 +14,8 @@ namespace GtKanu.WebApp.Pages.Boats;
 [Authorize(Roles = "administrator,boatmanager")]
 public class CreateRentalModel : PageModel
 {
-    private readonly Core.Repositories.Boats _boats;
-    private readonly Core.Repositories.IdentityRepository _identityRepository;
+    private readonly IBoats _boats;
+    private readonly IIdentities _identityRepository;
 
     [BindProperty]
     public RentalInput Input { get; set; } = new();
@@ -23,8 +27,8 @@ public class CreateRentalModel : PageModel
     public bool IsLongterm { get; set; }
 
     public CreateRentalModel(
-        Core.Repositories.Boats boats, 
-        Core.Repositories.IdentityRepository identityRepository)
+        IBoats boats, 
+        IIdentities identityRepository)
     {
         _boats = boats;
         _identityRepository = identityRepository;

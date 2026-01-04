@@ -1,4 +1,8 @@
-using GtKanu.WebApp.Annotations;
+using GtKanu.Application.Converter;
+using GtKanu.Application.Models;
+using GtKanu.Application.Repositories;
+using GtKanu.Infrastructure.AspNetCore.Annotations;
+using GtKanu.Infrastructure.AspNetCore.Routing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -10,7 +14,7 @@ namespace GtKanu.WebApp.Pages.Foods;
 [Authorize(Roles = "administrator,treasurer")]
 public class EditListModel : PageModel
 {
-    private readonly Core.Repositories.Foods _foods;
+    private readonly IFoods _foods;
 
     [Display(Name = "Name")]
     [BindProperty, RequiredField, TextLengthField]
@@ -22,7 +26,7 @@ public class EditListModel : PageModel
 
     public bool IsDisabled { get; set; }
 
-    public EditListModel(Core.Repositories.Foods foods)
+    public EditListModel(IFoods foods)
     {
         _foods = foods;
     }

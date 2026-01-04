@@ -1,6 +1,6 @@
-using GtKanu.Core.Extensions;
-using GtKanu.WebApp.Annotations;
-using GtKanu.WebApp.I18n;
+using GtKanu.Application.Services;
+using GtKanu.Infrastructure.AspNetCore.Annotations;
+using GtKanu.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -11,7 +11,7 @@ namespace GtKanu.WebApp.Pages.Login;
 [AllowAnonymous]
 public class IndexModel : PageModel
 {
-    private readonly Core.User.LoginService _loginService;
+    private readonly ILoginService _loginService;
 
     [BindProperty]
     public string? UserName { get; set; } // just for bots
@@ -27,7 +27,7 @@ public class IndexModel : PageModel
     public string? Message { get; set; }
 
     public IndexModel(
-        Core.User.LoginService loginService)
+        ILoginService loginService)
     {
         _loginService = loginService;
     }
@@ -48,7 +48,7 @@ public class IndexModel : PageModel
     {
         if (!string.IsNullOrEmpty(UserName))
         {
-            ModelState.AddModelError(string.Empty, LocalizedMessages.InvalidRequest);
+            ModelState.AddModelError(string.Empty, "Die Anfrage ist ungültig.");
             return Page();
         }
 

@@ -1,7 +1,9 @@
 namespace GtKanu.WebApp.Pages.Tryouts;
 
-using GtKanu.Core.Repositories;
-using GtKanu.Core.User;
+using GtKanu.Application.Models;
+using GtKanu.Application.Repositories;
+using GtKanu.Infrastructure.AspNetCore.Routing;
+using GtKanu.Infrastructure.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -12,8 +14,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 [Authorize(Roles = "administrator,tripmanager")]
 public class CreateTryoutModel : PageModel
 {
-    private readonly IdentityRepository _identityRepository;
-    private readonly Tryouts _tryouts;
+    private readonly IIdentities _identityRepository;
+    private readonly ITryouts _tryouts;
 
     [BindProperty]
     public TryoutInput Input { get; set; } = new();
@@ -21,8 +23,8 @@ public class CreateTryoutModel : PageModel
     public SelectListItem[] Users { get; private set; } = Array.Empty<SelectListItem>();
 
     public CreateTryoutModel(
-        IdentityRepository identityRepository, 
-        Tryouts tryouts)
+        IIdentities identityRepository, 
+        ITryouts tryouts)
     {
         _identityRepository = identityRepository;
         _tryouts = tryouts;

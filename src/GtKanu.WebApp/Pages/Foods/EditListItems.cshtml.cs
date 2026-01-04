@@ -1,3 +1,7 @@
+using GtKanu.Application.Converter;
+using GtKanu.Application.Models;
+using GtKanu.Application.Repositories;
+using GtKanu.Infrastructure.AspNetCore.Routing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -8,12 +12,12 @@ namespace GtKanu.WebApp.Pages.Foods;
 [Authorize(Roles = "administrator,treasurer")]
 public class EditListItemsModel : PageModel
 {
-    private readonly Core.Repositories.Foods _foods;
-    public FoodDto[] Foods { get; set; } = Array.Empty<FoodDto>();
+    private readonly IFoods _foods;
+    public FoodDto[] Foods { get; set; } = [];
 
     public string? ListDetails { get; set; } = "n.v.";
 
-    public EditListItemsModel(Core.Repositories.Foods foods) => _foods = foods;
+    public EditListItemsModel(IFoods foods) => _foods = foods;
 
     public async Task OnGetAsync(Guid id, CancellationToken cancellationToken)
     {

@@ -1,4 +1,8 @@
-using GtKanu.WebApp.Annotations;
+using GtKanu.Application.Converter;
+using GtKanu.Application.Models;
+using GtKanu.Application.Repositories;
+using GtKanu.Infrastructure.AspNetCore.Annotations;
+using GtKanu.Infrastructure.AspNetCore.Routing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -8,9 +12,9 @@ namespace GtKanu.WebApp.Pages.Foods;
 
 [Node("Eintrag anlegen", FromPage = typeof(EditListItemsModel))]
 [Authorize(Roles = "administrator,treasurer")]
-public class CreateListItemModel : PageModel
+public sealed class CreateListItemModel : PageModel
 {
-    private readonly Core.Repositories.Foods _foods;
+    private readonly IFoods _foods;
 
     [Display(Name = "Typ")]
     [BindProperty, RequiredField]
@@ -32,7 +36,7 @@ public class CreateListItemModel : PageModel
     public string? ListDetails { get; set; } = "n.v.";
     public bool IsDisabled { get; set; }
 
-    public CreateListItemModel(Core.Repositories.Foods foods)
+    public CreateListItemModel(IFoods foods)
     {
         _foods = foods;
     }

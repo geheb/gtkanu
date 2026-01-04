@@ -1,7 +1,9 @@
 namespace GtKanu.WebApp.Pages.MyTryouts;
 
-using GtKanu.Core.Repositories;
-using GtKanu.Core.User;
+using GtKanu.Application.Models;
+using GtKanu.Application.Repositories;
+using GtKanu.Infrastructure.AspNetCore.Routing;
+using GtKanu.Infrastructure.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -10,11 +12,11 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 [Authorize(Roles = "administrator,member,interested")]
 public class IndexModel : PageModel
 {
-    private readonly Tryouts _tryouts;
+    private readonly ITryouts _tryouts;
 
     public MyTryoutListDto[] Items { get; set; } = Array.Empty<MyTryoutListDto>();
 
-    public IndexModel(Tryouts tryouts) 
+    public IndexModel(ITryouts tryouts) 
     {
         _tryouts = tryouts;
     }

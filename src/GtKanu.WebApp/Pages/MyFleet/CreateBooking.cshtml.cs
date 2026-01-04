@@ -1,8 +1,9 @@
 namespace GtKanu.WebApp.Pages.MyFleet;
 
-using GtKanu.Core.Models;
-using GtKanu.Core.Repositories;
-using GtKanu.Core.User;
+using GtKanu.Application.Models;
+using GtKanu.Application.Repositories;
+using GtKanu.Infrastructure.AspNetCore.Routing;
+using GtKanu.Infrastructure.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -12,14 +13,14 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 [Authorize(Roles = "administrator,member")]
 public class CreateBookingModel : PageModel
 {
-    private readonly Vehicles _vehicles;
+    private readonly IVehicles _vehicles;
 
     [BindProperty]
     public CreateBookingInput Input { get; set; } = new();
 
-    public SelectListItem[] Vehicles { get; set; } = Array.Empty<SelectListItem>();
+    public SelectListItem[] Vehicles { get; set; } = [];
 
-    public CreateBookingModel(Vehicles vehicles)
+    public CreateBookingModel(IVehicles vehicles)
     {
         _vehicles = vehicles;
     }
@@ -59,7 +60,7 @@ public class CreateBookingModel : PageModel
         }
         else
         {
-            ModelState.AddModelError(string.Empty, I18n.LocalizedMessages.SaveFailed);
+            ModelState.AddModelError(string.Empty, "Fehler beim Speichern des Fahrzeugs.");
         }
         return Page();
     }

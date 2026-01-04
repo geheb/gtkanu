@@ -1,7 +1,10 @@
 namespace GtKanu.WebApp.Pages.Trips;
 
-using GtKanu.Core.Repositories;
-using GtKanu.Core.User;
+using GtKanu.Application.Converter;
+using GtKanu.Application.Models;
+using GtKanu.Application.Repositories;
+using GtKanu.Infrastructure.AspNetCore.Routing;
+using GtKanu.Infrastructure.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -10,16 +13,16 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 [Authorize(Roles = "administrator,tripmanager")]
 public class TripChatModel : PageModel
 {
-    private readonly Trips _trips;
+    private readonly ITrips _trips;
 
     public string? TripDetails { get; set; }
-    public TripChatDto[] Items { get; set; } = Array.Empty<TripChatDto>();
+    public TripChatDto[] Items { get; set; } = [];
     public bool IsDisabled { get; set; }
 
     [BindProperty]
     public string? Message { get; set; }
 
-    public TripChatModel(Trips trips)
+    public TripChatModel(ITrips trips)
     {
         _trips = trips;
     }

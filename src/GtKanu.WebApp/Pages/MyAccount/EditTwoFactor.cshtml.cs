@@ -1,7 +1,10 @@
-using GtKanu.Core.Extensions;
-using GtKanu.Core.User;
-using GtKanu.WebApp.Annotations;
-using GtKanu.WebApp.Constants;
+using GtKanu.Application.Models;
+using GtKanu.Application.Services;
+using GtKanu.Infrastructure.AspNetCore.Annotations;
+using GtKanu.Infrastructure.AspNetCore.Constants;
+using GtKanu.Infrastructure.AspNetCore.Routing;
+using GtKanu.Infrastructure.Extensions;
+using GtKanu.Infrastructure.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -16,7 +19,7 @@ namespace GtKanu.WebApp.Pages.MyAccount;
 public class EditTwoFactorModel : PageModel
 {
     private readonly string _appName;
-    private readonly Core.User.UserService _userService;
+    private readonly IUserService _userService;
     private readonly NodeGeneratorService _nodeGeneratorService;
 
     [BindProperty, Display(Name = "6-stelliger Code aus der Authenticator-App")]
@@ -32,7 +35,7 @@ public class EditTwoFactorModel : PageModel
     public bool IsDisabled { get; set; }
 
     public EditTwoFactorModel(
-        Core.User.UserService userService,
+        IUserService userService,
         NodeGeneratorService nodeGeneratorService,
         IOptions<AppSettings> appOptions)
     {

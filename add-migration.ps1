@@ -3,6 +3,6 @@ Param(
     [string]$Name
 )
 Push-Location
-cd src/GtKanu.Core
-dotnet ef migrations add $Name --startup-project ../GtKanu.WebApp/
+cd src/GtKanu.Infrastructure
+dotnet ef migrations add $Name -o Database/Migrations --startup-project ../GtKanu.WebApp/
 Pop-Location

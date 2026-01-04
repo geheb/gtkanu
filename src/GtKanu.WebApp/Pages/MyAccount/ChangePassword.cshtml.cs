@@ -1,6 +1,8 @@
-using GtKanu.Core.Extensions;
-using GtKanu.Core.User;
-using GtKanu.WebApp.Annotations;
+using GtKanu.Application.Services;
+using GtKanu.Infrastructure.AspNetCore.Annotations;
+using GtKanu.Infrastructure.AspNetCore.Routing;
+using GtKanu.Infrastructure.Extensions;
+using GtKanu.Infrastructure.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -12,7 +14,7 @@ namespace GtKanu.WebApp.Pages.MyAccount;
 [Authorize]
 public class ChangePasswordModel : PageModel
 {
-    private readonly Core.User.UserService _userService;
+    private readonly IUserService _userService;
 
     [BindProperty, Display(Name = "Aktuelles Passwort")]
     [RequiredField, PasswordLengthField(MinimumLength = 8)] // old passwords has 8
@@ -29,7 +31,7 @@ public class ChangePasswordModel : PageModel
 
     public bool IsDisabled { get; set; }
 
-    public ChangePasswordModel(Core.User.UserService userService)
+    public ChangePasswordModel(IUserService userService)
     {
         _userService = userService;
     }

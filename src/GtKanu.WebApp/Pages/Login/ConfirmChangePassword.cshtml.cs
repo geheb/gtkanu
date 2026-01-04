@@ -1,7 +1,8 @@
-using GtKanu.Core.Extensions;
-using GtKanu.WebApp.Annotations;
+using GtKanu.Application.Repositories;
+using GtKanu.Application.Services;
+using GtKanu.Infrastructure.AspNetCore.Annotations;
+using GtKanu.Infrastructure.Extensions;
 using GtKanu.WebApp.Converter;
-using GtKanu.WebApp.I18n;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -12,8 +13,8 @@ namespace GtKanu.WebApp.Pages.Login;
 [AllowAnonymous]
 public class ConfirmChangePasswordModel : PageModel
 {
-    private readonly Core.Repositories.IdentityRepository _identityRepository;
-    private readonly Core.User.UserService _userService;
+    private readonly IIdentities _identityRepository;
+    private readonly IUserService _userService;
 
     [BindProperty]
     public string? UserName { get; set; } // just for bots
@@ -31,8 +32,8 @@ public class ConfirmChangePasswordModel : PageModel
     public string? ChangePasswordEmail { get; set; } = "n.v.";
 
     public ConfirmChangePasswordModel(
-        Core.Repositories.IdentityRepository identityRepository,
-        Core.User.UserService userService)
+        IIdentities identityRepository,
+        IUserService userService)
     {
         _identityRepository = identityRepository;
         _userService = userService;
@@ -44,7 +45,7 @@ public class ConfirmChangePasswordModel : PageModel
             string.IsNullOrWhiteSpace(token))
         {
             IsDisabled = true;
-            ModelState.AddModelError(string.Empty, LocalizedMessages.InvalidRequest);
+            ModelState.AddModelError(string.Empty, "Die Anfrage ist ungültig.");
             return;
         }
 
@@ -52,7 +53,7 @@ public class ConfirmChangePasswordModel : PageModel
         if (result.IsFailed)
         {
             IsDisabled = true;
-            ModelState.AddModelError(string.Empty, LocalizedMessages.InvalidPasswordResetLink);
+            ModelState.AddModelError(string.Empty, "Der Link zum Bestätigen des neuen Passwortes ist ungültig oder abgelaufen. Der Vorgang muss wiederholt werden.");
             return;
         }
 
@@ -60,7 +61,7 @@ public class ConfirmChangePasswordModel : PageModel
         if (user is null)
         {
             IsDisabled = true;
-            ModelState.AddModelError(string.Empty, LocalizedMessages.InvalidPasswordResetLink);
+            ModelState.AddModelError(string.Empty, "Der Link zum Bestätigen des neuen Passwortes ist ungültig oder abgelaufen. Der Vorgang muss wiederholt werden.");
             return;
         }
 
@@ -74,7 +75,7 @@ public class ConfirmChangePasswordModel : PageModel
             !string.IsNullOrEmpty(UserName))
         {
             IsDisabled = true;
-            ModelState.AddModelError(string.Empty, LocalizedMessages.InvalidRequest);
+            ModelState.AddModelError(string.Empty, "Die Anfrage ist ungültig.");
             return Page();
         }
 
@@ -84,7 +85,7 @@ public class ConfirmChangePasswordModel : PageModel
         if (user is null)
         {
             IsDisabled = true;
-            ModelState.AddModelError(string.Empty, LocalizedMessages.InvalidPasswordResetLink);
+            ModelState.AddModelError(string.Empty, "Der Link zum Bestätigen des neuen Passwortes ist ungültig oder abgelaufen. Der Vorgang muss wiederholt werden.");
             return Page();
         }
 

@@ -1,6 +1,5 @@
-using GtKanu.Core.Email;
-using GtKanu.WebApp.Annotations;
-using GtKanu.WebApp.I18n;
+using GtKanu.Application.Services;
+using GtKanu.Infrastructure.AspNetCore.Annotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -11,8 +10,8 @@ namespace GtKanu.WebApp.Pages.Login;
 [AllowAnonymous]
 public class PasswordForgottenModel : PageModel
 {
-    private readonly Core.User.UserService _userService;
-    private readonly EmailValidatorService _emailValidator;
+    private readonly IUserService _userService;
+    private readonly IEmailValidatorService _emailValidator;
 
     [BindProperty]
     public string? UserName { get; set; } // just for Bots
@@ -25,8 +24,8 @@ public class PasswordForgottenModel : PageModel
     public bool IsDisabled { get; set; }
 
     public PasswordForgottenModel(
-        EmailValidatorService emailValidator,
-        Core.User.UserService userService)
+        IEmailValidatorService emailValidator,
+        IUserService userService)
     {
         _emailValidator = emailValidator;
         _userService = userService;
@@ -37,7 +36,7 @@ public class PasswordForgottenModel : PageModel
         if (!string.IsNullOrEmpty(UserName))
         {
             IsDisabled = true;
-            ModelState.AddModelError(string.Empty, LocalizedMessages.InvalidRequest);
+            ModelState.AddModelError(string.Empty, "Die Anfrage ist ungültig.");
             return Page();
         }
 
@@ -45,7 +44,7 @@ public class PasswordForgottenModel : PageModel
 
         if (!await _emailValidator.Validate(Email!, cancellationToken))
         {
-            ModelState.AddModelError(string.Empty, LocalizedMessages.InvalidEmail);
+            ModelState.AddModelError(string.Empty, "Die E-Mail-Adresse ist ungültig.");
             return Page();
         }
 

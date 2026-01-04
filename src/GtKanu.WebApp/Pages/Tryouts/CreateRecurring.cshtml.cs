@@ -1,4 +1,7 @@
-using GtKanu.Core.User;
+using GtKanu.Application.Models;
+using GtKanu.Application.Repositories;
+using GtKanu.Infrastructure.AspNetCore.Routing;
+using GtKanu.Infrastructure.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -10,8 +13,8 @@ namespace GtKanu.WebApp.Pages.Tryouts;
 [Authorize(Roles = "administrator,tripmanager")]
 public class CreateRecurringModel : PageModel
 {
-    private readonly Core.Repositories.IdentityRepository _identityRepository;
-    private readonly Core.Repositories.Tryouts _tryouts;
+    private readonly IIdentities _identityRepository;
+    private readonly ITryouts _tryouts;
 
     [BindProperty]
     public RecurringInput Input { get; set; } = new();
@@ -19,8 +22,8 @@ public class CreateRecurringModel : PageModel
     public SelectListItem[] Users { get; private set; } = Array.Empty<SelectListItem>();
 
     public CreateRecurringModel(
-        Core.Repositories.IdentityRepository identityRepository, 
-        Core.Repositories.Tryouts tryouts)
+        IIdentities identityRepository, 
+        ITryouts tryouts)
     {
         _identityRepository = identityRepository;
         _tryouts = tryouts;

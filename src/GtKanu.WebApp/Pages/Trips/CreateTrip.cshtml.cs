@@ -1,7 +1,9 @@
 namespace GtKanu.WebApp.Pages.Trips;
 
-using GtKanu.Core.Repositories;
-using GtKanu.Core.User;
+using GtKanu.Application.Models;
+using GtKanu.Application.Repositories;
+using GtKanu.Infrastructure.AspNetCore.Routing;
+using GtKanu.Infrastructure.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -11,17 +13,17 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 [Authorize(Roles = "administrator,tripmanager")]
 public class CreateTripModel : PageModel
 {
-    private readonly IdentityRepository _identityRepository;
-    private readonly Trips _trips;
+    private readonly IIdentities _identityRepository;
+    private readonly ITrips _trips;
 
     [BindProperty]
     public TripInput Input { get; set; } = new();
 
-    public SelectListItem[] Users { get; set; } = Array.Empty<SelectListItem>();
+    public SelectListItem[] Users { get; set; } = [];
 
     public CreateTripModel(
-        IdentityRepository identityRepository, 
-        Trips trips)
+        IIdentities identityRepository, 
+        ITrips trips)
     {
         _identityRepository = identityRepository;
         _trips = trips;

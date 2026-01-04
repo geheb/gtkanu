@@ -1,4 +1,8 @@
-using GtKanu.Core.User;
+using GtKanu.Application.Converter;
+using GtKanu.Application.Models;
+using GtKanu.Application.Repositories;
+using GtKanu.Infrastructure.AspNetCore.Routing;
+using GtKanu.Infrastructure.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -9,16 +13,16 @@ namespace GtKanu.WebApp.Pages.Tryouts;
 [Authorize(Roles = "administrator,tripmanager")]
 public class TryoutChatModel : PageModel
 {
-    private readonly Core.Repositories.Tryouts _tryouts;
+    private readonly ITryouts _tryouts;
 
     public string? TryoutDetails { get; set; }
-    public TryoutChatDto[] Items { get; set; } = Array.Empty<TryoutChatDto>();
+    public TryoutChatDto[] Items { get; set; } = [];
     public bool IsDisabled { get; set; }
 
     [BindProperty]
     public string? Message { get; set; }
 
-    public TryoutChatModel(Core.Repositories.Tryouts tryouts)
+    public TryoutChatModel(ITryouts tryouts)
     {
         _tryouts = tryouts;
     }

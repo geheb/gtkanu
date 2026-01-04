@@ -1,3 +1,5 @@
+using GtKanu.Application.Models;
+using GtKanu.Application.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -7,11 +9,11 @@ namespace GtKanu.WebApp.Pages.Trips;
 [AllowAnonymous]
 public class PublicModel : PageModel
 {
-    private readonly Core.Repositories.Trips _trips;
+    private readonly ITrips _trips;
 
     public PublicTripDto[] Items { get; set; } = [];
 
-    public PublicModel(Core.Repositories.Trips trips)
+    public PublicModel(ITrips trips)
     {
         _trips = trips;
     }

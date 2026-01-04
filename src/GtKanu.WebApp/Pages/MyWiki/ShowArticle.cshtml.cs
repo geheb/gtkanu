@@ -1,6 +1,8 @@
 namespace GtKanu.WebApp.Pages.MyWiki;
 
-using GtKanu.Core.Repositories;
+using GtKanu.Application.Models;
+using GtKanu.Application.Repositories;
+using GtKanu.Infrastructure.AspNetCore.Routing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -8,11 +10,11 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 [Authorize(Roles = "administrator,member")]
 public class ShowArticleModel : PageModel
 {
-    private UnitOfWork _unitOfWork;
+    private IUnitOfWork _unitOfWork;
 
     public WikiArticleDto? Item { get; private set; }
 
-    public ShowArticleModel(UnitOfWork unitOfWork)
+    public ShowArticleModel(IUnitOfWork unitOfWork)
     {
         _unitOfWork = unitOfWork;
     }

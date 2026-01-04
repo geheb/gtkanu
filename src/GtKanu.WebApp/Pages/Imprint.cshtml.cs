@@ -1,13 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace GtKanu.WebApp.Pages
+namespace GtKanu.WebApp.Pages;
+
+[AllowAnonymous]
+public class ImprintModel : PageModel
 {
-    [AllowAnonymous]
-    public class ImprintModel : PageModel
-    {
-        public void OnGet()
-        {
-        }
-    }
 }

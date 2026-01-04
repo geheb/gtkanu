@@ -1,6 +1,9 @@
-using GtKanu.Core.Extensions;
-using GtKanu.Core.User;
-using GtKanu.WebApp.Annotations;
+using GtKanu.Application.Models;
+using GtKanu.Application.Repositories;
+using GtKanu.Infrastructure.AspNetCore.Annotations;
+using GtKanu.Infrastructure.AspNetCore.Routing;
+using GtKanu.Infrastructure.Extensions;
+using GtKanu.Infrastructure.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -12,7 +15,7 @@ namespace GtKanu.WebApp.Pages.MyAccount;
 [Authorize]
 public class IndexModel : PageModel
 {
-    private readonly Core.Repositories.IdentityRepository _identityRepository;
+    private readonly IIdentities _identityRepository;
 
     [BindProperty, Display(Name = "E-Mail-Adresse")]
     public string? Email { get; set; }
@@ -28,7 +31,7 @@ public class IndexModel : PageModel
     public bool IsDisabled { get; set; }
     public string? Info { get; set; }
 
-    public IndexModel(Core.Repositories.IdentityRepository identityRepository)
+    public IndexModel(IIdentities identityRepository)
     {
         _identityRepository = identityRepository;
     }

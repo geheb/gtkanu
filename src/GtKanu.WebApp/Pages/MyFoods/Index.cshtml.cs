@@ -1,5 +1,8 @@
-using GtKanu.Core.Repositories;
-using GtKanu.Core.User;
+using GtKanu.Application.Models;
+using GtKanu.Application.Repositories;
+using GtKanu.Infrastructure.AspNetCore.Routing;
+using GtKanu.Infrastructure.User;
+using GtKanu.WebApp.Converter;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -12,18 +15,18 @@ namespace GtKanu.WebApp.Pages.MyFoods;
 [Authorize(Roles = "administrator,member")]
 public class IndexModel : PageModel
 {
-    private readonly Core.Repositories.Bookings _bookings;
+    private readonly IBookings _bookings;
 
-    public BookingFoodDto[] Bookings { get; set; } = Array.Empty<BookingFoodDto>();
+    public BookingFoodDto[] Bookings { get; set; } = [];
     public decimal Total { get; set; }
     public decimal OpenTotal { get; set; }
     public decimal DrinksTotal { get; set; }
     public decimal DishesTotal { get; set; }
     public decimal DonationTotal { get; set; }
 
-    public SelectListItem[] FilterItems { get; set; } = Array.Empty<SelectListItem>();
+    public SelectListItem[] FilterItems { get; set; } = [];
 
-    public IndexModel(Core.Repositories.Bookings bookings)
+    public IndexModel(IBookings bookings)
     {
         _bookings = bookings;
     }

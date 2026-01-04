@@ -1,3 +1,6 @@
+using GtKanu.Application.Models;
+using GtKanu.Application.Repositories;
+using GtKanu.Infrastructure.AspNetCore.Routing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -8,14 +11,14 @@ namespace GtKanu.WebApp.Pages.Clubhouse;
 [Authorize(Roles = "administrator,housemanager")]
 public class EditBookingModel : PageModel
 {
-    private readonly Core.Repositories.Clubhouse _clubhouse;
+    private readonly IClubhouse _clubhouse;
 
     [BindProperty]
     public ClubhouseBookingInput Input { get; set; } = new();
 
     public bool IsDisabled { get; set; }
 
-    public EditBookingModel(Core.Repositories.Clubhouse clubhouse)
+    public EditBookingModel(IClubhouse clubhouse)
     {
         _clubhouse = clubhouse;
     }

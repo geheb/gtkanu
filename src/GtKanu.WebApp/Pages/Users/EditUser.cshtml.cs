@@ -1,4 +1,7 @@
-using GtKanu.Core.Extensions;
+using GtKanu.Application.Repositories;
+using GtKanu.Application.Services;
+using GtKanu.Infrastructure.AspNetCore.Routing;
+using GtKanu.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -9,8 +12,8 @@ namespace GtKanu.WebApp.Pages.Users;
 [Authorize(Roles = "administrator,usermanager", Policy = Policies.TwoFactorAuth)]
 public class EditUserModel : PageModel
 {
-    private readonly Core.User.UserService _userService;
-    private readonly Core.Repositories.IdentityRepository _identityRepository;
+    private readonly IUserService _userService;
+    private readonly IIdentities _identityRepository;
 
     [BindProperty]
     public EditUserInput Input { get; set; } = new();
@@ -19,8 +22,8 @@ public class EditUserModel : PageModel
     public string? Name { get; set; }
 
     public EditUserModel(
-        Core.User.UserService userService,
-        Core.Repositories.IdentityRepository identityRepository)
+        IUserService userService,
+        IIdentities identityRepository)
     {
         _userService = userService;
         _identityRepository = identityRepository;

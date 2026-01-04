@@ -1,13 +1,13 @@
-using GtKanu.Core;
-using GtKanu.Core.Database;
-using GtKanu.Core.Email;
-using GtKanu.Core.Entities;
-using GtKanu.Core.User;
-using GtKanu.WebApp.Annotations;
-using GtKanu.WebApp.Bindings;
-using GtKanu.WebApp.Constants;
-using GtKanu.WebApp.Filters;
-using GtKanu.WebApp.Middlewares;
+using GtKanu.Infrastructure;
+using GtKanu.Infrastructure.AspNetCore.Annotations;
+using GtKanu.Infrastructure.AspNetCore.Bindings;
+using GtKanu.Infrastructure.AspNetCore.Constants;
+using GtKanu.Infrastructure.AspNetCore.Filters;
+using GtKanu.Infrastructure.AspNetCore.Middlewares;
+using GtKanu.Infrastructure.AspNetCore.Routing;
+using GtKanu.Infrastructure.Database;
+using GtKanu.Infrastructure.Email;
+using GtKanu.Infrastructure.User;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -28,15 +28,7 @@ void ConfigureApp(WebApplicationBuilder builder)
     services.AddMySqlContext(config);
     services.AddMemoryCache();
 
-    services
-       .AddIdentity<IdentityUserGuid, IdentityRoleGuid>(options =>
-       {
-           options.SignIn.RequireConfirmedEmail = true;
-           options.Tokens.EmailConfirmationTokenProvider = ConfirmEmailDataProtectionTokenProviderOptions.ProviderName;
-       })
-       .AddEntityFrameworkStores<AppDbContext>()
-       .AddDefaultTokenProviders()
-       .AddTokenProvider<ConfirmEmailDataProtectorTokenProvider<IdentityUserGuid>>(ConfirmEmailDataProtectionTokenProviderOptions.ProviderName);       
+    services.AddIdentityStore();   
        
     services.AddAuthorizationBuilder()
         .AddPolicy(Policies.TwoFactorAuth, policy => policy.RequireClaim(UserClaims.TwoFactorClaim.Type, UserClaims.TwoFactorClaim.Value));
@@ -133,8 +125,6 @@ void ConfigureApp(WebApplicationBuilder builder)
         options.Cookie.Name = CookieNames.XcsrfToken;
     });
 
-    services.Configure<AppSettings>(config.GetSection("App"));
-    services.AddSingleton<NodeGeneratorService>();
     services.AddCore(config);
 }
 

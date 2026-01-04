@@ -1,3 +1,6 @@
+using GtKanu.Application.Models;
+using GtKanu.Application.Repositories;
+using GtKanu.Infrastructure.AspNetCore.Routing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -7,11 +10,11 @@ namespace GtKanu.WebApp.Pages.Boats;
 [Authorize(Roles = "administrator,boatmanager")]
 public class IndexModel : PageModel
 {
-    private readonly Core.Repositories.Boats _boats;
+    private readonly IBoats _boats;
 
     public BoatRentalListDto[] Items { get; set; } = Array.Empty<BoatRentalListDto>();
 
-    public IndexModel(Core.Repositories.Boats boats)
+    public IndexModel(IBoats boats)
     {
         _boats = boats;
     }

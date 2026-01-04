@@ -1,3 +1,6 @@
+using GtKanu.Application.Models;
+using GtKanu.Application.Repositories;
+using GtKanu.Infrastructure.AspNetCore.Routing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -7,11 +10,11 @@ namespace GtKanu.WebApp.Pages.Clubhouse;
 [Authorize(Roles = "administrator,housemanager")]
 public class IndexModel : PageModel
 {
-    private readonly Core.Repositories.Clubhouse _clubhouse;
+    private readonly IClubhouse _clubhouse;
 
     public ClubhouseBookingDto[] Items { get; set; } = [];
 
-    public IndexModel(Core.Repositories.Clubhouse clubhouse)
+    public IndexModel(IClubhouse clubhouse)
     {
         _clubhouse = clubhouse;
     }

@@ -1,4 +1,6 @@
-using GtKanu.Core.Repositories;
+using GtKanu.Application.Models;
+using GtKanu.Application.Repositories;
+using GtKanu.Infrastructure.AspNetCore.Routing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -8,11 +10,11 @@ namespace GtKanu.WebApp.Pages.Mailings;
 [Authorize(Roles = "administrator,mailingmanager")]
 public class IndexModel : PageModel
 {
-    private readonly UnitOfWork _unitOfWork;
+    private readonly IUnitOfWork _unitOfWork;
 
     public MailingDto[] Items { get; set; } = [];
 
-    public IndexModel(UnitOfWork unitOfWork)
+    public IndexModel(IUnitOfWork unitOfWork)
     {
         _unitOfWork = unitOfWork;
     }

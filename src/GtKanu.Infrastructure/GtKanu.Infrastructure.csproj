@@ -1,0 +1,42 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <EmbeddedResource Include="Email\ConfirmChangeEmail.html" />
+    <EmbeddedResource Include="Email\ConfirmRegistration.html" />
+    <EmbeddedResource Include="Email\ConfirmPasswordForgotten.html" />
+    <EmbeddedResource Include="Email\ConfirmRegistrationExtended.html" />
+    <EmbeddedResource Include="Email\Mailing.html" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<PackageReference Include="DnsClient" />
+	<PackageReference Include="FluentResults" />
+	<PackageReference Include="Ical.Net" />
+	<PackageReference Include="Microsoft.AspNetCore.DataProtection.Abstractions" />
+	<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
+	<PackageReference Include="Microsoft.AspNetCore.Identity.UI" />
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.Relational " />
+	<PackageReference Include="Scriban" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GtKanu.Application\GtKanu.Application.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="AspNetCore\LocalizedMessages.Designer.cs">
+      <DependentUpon>LocalizedMessages.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="AspNetCore\LocalizedMessages.resx">
+      <LastGenOutput>LocalizedMessages.Designer.cs</LastGenOutput>
+      <Generator>ResXFileCodeGenerator</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>

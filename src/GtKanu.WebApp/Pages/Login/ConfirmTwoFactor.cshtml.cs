@@ -1,5 +1,6 @@
-using GtKanu.Core.Extensions;
-using GtKanu.WebApp.Annotations;
+using GtKanu.Application.Services;
+using GtKanu.Infrastructure.AspNetCore.Annotations;
+using GtKanu.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -10,7 +11,7 @@ namespace GtKanu.WebApp.Pages.Login;
 [AllowAnonymous]
 public sealed class ConfirmTwoFactorModel : PageModel
 {
-    private readonly Core.User.LoginService _loginService;
+    private readonly ILoginService _loginService;
 
     [BindProperty, Display(Name = "6-stelliger Code aus der Authenticator-App")]
     [RequiredField, TextLengthField(6, MinimumLength = 6)]
@@ -24,7 +25,7 @@ public sealed class ConfirmTwoFactorModel : PageModel
     public bool IsDisabled { get; set; }
 
     public ConfirmTwoFactorModel(
-        Core.User.LoginService loginService)
+        ILoginService loginService)
     {
         _loginService = loginService;
     }

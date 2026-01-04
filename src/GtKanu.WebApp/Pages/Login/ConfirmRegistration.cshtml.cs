@@ -1,7 +1,8 @@
-using GtKanu.Core.Extensions;
-using GtKanu.WebApp.Annotations;
+using GtKanu.Application.Repositories;
+using GtKanu.Application.Services;
+using GtKanu.Infrastructure.AspNetCore.Annotations;
+using GtKanu.Infrastructure.Extensions;
 using GtKanu.WebApp.Converter;
-using GtKanu.WebApp.I18n;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -12,8 +13,8 @@ namespace GtKanu.WebApp.Pages.Login;
 [AllowAnonymous]
 public class ConfirmRegistrationModel : PageModel
 {
-    private readonly Core.Repositories.IdentityRepository _identityRepository;
-    private readonly Core.User.UserService _userService;
+    private readonly IIdentities _identityRepository;
+    private readonly IUserService _userService;
 
     public string ConfirmedEmail { get; set; } = "n.v.";
     public bool IsDisabled { get; set; }
@@ -28,8 +29,8 @@ public class ConfirmRegistrationModel : PageModel
     public string? RepeatPassword { get; set; }
 
     public ConfirmRegistrationModel(
-        Core.Repositories.IdentityRepository identityRepository,
-        Core.User.UserService userService)
+        IIdentities identityRepository,
+        IUserService userService)
     {
         _identityRepository = identityRepository;
         _userService = userService;
@@ -41,7 +42,7 @@ public class ConfirmRegistrationModel : PageModel
             string.IsNullOrWhiteSpace(token))
         {
             IsDisabled = true;
-            ModelState.AddModelError(string.Empty, LocalizedMessages.InvalidRequest);
+            ModelState.AddModelError(string.Empty, "Die Anfrage ist ungültig.");
             return;
         }
 
@@ -49,7 +50,7 @@ public class ConfirmRegistrationModel : PageModel
         if (result.IsFailed)
         {
             IsDisabled = true;
-            ModelState.AddModelError(string.Empty, LocalizedMessages.InvalidRegisterConfirmationLink);
+            ModelState.AddModelError(string.Empty, "Der Link zum Bestätigen der Registrierung ist ungültig oder abgelaufen. Der Vorgang muss wiederholt werden.");
             return;
         }
 
@@ -57,7 +58,7 @@ public class ConfirmRegistrationModel : PageModel
         if (user is null)
         {
             IsDisabled = true;
-            ModelState.AddModelError(string.Empty, LocalizedMessages.InvalidPasswordResetLink);
+            ModelState.AddModelError(string.Empty, "Der Link zum Bestätigen der Registrierung ist ungültig oder abgelaufen. Der Vorgang muss wiederholt werden.");
             return;
         }
 
@@ -70,7 +71,7 @@ public class ConfirmRegistrationModel : PageModel
             string.IsNullOrWhiteSpace(token))
         {
             IsDisabled = true;
-            ModelState.AddModelError(string.Empty, LocalizedMessages.InvalidRequest);
+            ModelState.AddModelError(string.Empty, "Die Anfrage ist ungültig.");
             return Page();
         }
 
@@ -80,7 +81,7 @@ public class ConfirmRegistrationModel : PageModel
         if (user is null)
         {
             IsDisabled = true;
-            ModelState.AddModelError(string.Empty, LocalizedMessages.InvalidPasswordResetLink);
+            ModelState.AddModelError(string.Empty, "Der Link zum Bestätigen der Registrierung ist ungültig oder abgelaufen. Der Vorgang muss wiederholt werden.");
             return Page();
         }
 
@@ -90,7 +91,7 @@ public class ConfirmRegistrationModel : PageModel
         if (result.IsFailed)
         {
             IsDisabled = true;
-            ModelState.AddModelError(string.Empty, LocalizedMessages.InvalidPasswordResetLink);
+            ModelState.AddModelError(string.Empty, "Der Link zum Bestätigen der Registrierung ist ungültig oder abgelaufen. Der Vorgang muss wiederholt werden.");
             return Page();
         }
 

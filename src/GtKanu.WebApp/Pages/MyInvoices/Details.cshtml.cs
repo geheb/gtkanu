@@ -1,4 +1,7 @@
-using GtKanu.Core.User;
+using GtKanu.Application.Models;
+using GtKanu.Application.Repositories;
+using GtKanu.Infrastructure.AspNetCore.Routing;
+using GtKanu.Infrastructure.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -8,20 +11,20 @@ namespace GtKanu.WebApp.Pages.MyInvoices;
 [Authorize(Roles = "administrator,member")]
 public class DetailsModel : PageModel
 {
-    private readonly Core.Repositories.IdentityRepository _identityRepository;
-    private readonly Core.Repositories.Invoices _invoices;
-    private readonly Core.Repositories.Bookings _bookings;
+    private readonly IIdentities _identityRepository;
+    private readonly IInvoices _invoices;
+    private readonly IBookings _bookings;
 
     public string? Recipient { get; set; } = "n.v.";
     public string? Description { get; set; } = "n.v.";
     public string? Period { get; set; } = "n.v.";
     public decimal Total { get; set; }
-    public BookingFoodDto[] Bookings { get; set; } = Array.Empty<BookingFoodDto>();
+    public BookingFoodDto[] Bookings { get; set; } = [];
 
     public DetailsModel(
-        Core.Repositories.IdentityRepository identityRepository,
-        Core.Repositories.Invoices invoices,
-        Core.Repositories.Bookings bookings)
+        IIdentities identityRepository,
+        IInvoices invoices,
+        IBookings bookings)
     {
         _identityRepository = identityRepository;
         _invoices = invoices;

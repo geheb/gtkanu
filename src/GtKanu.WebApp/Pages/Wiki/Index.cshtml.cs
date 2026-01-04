@@ -1,7 +1,8 @@
 namespace GtKanu.WebApp.Pages.Wiki;
 
-using GtKanu.Core.Models;
-using GtKanu.Core.Repositories;
+using GtKanu.Application.Models;
+using GtKanu.Application.Repositories;
+using GtKanu.Infrastructure.AspNetCore.Routing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -9,11 +10,11 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 [Authorize(Roles = "administrator,wikimanager")]
 public class IndexModel : PageModel
 {
-    private readonly UnitOfWork _unitOfWork;
+    private readonly IUnitOfWork _unitOfWork;
 
     public WikiArticleDto[] Items { get; set; } = [];
 
-    public IndexModel(UnitOfWork unitOfWork)
+    public IndexModel(IUnitOfWork unitOfWork)
     {
         _unitOfWork = unitOfWork;
     }

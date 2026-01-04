@@ -1,5 +1,6 @@
-using GtKanu.Core.Email;
-using GtKanu.WebApp.Annotations;
+using GtKanu.Application.Models;
+using GtKanu.Application.Services;
+using GtKanu.Infrastructure.AspNetCore.Annotations;
 using System.ComponentModel.DataAnnotations;
 
 namespace GtKanu.WebApp.Pages.Mailings;
@@ -49,7 +50,7 @@ public sealed class MailingInput
         Body = Body
     };
 
-    internal async Task<string[]> Validate(EmailValidatorService emailValidator, CancellationToken cancellationToken)
+    internal async Task<string[]> Validate(IEmailValidatorService emailValidator, CancellationToken cancellationToken)
     {
         var result = new List<string>();
 

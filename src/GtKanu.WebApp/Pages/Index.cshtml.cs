@@ -1,10 +1,6 @@
-using GtKanu.Core.User;
-using Microsoft.AspNetCore.Antiforgery;
+using GtKanu.Infrastructure.AspNetCore.Routing;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Options;
-using System.ComponentModel.DataAnnotations;
 
 namespace GtKanu.WebApp.Pages;
 

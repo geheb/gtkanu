@@ -1,5 +1,6 @@
-using GtKanu.Core.Email;
-using GtKanu.Core.Repositories;
+using GtKanu.Application.Repositories;
+using GtKanu.Application.Services;
+using GtKanu.Infrastructure.AspNetCore.Routing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -10,8 +11,8 @@ namespace GtKanu.WebApp.Pages.Mailings;
 [Authorize(Roles = "administrator,mailingmanager")]
 public class EditModel : PageModel
 {
-    private readonly UnitOfWork _unitOfWork;
-    private readonly EmailService _emailService;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IEmailService _emailService;
 
     [BindProperty]
     public MailingInput Input { get; set; } = new();
@@ -19,8 +20,8 @@ public class EditModel : PageModel
     public bool IsDisabled { get; set; }
 
     public EditModel(
-        UnitOfWork unitOfWork,
-        EmailService emailService)
+        IUnitOfWork unitOfWork,
+        IEmailService emailService)
     {
         _unitOfWork = unitOfWork;
         _emailService = emailService;

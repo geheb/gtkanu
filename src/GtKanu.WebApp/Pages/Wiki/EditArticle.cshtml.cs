@@ -1,6 +1,8 @@
 namespace GtKanu.WebApp.Pages.Wiki;
 
-using GtKanu.Core.Repositories;
+using GtKanu.Application.Models;
+using GtKanu.Application.Repositories;
+using GtKanu.Infrastructure.AspNetCore.Routing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -11,8 +13,8 @@ using System.Linq;
 [Authorize(Roles = "administrator,wikimanager")]
 public class EditArticleModel : PageModel
 {
-    private readonly UnitOfWork _unitOfWork;
-    private readonly IdentityRepository _identityRepository;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IIdentities _identityRepository;
 
     [BindProperty]
     public WikiInput Input { get; set; } = new();
@@ -20,8 +22,8 @@ public class EditArticleModel : PageModel
     public bool IsDisabled { get; set; }
 
     public EditArticleModel(
-        UnitOfWork unitOfWork,
-        IdentityRepository identityRepository)
+        IUnitOfWork unitOfWork,
+        IIdentities identityRepository)
     {
         _unitOfWork = unitOfWork;
         _identityRepository = identityRepository;

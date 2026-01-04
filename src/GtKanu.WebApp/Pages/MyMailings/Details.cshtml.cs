@@ -1,5 +1,7 @@
-using GtKanu.Core.Repositories;
-using GtKanu.Core.User;
+using GtKanu.Application.Models;
+using GtKanu.Application.Repositories;
+using GtKanu.Infrastructure.AspNetCore.Routing;
+using GtKanu.Infrastructure.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -9,11 +11,11 @@ namespace GtKanu.WebApp.Pages.MyMailings;
 [Authorize(Roles = "administrator,member")]
 public sealed class DetailsModel : PageModel
 {
-    private UnitOfWork _unitOfWork;
+    private IUnitOfWork _unitOfWork;
 
     public MyMailingDto? Item { get; set; }
 
-    public DetailsModel(UnitOfWork unitOfWork)
+    public DetailsModel(IUnitOfWork unitOfWork)
     {
         _unitOfWork = unitOfWork;
     }

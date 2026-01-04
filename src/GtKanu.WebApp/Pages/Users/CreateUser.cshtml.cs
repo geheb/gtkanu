@@ -1,12 +1,10 @@
-using GtKanu.Core.Email;
-using GtKanu.Core.Extensions;
-using GtKanu.Core.Migrations;
-using GtKanu.Core.User;
+using GtKanu.Application.Repositories;
+using GtKanu.Application.Services;
+using GtKanu.Infrastructure.AspNetCore.Routing;
+using GtKanu.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Routing;
-using Scriban.Parsing;
 
 namespace GtKanu.WebApp.Pages.Users;
 
@@ -14,17 +12,17 @@ namespace GtKanu.WebApp.Pages.Users;
 [Authorize(Roles = "administrator,usermanager")]
 public class CreateUserModel : PageModel
 {
-    private readonly UserService _userService;
-    private readonly EmailValidatorService _emailValidatorService;
-    private readonly Core.Repositories.IdentityRepository _identityRepository;
+    private readonly IUserService _userService;
+    private readonly IEmailValidatorService _emailValidatorService;
+    private readonly IIdentities _identityRepository;
 
     [BindProperty]
     public CreateUserInput Input { get; set; } = new();
 
     public CreateUserModel(
-        UserService userService,
-        EmailValidatorService emailValidatorService,
-        Core.Repositories.IdentityRepository identityRepository)
+        IUserService userService,
+        IEmailValidatorService emailValidatorService,
+        IIdentities identityRepository)
     {
         _userService = userService;
         _emailValidatorService = emailValidatorService;

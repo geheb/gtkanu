@@ -1,6 +1,7 @@
 namespace GtKanu.WebApp.Pages.Fleet;
 
-using GtKanu.WebApp.Annotations;
+using GtKanu.Application.Models;
+using GtKanu.Infrastructure.AspNetCore.Annotations;
 using System.ComponentModel.DataAnnotations;
 
 public sealed class VehicleInput
