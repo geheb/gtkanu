@@ -27,9 +27,10 @@ internal sealed class Tryouts : ITryouts, IDisposable
         var entity = new Tryout();
         entity.FromDto(dto);
         entity.Id = _dbContext.GeneratePk();
-        dto.Id = entity.Id;
 
         _dbContext.Add(entity);
+
+        dto.Id = entity.Id;
 
         return await _dbContext.SaveChangesAsync(cancellationToken) > 0;
     }
@@ -41,9 +42,10 @@ internal sealed class Tryouts : ITryouts, IDisposable
             var entity = new Tryout();
             entity.FromDto(dto);
             entity.Id = _dbContext.GeneratePk();
-            dto.Id = entity.Id;
 
             _dbContext.Add(entity);
+
+            dto.Id = entity.Id;
         }
 
         return await _dbContext.SaveChangesAsync(cancellationToken) > 0;
@@ -51,7 +53,7 @@ internal sealed class Tryouts : ITryouts, IDisposable
 
     public async Task<TryoutDto?> FindTryout(Guid id, CancellationToken cancellationToken)
     {
-        var entity = await _dbContext.Set<Tryout>().FindAsync(new object[] { id }, cancellationToken);
+        var entity = await _dbContext.Set<Tryout>().FindAsync([id], cancellationToken);
         if (entity == null) return null;
 
         return entity.ToDto(new());
@@ -79,7 +81,12 @@ internal sealed class Tryouts : ITryouts, IDisposable
             .AsNoTracking()
             .Include(e => e.User)
             .Where(e => (showExpired ? e.Date < now : e.Date > now))
-            .Select(e => new { tryout = e, bookingCount = e.TryoutBookings!.Count, chatMessageCount = e.TryoutChats!.Count })
+            .Select(e => new 
+            { 
+                tryout = e, 
+                bookingCount = e.TryoutBookings == null ? 0 : e.TryoutBookings.Count, 
+                chatMessageCount = e.TryoutChats == null ? 0 : e.TryoutChats.Count 
+            })
             .ToArrayAsync(cancellationToken);
 
         if (tryouts.Length == 0)
@@ -125,7 +132,7 @@ internal sealed class Tryouts : ITryouts, IDisposable
 
     public async Task<bool> UpdateTryout(TryoutDto dto, CancellationToken cancellationToken)
     {
-        var entity = await _dbContext.Set<Tryout>().FindAsync(new object[] { dto.Id }, cancellationToken);
+        var entity = await _dbContext.Set<Tryout>().FindAsync([dto.Id], cancellationToken);
         if (entity == null) return false;
 
         var count = 0;
@@ -196,7 +203,12 @@ internal sealed class Tryouts : ITryouts, IDisposable
             .AsNoTracking()
             .Include(e => e.User)
             .Where(e => e.Id == id)
-            .Select(e => new { tryout = e, bookingCount = e.TryoutBookings!.Count, chatMessageCount = e.TryoutChats!.Count })
+            .Select(e => new 
+            { 
+                tryout = e, 
+                bookingCount = e.TryoutBookings == null ? 0 : e.TryoutBookings.Count, 
+                chatMessageCount = e.TryoutChats == null ? 0 : e.TryoutChats.Count 
+            })
             .FirstOrDefaultAsync(cancellationToken);
 
         if (entity == null) return null;
@@ -225,7 +237,12 @@ internal sealed class Tryouts : ITryouts, IDisposable
                 .AsNoTracking()
                 .Include(e => e.User)
                 .Where(e => ids.Contains(e.Id))
-                .Select(e => new { tryout = e, bookingCount = e.TryoutBookings!.Count, chatMessageCount = e.TryoutChats!.Count })
+                .Select(e => new 
+                { 
+                    tryout = e, 
+                    bookingCount = e.TryoutBookings == null ? 0 : e.TryoutBookings.Count, 
+                    chatMessageCount = e.TryoutChats == null ? 0 : e.TryoutChats.Count 
+                })
                 .ToArrayAsync(cancellationToken);
 
             Dictionary<Guid, string[]> usersByTryoutId;
@@ -275,7 +292,11 @@ internal sealed class Tryouts : ITryouts, IDisposable
             var tryout = await _dbContext.Set<Tryout>()
                 .AsNoTracking()
                 .Where(e => e.Id == id)
-                .Select(e => new { e.MaxBookings, bookingCount = e.TryoutBookings!.Count })
+                .Select(e => new 
+                { 
+                    e.MaxBookings, 
+                    bookingCount = e.TryoutBookings == null ? 0 : e.TryoutBookings.Count 
+                })
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (tryout == null || tryout.bookingCount >= tryout.MaxBookings) return TryoutBookingStatus.MaxReached;

@@ -81,14 +81,15 @@ internal sealed class Invoices : IInvoices
     public async Task<int> Create(DateTime start, DateTime end, string description, CancellationToken cancellationToken)
     {
         var statusCompleted = (int)BookingStatus.Completed;
-        var startParam = new DateTimeOffset(start, TimeSpan.Zero);
-        var endParam = new DateTimeOffset(end, TimeSpan.Zero);
+        var dc = new GermanDateTimeConverter();
+        var startParam = dc.ToUtc(start);
+        var endParam = dc.ToUtc(end);
 
         var dbSet = _dbContext.Set<Booking>();
 
         var userIds = await dbSet
             .AsNoTracking()
-            .Where(e => e.BookedOn >= startParam && e.BookedOn <= endParam && e.Status == statusCompleted && !e.InvoiceId.HasValue)
+            .Where(e => e.BookedOn >= startParam && e.BookedOn <= endParam && e.Status == statusCompleted && e.InvoiceId == null)
             .Select(e => e.UserId)
             .Distinct()
             .ToArrayAsync(cancellationToken);
@@ -117,7 +118,7 @@ internal sealed class Invoices : IInvoices
         {
             var bookings = await dbSet
                 .Include(e => e.Food)
-                .Where(e => e.UserId == user && e.BookedOn >= startParam && e.BookedOn <= endParam && e.Status == statusCompleted && !e.InvoiceId.HasValue)
+                .Where(e => e.UserId == user && e.BookedOn >= startParam && e.BookedOn <= endParam && e.Status == statusCompleted && e.InvoiceId == null)
                 .ToArrayAsync(cancellationToken);
 
             if (!bookings.Any()) continue;
@@ -155,7 +156,7 @@ internal sealed class Invoices : IInvoices
     {
         var dbSet = _dbContext.Set<Invoice>();
 
-        var entity = await dbSet.FindAsync(new object[] { id }, cancellationToken);
+        var entity = await dbSet.FindAsync([id], cancellationToken);
         if (entity == null) return false;
         var status = (InvoiceStatus)entity.Status;
         if (status == InvoiceStatus.Paid) return true;
@@ -168,7 +169,7 @@ internal sealed class Invoices : IInvoices
     {
         var dbSet = _dbContext.Set<Invoice>();
 
-        var entity = await dbSet.FindAsync(new object[] { id }, cancellationToken);
+        var entity = await dbSet.FindAsync([id], cancellationToken);
         if (entity == null) return false;
         var status = (InvoiceStatus)entity.Status;
         if (status == InvoiceStatus.Open) return true;
@@ -182,6 +183,7 @@ internal sealed class Invoices : IInvoices
         var dbSet = _dbContext.Set<Invoice>();
 
         const int statusOpen = (int)InvoiceStatus.Open;
+
         var entitites = await dbSet
             .Where(e => e.InvoicePeriodId == periodId && e.Status == statusOpen)
             .ToArrayAsync(cancellationToken);

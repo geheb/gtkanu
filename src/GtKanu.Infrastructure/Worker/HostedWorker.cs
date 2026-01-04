@@ -23,14 +23,14 @@ public sealed class HostedWorker : BackgroundService
 
     private async Task HandleSuperUser()
     {
-        using var scope = _serviceScopeFactory.CreateAsyncScope();
+        await using var scope = _serviceScopeFactory.CreateAsyncScope();
         var contextInitializer = scope.ServiceProvider.GetRequiredService<AppDbContextInitializer>();
         await contextInitializer.CreateSuperAdmin();
     }
 
     private async Task HandleEmails(CancellationToken cancellationToken)
     {
-        using var scope = _serviceScopeFactory.CreateAsyncScope();
+        await using var scope = _serviceScopeFactory.CreateAsyncScope();
         var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
 
         try
@@ -45,7 +45,7 @@ public sealed class HostedWorker : BackgroundService
 
     private async Task MigrateDatabase(CancellationToken cancellationToken)
     {
-        using var scope = _serviceScopeFactory.CreateAsyncScope();
+        await using var scope = _serviceScopeFactory.CreateAsyncScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var migrations = await dbContext.Database.GetPendingMigrationsAsync(cancellationToken);
         if (migrations.Any())

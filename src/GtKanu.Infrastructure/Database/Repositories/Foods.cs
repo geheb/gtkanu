@@ -21,7 +21,11 @@ internal sealed class Foods : IFoods
         var dbSet = _dbContext.Set<FoodList>();
         var entities = await dbSet
             .AsNoTracking()
-            .Select(e => new { list = e, count = e.Foods != null ? e.Foods.Count : 0 })
+            .Select(e => new 
+            { 
+                list = e, 
+                count = e.Foods == null ? 0 : e.Foods.Count
+            })
             .OrderByDescending(e => e.list.ValidFrom)
             .ToArrayAsync(cancellationToken);
 
@@ -47,8 +51,9 @@ internal sealed class Foods : IFoods
     {
         var dbSet = _dbContext.Set<Food>();
 
-        var entity = await dbSet.FindAsync(new object[] { id }, cancellationToken);
+        var entity = await dbSet.FindAsync([id], cancellationToken);
         if (entity == null) return false;
+
         dbSet.Remove(entity);
         return await _dbContext.SaveChangesAsync(cancellationToken) > 0;
     }
@@ -71,10 +76,11 @@ internal sealed class Foods : IFoods
     public async Task<FoodDto[]> GetLatestFoods(CancellationToken cancellationToken)
     {
         var dbSet = _dbContext.Set<FoodList>();
+        var now = DateTimeOffset.UtcNow;
 
         var latestList = await dbSet
             .AsNoTracking()
-            .Where(e => e.ValidFrom <= DateTimeOffset.UtcNow)
+            .Where(e => e.ValidFrom <= now)
             .OrderByDescending(e => e.ValidFrom)
             .FirstOrDefaultAsync(cancellationToken);
 
@@ -111,7 +117,7 @@ internal sealed class Foods : IFoods
     {
         var dbSet = _dbContext.Set<FoodList>();
 
-        var entity = await dbSet.FindAsync(new object[] { id }, cancellationToken);
+        var entity = await dbSet.FindAsync([id], cancellationToken);
         if (entity == null) return null;
 
         return entity.ToDto(null, new());
@@ -121,7 +127,7 @@ internal sealed class Foods : IFoods
     {
         var dbSet = _dbContext.Set<FoodList>();
 
-        var entity = await dbSet.FindAsync(new object[] { dto.Id }, cancellationToken);
+        var entity = await dbSet.FindAsync([dto.Id], cancellationToken);
         if (entity == null) return false;
 
         var count = 0;

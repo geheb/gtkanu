@@ -1,5 +1,6 @@
 namespace GtKanu.WebApp.Pages.MyFleet;
 
+using GtKanu.Application.Converter;
 using GtKanu.Application.Models;
 using GtKanu.Application.Repositories;
 using GtKanu.Infrastructure.AspNetCore.Routing;
@@ -23,6 +24,9 @@ public class CreateBookingModel : PageModel
     public CreateBookingModel(IVehicles vehicles)
     {
         _vehicles = vehicles;
+        var dc = new GermanDateTimeConverter();
+        Input.Start = dc.ToIso(dc.ToLocal(DateTimeOffset.UtcNow));
+        Input.End = dc.ToIso(dc.ToLocal(DateTimeOffset.UtcNow.AddDays(1)));
     }
 
     public async Task OnGetAsync(CancellationToken cancellationToken)

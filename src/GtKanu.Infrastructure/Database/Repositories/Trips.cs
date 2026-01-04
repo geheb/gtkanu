@@ -39,7 +39,7 @@ internal sealed class Trips : ITrips, IDisposable
 
     public async Task<TripDto?> FindTrip(Guid id, CancellationToken cancellationToken)
     {
-        var entity = await _dbContext.Set<Trip>().FindAsync(new object[] { id }, cancellationToken);
+        var entity = await _dbContext.Set<Trip>().FindAsync([id], cancellationToken);
         if (entity == null) return null;
 
         return entity.ToDto(new());
@@ -66,7 +66,12 @@ internal sealed class Trips : ITrips, IDisposable
             .AsNoTracking()
             .Include(e => e.User)
             .Where(e => (showExpired ? e.Start < now : e.End > now))
-            .Select(e => new { trip = e, bookingCount = e.TripBookings!.Count, chatMessageCount = e.TripChats!.Count })
+            .Select(e => new 
+            { 
+                trip = e, 
+                bookingCount = e.TripBookings == null ? 0 : e.TripBookings.Count, 
+                chatMessageCount = e.TripChats == null ? 0 : e.TripChats.Count 
+            })
             .ToArrayAsync(cancellationToken);
 
         var tripIds = trips.Select(t => t.trip.Id).ToArray();
@@ -108,7 +113,12 @@ internal sealed class Trips : ITrips, IDisposable
             .AsNoTracking()
             .Include(e => e.User)
             .Where(e => e.Id == id)
-            .Select(e => new { trip = e, bookingCount = e.TripBookings!.Count, chatMessageCount = e.TripChats!.Count })
+            .Select(e => new 
+            { 
+                trip = e, 
+                bookingCount = e.TripBookings == null ? 0 : e.TripBookings.Count, 
+                chatMessageCount = e.TripChats == null ? 0 : e.TripChats.Count 
+            })
             .FirstOrDefaultAsync(cancellationToken);
 
         if (entity == null) return null;
@@ -168,7 +178,12 @@ internal sealed class Trips : ITrips, IDisposable
                 .AsNoTracking()
                 .Include(e => e.User)
                 .Where(e => tripIds.Contains(e.Id))
-                .Select(e => new { trip = e, bookingCount = e.TripBookings!.Count, chatMessageCount = e.TripChats!.Count })
+                .Select(e => new 
+                { 
+                    trip = e, 
+                    bookingCount = e.TripBookings == null ? 0 : e.TripBookings.Count, 
+                    chatMessageCount = e.TripChats == null ? 0 : e.TripChats.Count 
+                })
                 .ToArrayAsync(cancellationToken);
 
             var tripMap = trips.ToDictionary(t => t.trip.Id);
@@ -198,7 +213,11 @@ internal sealed class Trips : ITrips, IDisposable
             var trip = await _dbContext.Set<Trip>()
                 .AsNoTracking()
                 .Where(e => e.Id == id)
-                .Select(e => new { e.MaxBookings, bookingCount = e.TripBookings!.Count })
+                .Select(e => new 
+                { 
+                    e.MaxBookings, 
+                    bookingCount = e.TripBookings == null ? 0 : e.TripBookings.Count 
+                })
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (trip == null || trip.bookingCount >= trip.MaxBookings) return TripBookingStatus.MaxReached;
@@ -282,7 +301,7 @@ internal sealed class Trips : ITrips, IDisposable
 
     public async Task<bool> UpdateTrip(TripDto dto, CancellationToken cancellationToken)
     {
-        var entity = await _dbContext.Set<Trip>().FindAsync(new object[] { dto.Id }, cancellationToken);
+        var entity = await _dbContext.Set<Trip>().FindAsync([dto.Id], cancellationToken);
         if (entity == null) return false;
 
         var count = 0;
@@ -366,16 +385,16 @@ internal sealed class Trips : ITrips, IDisposable
         var dbSetTrip = _dbContext.Set<Trip>();
         var now = DateTimeOffset.UtcNow;
 
+        var dc = new GermanDateTimeConverter();
+
         // Club regulation
-        var start = new DateTimeOffset(new DateOnly(now.Year - 1, 10, 1), TimeOnly.MinValue, now.Offset);
+        var start = dc.ToUtc(new DateOnly(now.Year - 1, 10, 1));
 
         var trips = await dbSetTrip
             .AsNoTracking()
             .Where(e => e.Start >= start && e.IsPublic)
             .OrderBy(e => e.Start)
             .ToArrayAsync(cancellationToken);
-
-        var dc = new GermanDateTimeConverter();
 
         return trips
             .Select(e => e.ToPublicDto(dc))

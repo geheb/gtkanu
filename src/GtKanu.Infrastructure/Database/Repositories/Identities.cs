@@ -36,7 +36,7 @@ internal sealed class Identities : IIdentities
         user = new IdentityUserGuid
         {
             Id = _dbContext.GeneratePk(),
-            UserName = Guid.NewGuid().ToString().Replace("-", string.Empty),
+            UserName = Guid.NewGuid().ToString("N"),
             Name = dto.Name,
             Email = dto.Email,
             PhoneNumber = dto.PhoneNumber,
