@@ -1,4 +1,4 @@
-﻿# GT Kram
+﻿# GT Kanu
 
 A web app for organising kanu club.
 
@@ -16,3 +16,4 @@ A web app for organising kanu club.
 * Template Engine with Scriban
 * Logging via Serilog
 * MySQL Entity Framework Core
+
