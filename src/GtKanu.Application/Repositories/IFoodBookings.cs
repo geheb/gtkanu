@@ -2,7 +2,7 @@ using GtKanu.Application.Models;
 
 namespace GtKanu.Application.Repositories;
 
-public interface IBookings
+public interface IFoodBookings
 {
     Task<BookingFoodDto[]> GetUntilEndOfMonth(DateTime start, CancellationToken cancellationToken);
     Task<BookingFoodDto[]> GetForOneMonth(Guid userId, int year, int month, CancellationToken cancellationToken);

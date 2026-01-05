@@ -7,32 +7,30 @@ using System.Globalization;
 
 namespace GtKanu.Infrastructure.Database.Repositories;
 
-internal sealed class Invoices : IInvoices
+internal sealed class FoodInvoices : IFoodInvoices
 {
     private readonly AppDbContext _dbContext;
 
-    public Invoices(AppDbContext dbContext)
+    public FoodInvoices(AppDbContext dbContext)
     {
         _dbContext = dbContext;
     }
 
     public async Task<InvoicePeriodDto[]> GetPeriods(CancellationToken cancellationToken)
     {
-        var dbSet = _dbContext.Set<InvoicePeriod>();
-        var entities = await dbSet
+        var entities = await _dbContext.FoodInvoicePeriods
             .AsNoTracking()
             .OrderByDescending(e => e.To)
             .ToArrayAsync(cancellationToken);
 
         var ci = CultureInfo.GetCultureInfo("de-DE");
 
-        return entities.Select(e => e.ToDto(ci)).ToArray();
+        return [.. entities.Select(e => e.ToDto(ci))];
     }
 
     public async Task<InvoiceDto[]> GetByPeriod(Guid id, CancellationToken cancellationToken)
     {
-        var dbSet = _dbContext.Set<Invoice>();
-        var entities = await dbSet
+        var entities = await _dbContext.FoodInvoices
             .AsNoTracking()
             .Include(e => e.User)
             .Include(e => e.InvoicePeriod)
@@ -43,13 +41,12 @@ internal sealed class Invoices : IInvoices
         var dc = new GermanDateTimeConverter();
         var ci = CultureInfo.GetCultureInfo("de-DE");
 
-        return entities.Select(e => e.ToDto(dc, ci)).ToArray();
+        return [.. entities.Select(e => e.ToDto(dc, ci))];
     }
 
     public async Task<InvoiceDto[]> GetAll(Guid userId, CancellationToken cancellationToken)
     {
-        var dbSet = _dbContext.Set<Invoice>();
-        var entities = await dbSet
+        var entities = await _dbContext.FoodInvoices
             .AsNoTracking()
             .Include(e => e.InvoicePeriod)
             .Where(e => e.UserId == userId)
@@ -59,13 +56,12 @@ internal sealed class Invoices : IInvoices
         var dc = new GermanDateTimeConverter();
         var ci = CultureInfo.GetCultureInfo("de-DE");
 
-        return entities.Select(e => e.ToDto(dc, ci)).ToArray();
+        return [.. entities.Select(e => e.ToDto(dc, ci))];
     }
 
     public async Task<InvoiceDto?> Find(Guid id, Guid userId, CancellationToken cancellationToken)
     {
-        var dbSet = _dbContext.Set<Invoice>();
-        var entity = await dbSet
+        var entity = await _dbContext.FoodInvoices
             .AsNoTracking()
             .Include(e => e.InvoicePeriod)
             .FirstOrDefaultAsync(e => e.Id == id && e.UserId == userId, cancellationToken);
@@ -85,9 +81,7 @@ internal sealed class Invoices : IInvoices
         var startParam = dc.ToUtc(start);
         var endParam = dc.ToUtc(end);
 
-        var dbSet = _dbContext.Set<Booking>();
-
-        var userIds = await dbSet
+        var userIds = await _dbContext.FoodBookings
             .AsNoTracking()
             .Where(e => e.BookedOn >= startParam && e.BookedOn <= endParam && e.Status == statusCompleted && e.InvoiceId == null)
             .Select(e => e.UserId)
@@ -106,17 +100,14 @@ internal sealed class Invoices : IInvoices
             To = endParam
         };
 
-        var dbSetInvoicePeriod = _dbContext.Set<InvoicePeriod>();
-        var dbSetInvoice = _dbContext.Set<Invoice>();
-
-        dbSetInvoicePeriod.Add(period);
+        _dbContext.Add(period);
         if (await _dbContext.SaveChangesAsync(cancellationToken) < 1) return -1;
 
         var count = 0;
 
         foreach (var user in userIds)
         {
-            var bookings = await dbSet
+            var bookings = await _dbContext.FoodBookings
                 .Include(e => e.Food)
                 .Where(e => e.UserId == user && e.BookedOn >= startParam && e.BookedOn <= endParam && e.Status == statusCompleted && e.InvoiceId == null)
                 .ToArrayAsync(cancellationToken);
@@ -135,10 +126,9 @@ internal sealed class Invoices : IInvoices
                 InvoicePeriodId = period.Id
             };
 
-            dbSetInvoice.Add(invoice);
-            if (await _dbContext.SaveChangesAsync(cancellationToken) < 1) return -1;
-
+            _dbContext.Add(invoice);
             Array.ForEach(bookings, b => b.InvoiceId = invoice.Id);
+
             if (await _dbContext.SaveChangesAsync(cancellationToken) < 1) return -1;
 
             count++;
@@ -154,9 +144,7 @@ internal sealed class Invoices : IInvoices
 
     public async Task<bool> UpdateStatusPaid(Guid id, CancellationToken cancellationToken)
     {
-        var dbSet = _dbContext.Set<Invoice>();
-
-        var entity = await dbSet.FindAsync([id], cancellationToken);
+        var entity = await _dbContext.FoodInvoices.FindAsync([id], cancellationToken);
         if (entity == null) return false;
         var status = (InvoiceStatus)entity.Status;
         if (status == InvoiceStatus.Paid) return true;
@@ -167,9 +155,7 @@ internal sealed class Invoices : IInvoices
 
     public async Task<bool> UpdateStatusOpen(Guid id, CancellationToken cancellationToken)
     {
-        var dbSet = _dbContext.Set<Invoice>();
-
-        var entity = await dbSet.FindAsync([id], cancellationToken);
+        var entity = await _dbContext.FoodInvoices.FindAsync([id], cancellationToken);
         if (entity == null) return false;
         var status = (InvoiceStatus)entity.Status;
         if (status == InvoiceStatus.Open) return true;
@@ -180,11 +166,9 @@ internal sealed class Invoices : IInvoices
 
     public async Task<bool> UpdateStatusPaidAll(Guid periodId, CancellationToken cancellationToken)
     {
-        var dbSet = _dbContext.Set<Invoice>();
-
         const int statusOpen = (int)InvoiceStatus.Open;
 
-        var entitites = await dbSet
+        var entitites = await _dbContext.FoodInvoices
             .Where(e => e.InvoicePeriodId == periodId && e.Status == statusOpen)
             .ToArrayAsync(cancellationToken);
 

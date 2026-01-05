@@ -11,12 +11,12 @@ namespace GtKanu.WebApp.Pages.MyInvoices;
 [Authorize(Roles = "administrator,member")]
 public class IndexModel : PageModel
 {
-    private readonly IInvoices _invoices;
+    private readonly IFoodInvoices _invoices;
     public InvoiceDto[] Invoices { get; set; } = [];
     public decimal Total { get; set; }
     public decimal OpenTotal { get; set; }
 
-    public IndexModel(IInvoices invoices)
+    public IndexModel(IFoodInvoices invoices)
     {
         _invoices = invoices;
     }

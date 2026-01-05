@@ -34,7 +34,7 @@ public class EditListItemsModel : PageModel
 
     private async Task UpdateListDetails(Guid id, CancellationToken cancellationToken)
     {
-        var foodList = await _foods.Find(id, cancellationToken);
+        var foodList = await _foods.FindFoodList(id, cancellationToken);
         if (foodList == null)
         {
             return;

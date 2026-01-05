@@ -9,6 +9,27 @@ internal sealed class AppDbContext :
     IdentityDbContext<IdentityUserGuid, IdentityRoleGuid, Guid, IdentityUserClaimGuid, IdentityUserRoleGuid, IdentityUserLoginGuid, IdentityRoleClaimGuid, IdentityUserTokenGuid>
 {
     const string KeyType = "binary(16)";
+    public DbSet<Boat> Boats => Set<Boat>();
+    public DbSet<BoatRental> BoatRentals => Set<BoatRental>();
+    public DbSet<Food> Foods => Set<Food>();
+    public DbSet<FoodList> FoodLists => Set<FoodList>();
+    public DbSet<Booking> FoodBookings => Set<Booking>();
+    public DbSet<ClubhouseBooking> ClubhouseBookings => Set<ClubhouseBooking>();
+    public DbSet<EmailQueue> EmailQueues => Set<EmailQueue>();
+    public DbSet<IdentityUserGuid> Identities => Set<IdentityUserGuid>();
+    public DbSet<Invoice> FoodInvoices => Set<Invoice>();
+    public DbSet<InvoicePeriod> FoodInvoicePeriods => Set<InvoicePeriod>();
+    public DbSet<Mailing> Mailings => Set<Mailing>();
+    public DbSet<MyMailing> MyMailings => Set<MyMailing>();
+    public DbSet<Trip> Trips => Set<Trip>();
+    public DbSet<TripBooking> TripBookings => Set<TripBooking>();
+    public DbSet<TripChat> TripChats => Set<TripChat>();
+    public DbSet<Tryout> Tryouts => Set<Tryout>();
+    public DbSet<TryoutBooking> TryoutBookings => Set<TryoutBooking>();
+    public DbSet<TryoutChat> TryoutChats => Set<TryoutChat>();
+    public DbSet<Vehicle> Vehicles => Set<Vehicle>();
+    public DbSet<VehicleBooking> VehicleBookings => Set<VehicleBooking>();
+    public DbSet<WikiArticle> WikiArticles => Set<WikiArticle>();
 
     public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options)

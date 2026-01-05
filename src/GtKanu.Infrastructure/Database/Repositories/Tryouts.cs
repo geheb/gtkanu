@@ -53,15 +53,16 @@ internal sealed class Tryouts : ITryouts, IDisposable
 
     public async Task<TryoutDto?> FindTryout(Guid id, CancellationToken cancellationToken)
     {
-        var entity = await _dbContext.Set<Tryout>().FindAsync([id], cancellationToken);
-        if (entity == null) return null;
+        var entity = await _dbContext.Tryouts
+            .AsNoTracking()
+            .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
 
-        return entity.ToDto(new());
+        return entity?.ToDto(new());
     }
 
     public async Task<TryoutBookingDto[]> GetBookingList(Guid tryoutId, CancellationToken cancellationToken)
     {
-        var entities = await _dbContext.Set<TryoutBooking>()
+        var entities = await _dbContext.TryoutBookings
             .AsNoTracking()
             .Include(e => e.User)
             .Where(e => e.TryoutId == tryoutId)
@@ -70,14 +71,14 @@ internal sealed class Tryouts : ITryouts, IDisposable
 
         var dc = new GermanDateTimeConverter();
 
-        return entities.Select(e => e.ToDto(dc)).ToArray();
+        return [.. entities.Select(e => e.ToDto(dc))];
     }
 
     public async Task<TryoutListDto[]> GetTryoutList(bool showExpired, bool includeUserList, CancellationToken cancellationToken)
     {
         var now = DateTimeOffset.UtcNow;
 
-        var tryouts = await _dbContext.Set<Tryout>()
+        var tryouts = await _dbContext.Tryouts
             .AsNoTracking()
             .Include(e => e.User)
             .Where(e => (showExpired ? e.Date < now : e.Date > now))
@@ -97,7 +98,7 @@ internal sealed class Tryouts : ITryouts, IDisposable
         Dictionary<Guid, string[]> usersByTryoutId;
         {
             var tryoutIds = tryouts.Select(t => t.tryout.Id).Distinct().ToArray();
-            var bookingUsers = await _dbContext.Set<TryoutBooking>()
+            var bookingUsers = await _dbContext.TryoutBookings
                 .AsNoTracking()
                 .Include(e => e.User)
                 .Where(e => tryoutIds.Contains(e.TryoutId!.Value) && e.CancelledOn == null)
@@ -124,15 +125,16 @@ internal sealed class Tryouts : ITryouts, IDisposable
             })
             .ToArray();
 
-        return result.Where(r => r.Date >= now)
-            .OrderBy(r => r.Date)
-            .Concat(result.Where(r => r.Date < now).OrderByDescending(r => r.Date))
-            .ToArray();
+        return
+        [
+            .. result.Where(r => r.Date >= now).OrderBy(r => r.Date),
+            .. result.Where(r => r.Date < now).OrderByDescending(r => r.Date),
+        ];
     }
 
     public async Task<bool> UpdateTryout(TryoutDto dto, CancellationToken cancellationToken)
     {
-        var entity = await _dbContext.Set<Tryout>().FindAsync([dto.Id], cancellationToken);
+        var entity = await _dbContext.Tryouts.FindAsync([dto.Id], cancellationToken);
         if (entity == null) return false;
 
         var count = 0;
@@ -151,8 +153,8 @@ internal sealed class Tryouts : ITryouts, IDisposable
 
     public async Task<bool> ConfirmBooking(Guid id, CancellationToken cancellationToken)
     {
-        var entity = await _dbContext.Set<TryoutBooking>()
-            .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        var entity = await _dbContext.TryoutBookings
+            .FindAsync([id], cancellationToken);
 
         if (entity == null)
         {
@@ -167,8 +169,8 @@ internal sealed class Tryouts : ITryouts, IDisposable
 
     public async Task<bool> CancelBooking(Guid id, CancellationToken cancellationToken)
     {
-        var entity = await _dbContext.Set<TryoutBooking>()
-            .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        var entity = await _dbContext.TryoutBookings
+            .FindAsync([id], cancellationToken);
 
         if (entity == null)
         {
@@ -183,7 +185,7 @@ internal sealed class Tryouts : ITryouts, IDisposable
 
     public async Task<bool> DeleteBooking(Guid id, Guid userId, CancellationToken cancellationToken)
     {
-        var entity = await _dbContext.Set<TryoutBooking>()
+        var entity = await _dbContext.TryoutBookings
             .FirstOrDefaultAsync(e => e.Id == id && e.UserId == userId, cancellationToken);
 
         if (entity == null ||
@@ -199,7 +201,7 @@ internal sealed class Tryouts : ITryouts, IDisposable
 
     public async Task<TryoutListDto?> FindTryoutList(Guid id, CancellationToken cancellationToken)
     {
-        var entity = await _dbContext.Set<Tryout>()
+        var entity = await _dbContext.Tryouts
             .AsNoTracking()
             .Include(e => e.User)
             .Where(e => e.Id == id)
@@ -220,7 +222,7 @@ internal sealed class Tryouts : ITryouts, IDisposable
 
     public async Task<MyTryoutListDto[]> GetMyTryoutList(Guid userId, bool includeUserList, CancellationToken cancellationToken)
     {
-        var bookings = await _dbContext.Set<TryoutBooking>()
+        var bookings = await _dbContext.TryoutBookings
             .AsNoTracking()
             .Include(e => e.User)
             .Where(e => e.UserId == userId)
@@ -233,7 +235,7 @@ internal sealed class Tryouts : ITryouts, IDisposable
         {
             var ids = batchBookings.Select(e => e.TryoutId!.Value).Distinct().ToArray();
 
-            var tryouts = await _dbContext.Set<Tryout>()
+            var tryouts = await _dbContext.Tryouts
                 .AsNoTracking()
                 .Include(e => e.User)
                 .Where(e => ids.Contains(e.Id))
@@ -247,7 +249,7 @@ internal sealed class Tryouts : ITryouts, IDisposable
 
             Dictionary<Guid, string[]> usersByTryoutId;
             {
-                var bookingUsers = await _dbContext.Set<TryoutBooking>()
+                var bookingUsers = await _dbContext.TryoutBookings
                     .AsNoTracking()
                     .Include(e => e.User)
                     .Where(e => ids.Contains(e.TryoutId!.Value) && e.CancelledOn == null)
@@ -276,11 +278,11 @@ internal sealed class Tryouts : ITryouts, IDisposable
         }
 
         var now = DateTimeOffset.UtcNow;
-        return result.Where(r => r.Date >= now)
-            .OrderBy(r => r.Date)
-            .ThenByDescending(r => r.BookingBookedOn)
-            .Concat(result.Where(r => r.Date < now).OrderByDescending(r => r.Date))
-            .ToArray();
+        return
+        [
+            .. result.Where(r => r.Date >= now).OrderBy(r => r.Date).ThenByDescending(r => r.BookingBookedOn),
+            .. result.Where(r => r.Date < now).OrderByDescending(r => r.Date),
+        ];
     }
 
     public async Task<TryoutBookingStatus> CreateBooking(Guid id, Guid userId, string? name, CancellationToken cancellationToken)
@@ -289,7 +291,7 @@ internal sealed class Tryouts : ITryouts, IDisposable
 
         try
         {
-            var tryout = await _dbContext.Set<Tryout>()
+            var tryout = await _dbContext.Tryouts
                 .AsNoTracking()
                 .Where(e => e.Id == id)
                 .Select(e => new 
@@ -303,7 +305,8 @@ internal sealed class Tryouts : ITryouts, IDisposable
 
             if (string.IsNullOrWhiteSpace(name)) name = null;
 
-            var entity = await _dbContext.Set<TryoutBooking>()
+            var entity = await _dbContext.TryoutBookings
+                .AsNoTracking()
                 .FirstOrDefaultAsync(e => e.TryoutId == id && e.UserId == userId && e.Name == name, cancellationToken);
 
             if (entity != null)
@@ -332,23 +335,27 @@ internal sealed class Tryouts : ITryouts, IDisposable
 
     public async Task<bool> DeleteTryout(Guid id, CancellationToken cancellationToken)
     {
-        var tryout = await _dbContext.Set<Tryout>().FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        var tryout = await _dbContext.Tryouts.FindAsync([id], cancellationToken);
         if (tryout == null) return false;
 
-        var bookings = await _dbContext.Set<TryoutBooking>().Where(e => e.TryoutId == id).ToArrayAsync(cancellationToken);
+        var bookings = await _dbContext.TryoutBookings
+            .Where(e => e.TryoutId == id)
+            .ToArrayAsync(cancellationToken);
+
         if (bookings.Length > 0)
         {
-            _dbContext.Set<TryoutBooking>().RemoveRange(bookings);
+            _dbContext.RemoveRange(bookings);
         }
 
-        _dbContext.Set<Tryout>().Remove(tryout);
+        _dbContext.Remove(tryout);
 
         return await _dbContext.SaveChangesAsync(cancellationToken) > 0;
     }
 
     public async Task<TryoutChatDto[]> GetChat(Guid tryoutId, Guid userId, CancellationToken cancellationToken)
     {
-        var entities = await _dbContext.Set<TryoutChat>()
+        var entities = await _dbContext.TryoutChats
+            .AsNoTracking()
             .Include(e => e.User)
             .Where(e => e.TryoutId == tryoutId)
             .OrderByDescending(e => e.CreatedOn)
@@ -363,10 +370,13 @@ internal sealed class Tryouts : ITryouts, IDisposable
 
     public async Task<bool> CreateChatMessage(Guid id, Guid userId, string message, CancellationToken cancellationToken)
     {
-        var tryout = await _dbContext.Set<Tryout>().FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        var tryout = await _dbContext.Tryouts
+            .AsNoTracking()
+            .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+
         if (tryout == null || tryout.IsExpired) return false;
 
-        var count = await _dbContext.Set<TryoutChat>().CountAsync(e => e.TryoutId == id, cancellationToken);
+        var count = await _dbContext.TryoutChats.CountAsync(e => e.TryoutId == id, cancellationToken);
         if (count >= 10_000) return false;
 
         var entity = new TryoutChat

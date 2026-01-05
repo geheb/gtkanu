@@ -7,20 +7,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GtKanu.Infrastructure.Database.Repositories;
 
-internal sealed class Clubhouse : IClubhouse
+internal sealed class ClubhouseBookings : IClubhouseBookings
 {
     private readonly AppDbContext _dbContext;
 
-    public Clubhouse(AppDbContext dbContext)
+    public ClubhouseBookings(AppDbContext dbContext)
     {
         _dbContext = dbContext;
     }
 
     public async Task<ClubhouseBookingStatus> CreateBooking(ClubhouseBookingDto dto, CancellationToken cancellationToken)
     {
-        var dbSet = _dbContext.Set<ClubhouseBooking>();
-
-        var existsBooking = await dbSet.AnyAsync(e =>
+        var existsBooking = await _dbContext.ClubhouseBookings.AnyAsync(e =>
             ((e.Start >= dto.Start && e.Start <= dto.End) || (e.End >= dto.Start && e.End <= dto.End) || (e.End >= dto.End && e.Start <= dto.Start)),
             cancellationToken);
 
@@ -33,7 +31,7 @@ internal sealed class Clubhouse : IClubhouse
         entity.FromDto(dto);
         entity.Id = _dbContext.GeneratePk();
 
-        dbSet.Add(entity);
+        _dbContext.Add(entity);
 
         return await _dbContext.SaveChangesAsync(cancellationToken) > 0 
             ? ClubhouseBookingStatus.Success 
@@ -42,20 +40,22 @@ internal sealed class Clubhouse : IClubhouse
 
     public async Task<ClubhouseBookingDto?> FindBooking(Guid id, CancellationToken cancellationToken)
     {
-        var entity = await _dbContext.Set<ClubhouseBooking>().FindAsync([id], cancellationToken);
-        if (entity == null) return null;
+        var entity = await _dbContext.ClubhouseBookings
+            .AsNoTracking()
+            .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
 
-        return entity.ToDto(new());
+        return entity?.ToDto(new());
     }
 
     public async Task<ClubhouseBookingStatus> UpdateBooking(ClubhouseBookingDto dto, CancellationToken cancellationToken)
     {
-        var dbSet = _dbContext.Set<ClubhouseBooking>();
+        var entity = await _dbContext.ClubhouseBookings.FindAsync([dto.Id], cancellationToken);
+        if (entity is null)
+        {
+            return ClubhouseBookingStatus.NotFound;
+        }
 
-        var entity = await dbSet.FindAsync([dto.Id], cancellationToken);
-        if (entity == null) return ClubhouseBookingStatus.NotFound;
-
-        var existsBooking = await dbSet.AnyAsync(e =>
+        var existsBooking = await _dbContext.ClubhouseBookings.AnyAsync(e =>
             e.Id != entity.Id &&
             ((e.Start >= dto.Start && e.Start <= dto.End) || (e.End >= dto.Start && e.End <= dto.End) || (e.End >= dto.End && e.Start <= dto.Start)),
             cancellationToken);
@@ -71,18 +71,21 @@ internal sealed class Clubhouse : IClubhouse
         if (entity.SetValue(e => e.Title, dto.Title)) count++;
         if (entity.SetValue(e => e.Description, dto.Description)) count++;
 
-        if (count == 0) return ClubhouseBookingStatus.Success;
+        if (count == 0)
+        {
+            return ClubhouseBookingStatus.Success;
+        }
 
         return await _dbContext.SaveChangesAsync(cancellationToken) > 0
             ? ClubhouseBookingStatus.Success
             : ClubhouseBookingStatus.Failed;
     }
 
-    public async Task<ClubhouseBookingDto[]> GetBookingList(bool showExpired, CancellationToken cancellationToken)
+    public async Task<ClubhouseBookingDto[]> GetAll(bool showExpired, CancellationToken cancellationToken)
     {
         var now = DateTimeOffset.UtcNow;
 
-        var entities = await _dbContext.Set<ClubhouseBooking>()
+        var entities = await _dbContext.ClubhouseBookings
             .AsNoTracking()
             .Where(e => (showExpired ? e.Start < now : e.End > now))
             .OrderByDescending(e => e.Start)
@@ -90,12 +93,12 @@ internal sealed class Clubhouse : IClubhouse
 
         var dc = new GermanDateTimeConverter();
 
-        return entities.Select(e => e.ToDto(dc)).ToArray();
+        return [.. entities.Select(e => e.ToDto(dc))];
     }
 
     public async Task<bool> DeleteBooking(Guid id, CancellationToken cancellationToken)
     {
-        var entity = await _dbContext.Set<ClubhouseBooking>()
+        var entity = await _dbContext.ClubhouseBookings
             .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
 
         if (entity == null)

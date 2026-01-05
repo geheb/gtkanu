@@ -25,16 +25,14 @@ internal sealed class Vehicles : IVehicles, IDisposable
 
     public async Task<VehicleStatus> CreateVehicle(VehicleDto dto, CancellationToken cancellationToken)
     {
-        var dbSet = _dbContext.Set<Vehicle>();
-
-        var exists = await dbSet.AnyAsync(e => e.Identifier == dto.Identifier && e.IsInUse, cancellationToken);
+        var exists = await _dbContext.Vehicles.AnyAsync(e => e.Identifier == dto.Identifier && e.IsInUse, cancellationToken);
         if (exists) return VehicleStatus.Exists;
 
         var entity = new Vehicle();
         entity.FromDto(dto);
         entity.Id = _dbContext.GeneratePk();
 
-        dbSet.Add(entity);
+        _dbContext.Add(entity);
 
         dto.Id = entity.Id;
 
@@ -43,16 +41,23 @@ internal sealed class Vehicles : IVehicles, IDisposable
 
     public async Task<VehicleDto[]> GetAllVehicles(CancellationToken cancellationToken)
     {
-        var dbSet = _dbContext.Set<Vehicle>();
-        var entities = await dbSet.OrderBy(e => e.Name).ToArrayAsync(cancellationToken);
-        return entities.Select(e => e.ToDto()).ToArray();
+        var entities = await _dbContext.Vehicles
+            .AsNoTracking()
+            .OrderBy(e => e.Name)
+            .ToArrayAsync(cancellationToken);
+
+        return [.. entities.Select(e => e.ToDto())];
     }
 
     public async Task<VehicleDto[]> GetVehiclesInUseOnly(CancellationToken cancellationToken)
     {
-        var dbSet = _dbContext.Set<Vehicle>();
-        var entities = await dbSet.Where(e => e.IsInUse).OrderBy(e => e.Name).ToArrayAsync(cancellationToken);
-        return entities.Select(e => e.ToDto()).ToArray();
+        var entities = await _dbContext.Vehicles
+            .AsNoTracking()
+            .Where(e => e.IsInUse)
+            .OrderBy(e => e.Name)
+            .ToArrayAsync(cancellationToken);
+
+        return [.. entities.Select(e => e.ToDto())];
     }
 
     public async Task<VehicleBookingStatus> CreateBooking(CreateVehicleBookingDto dto, CancellationToken cancellationToken)
@@ -61,9 +66,7 @@ internal sealed class Vehicles : IVehicles, IDisposable
 
         try
         {
-            var dbSet = _dbContext.Set<VehicleBooking>();
-
-            var existsBooking = await dbSet.AnyAsync(e => 
+            var existsBooking = await _dbContext.VehicleBookings.AnyAsync(e => 
                 e.VehicleId == dto.VehicleId && 
                 e.CancelledOn == null && 
                 ((e.Start >= dto.Start && e.Start <= dto.End) || (e.End >= dto.Start && e.End <= dto.End) || (e.End >= dto.End && e.Start <= dto.Start)),
@@ -85,7 +88,7 @@ internal sealed class Vehicles : IVehicles, IDisposable
                 Purpose = dto.Purpose
             };
 
-            dbSet.Add(entity);
+            _dbContext.Add(entity);
 
             return await _dbContext.SaveChangesAsync(cancellationToken) > 0 ? VehicleBookingStatus.Success : VehicleBookingStatus.Failed;
         }
@@ -97,26 +100,22 @@ internal sealed class Vehicles : IVehicles, IDisposable
 
     public async Task<VehicleDto?> FindVehicle(Guid id, CancellationToken cancellationToken)
     {
-        var entity = await _dbContext.Set<Vehicle>()
+        var entity = await _dbContext.Vehicles
             .AsNoTracking()
             .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
 
-        if (entity is null) return null;
-
-        return entity.ToDto();
+        return entity?.ToDto();
     }
 
     public async Task<VehicleStatus> UpdateVehicle(VehicleDto dto, CancellationToken cancellationToken)
     {
-        var dbSet = _dbContext.Set<Vehicle>();
-
-        var existent = await dbSet
+        var existent = await _dbContext.Vehicles
             .AsNoTracking()
             .FirstOrDefaultAsync(e => e.Identifier == dto.Identifier && e.IsInUse, cancellationToken);
 
         if (existent is not null && existent.Id != dto.Id) return VehicleStatus.Exists;
 
-        var entity = await dbSet.FirstOrDefaultAsync(e => e.Id == dto.Id, cancellationToken);
+        var entity = await _dbContext.Vehicles.FirstOrDefaultAsync(e => e.Id == dto.Id, cancellationToken);
         if (entity is null) return VehicleStatus.NotFound;
 
         var count = 0;
@@ -136,7 +135,7 @@ internal sealed class Vehicles : IVehicles, IDisposable
 
         if (userId is not null)
         {
-            entities = await _dbContext.Set<VehicleBooking>()
+            entities = await _dbContext.VehicleBookings
                 .AsNoTracking()
                 .Include(e => e.Vehicle)
                 .Include(e => e.User)
@@ -145,7 +144,7 @@ internal sealed class Vehicles : IVehicles, IDisposable
         }
         else
         {
-            entities = await _dbContext.Set<VehicleBooking>()
+            entities = await _dbContext.VehicleBookings
                 .AsNoTracking()
                 .Include(e => e.Vehicle)
                 .Include(e => e.User)
@@ -157,14 +156,16 @@ internal sealed class Vehicles : IVehicles, IDisposable
 
         var result = entities.Select(e => e.ToDto(dc)).ToArray();
         
-        return result.Where(r => r.Start >= now).OrderBy(r => r.Start)
-            .Concat(result.Where(r => r.Start < now).OrderByDescending(r => r.Start))
-            .ToArray();
+        return 
+        [
+            .. result.Where(r => r.Start >= now).OrderBy(r => r.Start),
+            .. result.Where(r => r.Start < now).OrderByDescending(r => r.Start)
+        ];
     }
 
     public async Task<bool> DeleteBooking(Guid id, Guid userId, CancellationToken cancellationToken)
     {
-        var entity = await _dbContext.Set<VehicleBooking>()
+        var entity = await _dbContext.VehicleBookings
             .FirstOrDefaultAsync(e => e.Id == id && e.UserId == userId, cancellationToken);
 
         if (entity == null ||
@@ -180,9 +181,7 @@ internal sealed class Vehicles : IVehicles, IDisposable
 
     public async Task<bool> ConfirmBooking(Guid id, CancellationToken cancellationToken)
     {
-        var dbSet = _dbContext.Set<VehicleBooking>();
-
-        var entity = await dbSet.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        var entity = await _dbContext.VehicleBookings.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
         if (entity == null)
         {
             return false;
@@ -193,7 +192,7 @@ internal sealed class Vehicles : IVehicles, IDisposable
         var currentStart = entity.Start;
         var currentEnd = entity.End;
 
-        var existsBooking = await dbSet.AnyAsync(e =>
+        var existsBooking = await _dbContext.VehicleBookings.AnyAsync(e =>
             e.VehicleId == currentVehicleId &&
             e.CancelledOn == null &&
             e.Id != currentId &&
@@ -214,7 +213,7 @@ internal sealed class Vehicles : IVehicles, IDisposable
 
     public async Task<bool> CancelBooking(Guid id, CancellationToken cancellationToken)
     {
-        var entity = await _dbContext.Set<VehicleBooking>()
+        var entity = await _dbContext.VehicleBookings
             .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
 
         if (entity == null)

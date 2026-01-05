@@ -13,7 +13,7 @@ namespace GtKanu.WebApp.Pages.Invoices;
 [Authorize(Roles = "administrator,treasurer", Policy = Policies.TwoFactorAuth)]
 public class IndexModel : PageModel
 {
-    private readonly IInvoices _invoices;
+    private readonly IFoodInvoices _invoices;
 
     public InvoiceDto[] Invoices { get; set; } = [];
     public SelectListItem[] FilterItems { get; set; } = [];
@@ -22,7 +22,7 @@ public class IndexModel : PageModel
     public decimal InvoicesPaidTotal { get; set; }
     public string? FilterPeriodId { get; set; }
 
-    public IndexModel(IInvoices invoices)
+    public IndexModel(IFoodInvoices invoices)
     {
         _invoices = invoices;
     }

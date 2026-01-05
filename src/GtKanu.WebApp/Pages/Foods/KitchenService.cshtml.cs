@@ -13,7 +13,7 @@ namespace GtKanu.WebApp.Pages.Foods;
 [Authorize(Roles = "administrator,kitchen")]
 public class KitchenServiceModel : PageModel
 {
-    private readonly IBookings _bookings;
+    private readonly IFoodBookings _bookings;
 
     [Display(Name = "Datum der Buchungen")]
     public string? BookingDate { get; set; }
@@ -24,7 +24,7 @@ public class KitchenServiceModel : PageModel
     public decimal DishesTotal { get; set; }
     public decimal Total { get; set; }
 
-    public KitchenServiceModel(IBookings bookings)
+    public KitchenServiceModel(IFoodBookings bookings)
     {
         _bookings = bookings;
     }

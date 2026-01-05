@@ -21,9 +21,7 @@ internal sealed class Boats : IBoats, IDisposable
 
     public async Task<BoatStatus> Create(BoatDto dto, CancellationToken cancellationToken)
     {
-        var dbSet = _dbContext.Set<Boat>();
-
-        var exists = await dbSet.AnyAsync(e => e.Identifier == dto.Identifier && e.IsLocked == false, cancellationToken);
+        var exists = await _dbContext.Boats.AnyAsync(e => e.Identifier == dto.Identifier && e.IsLocked == false, cancellationToken);
         if (exists)
         {
             return BoatStatus.Exists;
@@ -33,7 +31,7 @@ internal sealed class Boats : IBoats, IDisposable
         entity.FromDto(dto);
         entity.Id = _dbContext.GeneratePk();
 
-        dbSet.Add(entity);
+        _dbContext.Add(entity);
 
         dto.Id = entity.Id;
 
@@ -42,18 +40,16 @@ internal sealed class Boats : IBoats, IDisposable
 
     public async Task<BoatStatus> Update(BoatDto dto, CancellationToken cancellationToken)
     {
-        var dbSet = _dbContext.Set<Boat>();
- 
         var update = new Boat();
         update.FromDto(dto);
 
-        var existent = await dbSet
+        var existent = await _dbContext.Boats
             .AsNoTracking()
             .FirstOrDefaultAsync(e => e.Identifier == update.Identifier && e.IsLocked == false, cancellationToken);
 
         if (existent is not null && existent.Id != update.Id) return BoatStatus.Exists;
 
-        var entity = await dbSet.FirstOrDefaultAsync(e => e.Id == update.Id, cancellationToken);
+        var entity = await _dbContext.Boats.FirstOrDefaultAsync(e => e.Id == update.Id, cancellationToken);
         if (entity is null) return BoatStatus.NotFound;
 
         var count = 0;
@@ -71,21 +67,16 @@ internal sealed class Boats : IBoats, IDisposable
 
     public async Task<BoatDto?> FindBoat(Guid id, CancellationToken cancellationToken)
     {
-        var dbSet = _dbContext.Set<Boat>();
+        var entity = await _dbContext.Boats
+            .AsNoTracking()
+            .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
 
-        var entity = await dbSet.FindAsync([id], cancellationToken);
-        if (entity is null)
-        {
-            return null;
-        }
-
-        return entity.ToDto();
+        return entity?.ToDto();
     }
 
     public async Task<BoatRentalListDto[]> GetRentalList(CancellationToken cancellationToken)
     {
-        var dbSet = _dbContext.Set<Boat>();
-        var entities = await dbSet
+        var entities = await _dbContext.Boats
             .AsNoTracking()
             .OrderBy(e => e.Name)
             .Select(e => new
@@ -107,12 +98,12 @@ internal sealed class Boats : IBoats, IDisposable
             result.Add(new() { Boat = entity.boat.ToDto(), Count = entity.count });
         }
 
-        return result.ToArray();
+        return [.. result];
     }
 
     public async Task<BoatRentalListDto[]> GetMyRentalList(Guid userId, CancellationToken cancellationToken)
     {
-        var userRentals = await _dbContext.Set<BoatRental>()
+        var userRentals = await _dbContext.BoatRentals
             .AsNoTracking()
             .Where(e => e.UserId == userId)
             .ToArrayAsync(cancellationToken);
@@ -128,7 +119,7 @@ internal sealed class Boats : IBoats, IDisposable
 
         var boatIds = boatCount.Keys.ToArray();
 
-        var userBoats = await _dbContext.Set<Boat>()
+        var userBoats = await _dbContext.Boats
             .AsNoTracking()
             .Where(e => boatIds.Contains(e.Id))
             .OrderBy(e => e.Name)
@@ -141,16 +132,14 @@ internal sealed class Boats : IBoats, IDisposable
             result.Add(new() { Boat = e.ToDto(), Count = boatCount[e.Id] });
         }
 
-        return result.ToArray();
+        return [.. result];
     }
 
     public async Task<BoatRentalDto[]> GetRentals(Guid boatId, bool activeOnly, CancellationToken cancellationToken)
-    {
-        var dbSet = _dbContext.Set<BoatRental>();
-        
+    {       
         var now = DateTimeOffset.UtcNow;
 
-        var entities = await dbSet
+        var entities = await _dbContext.BoatRentals
             .AsNoTracking()
             .Include(e => e.User)
             .Where(e => e.BoatId == boatId && (!activeOnly || e.End > now))
@@ -159,37 +148,34 @@ internal sealed class Boats : IBoats, IDisposable
 
         var dc = new GermanDateTimeConverter();
 
-        return entities
-            .Where(r => r.Start >= now)
-            .OrderBy(r => r.Start)
-            .Concat(entities.Where(r => r.Start < now).OrderByDescending(r => r.Start))
-            .Select(e => e.ToDto(dc))
-            .ToArray();
+        var newest = entities.Where(r => r.Start >= now).OrderBy(r => r.Start);
+        var oldest = entities.Where(r => r.Start < now).OrderByDescending(r => r.Start);
+
+        return [.. newest.Concat(oldest).Select(e => e.ToDto(dc))];
     }
 
     public async Task<BoatRentalDto?> GetLastRental(Guid boatId, CancellationToken cancellationToken)
     {
-        var dbSet = _dbContext.Set<BoatRental>();
-
-        var entity = await dbSet
+        var entity = await _dbContext.BoatRentals
             .AsNoTracking()
             .Include(e => e.User)
             .Where(e => e.BoatId == boatId && e.CancelledOn == null)
             .OrderByDescending(e => e.End)
             .FirstOrDefaultAsync(cancellationToken);
 
-        return entity is not null ? entity.ToDto(new()) : null;
+        return entity?.ToDto(new());
     }
 
     public async Task<BoatRentalStatus> CreateRental(CreateBoatRentalDto dto, CancellationToken cancellationToken)
     {
-        if (!await _bookingSemaphore.WaitAsync(TimeSpan.FromMinutes(1), cancellationToken)) return BoatRentalStatus.Timeout;
+        if (!await _bookingSemaphore.WaitAsync(TimeSpan.FromMinutes(1), cancellationToken))
+        {
+            return BoatRentalStatus.Timeout;
+        }
 
         try
         {
-            var dbSet = _dbContext.Set<BoatRental>();
-
-            var existsBooking = await dbSet.AnyAsync(e =>
+            var existsBooking = await _dbContext.BoatRentals.AnyAsync(e =>
                 e.BoatId == dto.BoatId &&
                 e.CancelledOn == null &&
                 ((e.Start >= dto.Start && e.Start <= dto.End) || (e.End >= dto.Start && e.End <= dto.End) || (e.End >= dto.End && e.Start <= dto.Start)),
@@ -204,7 +190,7 @@ internal sealed class Boats : IBoats, IDisposable
             entity.FromDto(dto);
             entity.Id = _dbContext.GeneratePk();
 
-            dbSet.Add(entity);
+            _dbContext.Add(entity);
 
             return await _dbContext.SaveChangesAsync(cancellationToken) > 0 ? BoatRentalStatus.Success : BoatRentalStatus.Failed;
         }
@@ -216,9 +202,7 @@ internal sealed class Boats : IBoats, IDisposable
 
     public async Task<bool> StopRental(Guid id, CancellationToken cancellationToken)
     {
-        var dbSet = _dbContext.Set<BoatRental>();
-
-        var entity = await dbSet.FindAsync([id], cancellationToken);
+        var entity = await _dbContext.BoatRentals.FindAsync([id], cancellationToken);
         if (entity is null)
         {
             return false;
@@ -235,9 +219,7 @@ internal sealed class Boats : IBoats, IDisposable
 
     public async Task<bool> CancelRental(Guid id, CancellationToken cancellationToken)
     {
-        var dbSet = _dbContext.Set<BoatRental>();
-
-        var entity = await dbSet.FindAsync([id], cancellationToken);
+        var entity = await _dbContext.BoatRentals.FindAsync([id], cancellationToken);
         if (entity is null || entity.CancelledOn is not null)
         {
             return false;
@@ -250,11 +232,7 @@ internal sealed class Boats : IBoats, IDisposable
 
     public async Task<MyBoatRentalListDto[]> GetMyRentals(Guid userId, CancellationToken cancellationToken)
     {
-        var dbSet = _dbContext.Set<BoatRental>();
-
-        var now = DateTimeOffset.UtcNow;
-
-        var entities = await dbSet
+        var entities = await _dbContext.BoatRentals
             .AsNoTracking()
             .Where(e => e.UserId == userId)
             .OrderBy(e => e.Start)
@@ -262,13 +240,10 @@ internal sealed class Boats : IBoats, IDisposable
 
         var dc = new GermanDateTimeConverter();
 
-        return entities
-            .Where(r => r.Start >= now)
-            .OrderBy(r => r.Start)
-            .Concat(entities.Where(r => r.Start < now).OrderByDescending(r => r.Start))
-            .Select(e => e.ToMyListDto(dc))
-            .ToArray();
-
-
+        var now = DateTimeOffset.UtcNow;
+        var newest = entities.Where(r => r.Start >= now).OrderBy(r => r.Start);
+        var oldest = entities.Where(r => r.Start < now).OrderByDescending(r => r.Start);
+        
+        return [.. newest.Concat(oldest).Select(e => e.ToMyListDto(dc))];
     }
 }

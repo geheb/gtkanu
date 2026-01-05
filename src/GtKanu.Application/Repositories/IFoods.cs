@@ -10,6 +10,6 @@ public interface IFoods
     Task<bool> Create(FoodListDto dto, CancellationToken cancellationToken);
     Task<FoodDto[]> GetLatestFoods(CancellationToken cancellationToken);
     Task<bool> Create(FoodDto dto, CancellationToken cancellationToken);
-    Task<FoodListDto?> Find(Guid id, CancellationToken cancellationToken);
+    Task<FoodListDto?> FindFoodList(Guid id, CancellationToken cancellationToken);
     Task<bool> Update(FoodListDto dto, CancellationToken cancellationToken);
 }

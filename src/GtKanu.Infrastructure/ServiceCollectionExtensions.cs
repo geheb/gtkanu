@@ -64,13 +64,13 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IFoods, Foods>();
-        services.AddScoped<IBookings, Bookings>();
-        services.AddScoped<IInvoices, Invoices>();
+        services.AddScoped<IFoodBookings, FoodBookings>();
+        services.AddScoped<IFoodInvoices, FoodInvoices>();
         services.AddScoped<ITrips, Trips>();
         services.AddScoped<IVehicles, Vehicles>();
         services.AddScoped<ITryouts, Tryouts>();
         services.AddScoped<IBoats, Boats>();
-        services.AddScoped<IClubhouse, Clubhouse>();
+        services.AddScoped<IClubhouseBookings, ClubhouseBookings>();
         services.AddScoped<IIdentities, Identities>();
 
         services.Configure<SmtpConnectionOptions>(config.GetSection("Smtp"));

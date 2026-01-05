@@ -44,7 +44,7 @@ internal sealed class EmailQueueRepository : Repository<EmailQueue, EmailQueueDt
             });
         }
 
-        return result.ToArray();
+        return [.. result];
     }
 
     public async Task<Result> UpdateSent(Guid[] ids, CancellationToken cancellationToken)

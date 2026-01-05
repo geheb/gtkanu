@@ -62,7 +62,7 @@ internal sealed class Identities : IIdentities
 
     public async Task<IdentityDto[]> GetAll(CancellationToken cancellationToken)
     {
-        var entities = await _userManager.Users
+        var entities = await _dbContext.Identities
             .AsNoTracking()
             .Include(e => e.UserRoles!).ThenInclude(e => e.Role)
             .Where(e => e.LeftOn == null)
@@ -75,22 +75,17 @@ internal sealed class Identities : IIdentities
 
     public async Task<IdentityDto?> Find(Guid id, CancellationToken cancellationToken)
     {
-        var entity = await _userManager.Users
+        var entity = await _dbContext.Identities
             .AsNoTracking()
             .Include(e => e.UserRoles!).ThenInclude(e => e.Role)
             .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
 
-        if (entity is null)
-        {
-            return null;
-        }
-
-        return entity.ToDto(new());
+        return entity?.ToDto(new());
     }
 
     public async Task<Result> Update(IdentityDto dto, CancellationToken cancellationToken)
     {
-        var entity = await _userManager.Users.FirstOrDefaultAsync(e => e.Id == dto.Id, cancellationToken);
+        var entity = await _dbContext.Identities.FirstOrDefaultAsync(e => e.Id == dto.Id, cancellationToken);
         if (entity is null)
         {
             return _userNotFound;
@@ -193,7 +188,7 @@ internal sealed class Identities : IIdentities
 
     public async Task<Result> Remove(Guid id, CancellationToken cancellationToken)
     {
-        var entity = await _userManager.Users.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        var entity = await _dbContext.Identities.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
         if (entity is null)
         {
             return _userNotFound;
@@ -233,7 +228,7 @@ internal sealed class Identities : IIdentities
 
     public async Task<Result> UpdateLoginSucceeded(Guid id, CancellationToken cancellationToken)
     {
-        var entity = await _userManager.Users.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        var entity = await _dbContext.Identities.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
         if (entity is null)
         {
             return _userNotFound;

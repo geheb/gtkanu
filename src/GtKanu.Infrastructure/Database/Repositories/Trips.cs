@@ -39,15 +39,16 @@ internal sealed class Trips : ITrips, IDisposable
 
     public async Task<TripDto?> FindTrip(Guid id, CancellationToken cancellationToken)
     {
-        var entity = await _dbContext.Set<Trip>().FindAsync([id], cancellationToken);
-        if (entity == null) return null;
+        var entity = await _dbContext.Trips
+            .AsNoTracking()
+            .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
 
-        return entity.ToDto(new());
+        return entity?.ToDto(new());
     }
 
     public async Task<TripBookingDto[]> GetBookingList(Guid tripId, CancellationToken cancellationToken)
     {
-        var entities = await _dbContext.Set<TripBooking>()
+        var entities = await _dbContext.TripBookings
             .AsNoTracking()
             .Include(e => e.User)
             .Where(e => e.TripId == tripId)
@@ -56,13 +57,14 @@ internal sealed class Trips : ITrips, IDisposable
 
         var dc = new GermanDateTimeConverter();
 
-        return entities.Select(e => e.ToDto(dc)).ToArray();
+        return [.. entities.Select(e => e.ToDto(dc))];
     }
 
     public async Task<TripListDto[]> GetTripList(bool showExpired, CancellationToken cancellationToken)
     {
         var now = DateTimeOffset.UtcNow;
-        var trips = await _dbContext.Set<Trip>()
+
+        var trips = await _dbContext.Trips
             .AsNoTracking()
             .Include(e => e.User)
             .Where(e => (showExpired ? e.Start < now : e.End > now))
@@ -78,7 +80,7 @@ internal sealed class Trips : ITrips, IDisposable
         var tripBookingUsers = new Dictionary<Guid, List<string>>();
         foreach (var ids in tripIds.Chunk(100))
         {
-            var bookings = await _dbContext.Set<TripBooking>()
+            var bookings = await _dbContext.TripBookings
                 .AsNoTracking()
                 .Include(e => e.User)
                 .Where(e => ids.Contains(e.TripId!.Value) && e.CancelledOn == null)
@@ -89,7 +91,7 @@ internal sealed class Trips : ITrips, IDisposable
             {
                 if (!tripBookingUsers.TryGetValue(b.TripId, out var users))
                 {
-                    users = new();
+                    users = [];
                     tripBookingUsers.Add(b.TripId, users);
                 }
                 users.Add(b.Name ?? b.User);
@@ -101,15 +103,16 @@ internal sealed class Trips : ITrips, IDisposable
         var result = trips.Select(e => e.trip.ToListDto(e.bookingCount, e.chatMessageCount,
             tripBookingUsers.TryGetValue(e.trip.Id, out var u) ? u.ToArray() : Array.Empty<string>(), dc)).ToArray();
 
-        return result.Where(r => r.Start >= now)
-            .OrderBy(r => r.Start)
-            .Concat(result.Where(r => r.Start < now).OrderByDescending(r => r.Start))
-            .ToArray();
+        return
+        [
+            .. result.Where(r => r.Start >= now).OrderBy(r => r.Start),
+            .. result.Where(r => r.Start < now).OrderByDescending(r => r.Start),
+        ];
     }
 
     public async Task<TripListDto?> FindTripList(Guid id, CancellationToken cancellationToken)
     {
-        var entity = await _dbContext.Set<Trip>()
+        var entity = await _dbContext.Trips
             .AsNoTracking()
             .Include(e => e.User)
             .Where(e => e.Id == id)
@@ -123,7 +126,7 @@ internal sealed class Trips : ITrips, IDisposable
 
         if (entity == null) return null;
 
-        var bookings = await _dbContext.Set<TripBooking>()
+        var bookings = await _dbContext.TripBookings
             .AsNoTracking()
             .Include(e => e.User)
             .Where(e => e.TripId == id && e.CancelledOn == null)
@@ -139,7 +142,7 @@ internal sealed class Trips : ITrips, IDisposable
 
     public async Task<MyTripListDto[]> GetMyTripList(Guid userId, CancellationToken cancellationToken)
     {
-        var bookings = await _dbContext.Set<TripBooking>()
+        var bookings = await _dbContext.TripBookings
             .AsNoTracking()
             .Include(e => e.User)
             .Where(e => e.UserId == userId)
@@ -149,7 +152,7 @@ internal sealed class Trips : ITrips, IDisposable
         var tripBookingUsers = new Dictionary<Guid, List<string>>();
         foreach (var ids in tripIds.Chunk(100))
         {
-            var bookingsSelected = await _dbContext.Set<TripBooking>()
+            var bookingsSelected = await _dbContext.TripBookings
                 .AsNoTracking()
                 .Include(e => e.User)
                 .Where(e => ids.Contains(e.TripId!.Value) && e.CancelledOn == null)
@@ -160,7 +163,7 @@ internal sealed class Trips : ITrips, IDisposable
             {
                 if (!tripBookingUsers.TryGetValue(b.TripId, out var users))
                 {
-                    users = new();
+                    users = [];
                     tripBookingUsers.Add(b.TripId, users);
                 }
                 users.Add(b.Name ?? b.User);
@@ -174,7 +177,7 @@ internal sealed class Trips : ITrips, IDisposable
         {
             tripIds = batchBookings.Select(e => e.TripId!.Value).Distinct().ToArray();
 
-            var trips = await _dbContext.Set<Trip>()
+            var trips = await _dbContext.Trips
                 .AsNoTracking()
                 .Include(e => e.User)
                 .Where(e => tripIds.Contains(e.Id))
@@ -197,11 +200,11 @@ internal sealed class Trips : ITrips, IDisposable
         }
 
         var now = DateTimeOffset.UtcNow;
-        return result.Where(r => r.TripStart >= now)
-            .OrderBy(r => r.TripStart)
-            .ThenByDescending(r => r.BookingBookedOn)
-            .Concat(result.Where(r => r.TripStart < now).OrderByDescending(r => r.TripStart))
-            .ToArray();
+        return
+        [
+            .. result.Where(r => r.TripStart >= now).OrderBy(r => r.TripStart).ThenByDescending(r => r.BookingBookedOn),
+            .. result.Where(r => r.TripStart < now).OrderByDescending(r => r.TripStart),
+        ];
     }
 
     public async Task<TripBookingStatus> CreateBooking(Guid id, Guid userId, string? name, CancellationToken cancellationToken)
@@ -210,7 +213,7 @@ internal sealed class Trips : ITrips, IDisposable
 
         try
         {
-            var trip = await _dbContext.Set<Trip>()
+            var trip = await _dbContext.Trips
                 .AsNoTracking()
                 .Where(e => e.Id == id)
                 .Select(e => new 
@@ -224,7 +227,8 @@ internal sealed class Trips : ITrips, IDisposable
 
             if (string.IsNullOrWhiteSpace(name)) name = null;
 
-            var entity = await _dbContext.Set<TripBooking>()
+            var entity = await _dbContext.TripBookings
+                .AsNoTracking()
                 .FirstOrDefaultAsync(e => e.TripId == id && e.UserId == userId && e.Name == name, cancellationToken);
 
             if (entity != null)
@@ -253,7 +257,7 @@ internal sealed class Trips : ITrips, IDisposable
 
     public async Task<bool> DeleteBooking(Guid id, Guid userId, CancellationToken cancellationToken)
     {
-        var entity = await _dbContext.Set<TripBooking>()
+        var entity = await _dbContext.TripBookings
             .FirstOrDefaultAsync(e => e.Id == id && e.UserId == userId, cancellationToken);
 
         if (entity == null ||
@@ -269,7 +273,7 @@ internal sealed class Trips : ITrips, IDisposable
 
     public async Task<bool> ConfirmBooking(Guid id, CancellationToken cancellationToken)
     {
-        var entity = await _dbContext.Set<TripBooking>()
+        var entity = await _dbContext.TripBookings
             .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
 
         if (entity == null)
@@ -285,7 +289,7 @@ internal sealed class Trips : ITrips, IDisposable
 
     public async Task<bool> CancelBooking(Guid id, CancellationToken cancellationToken)
     {
-        var entity = await _dbContext.Set<TripBooking>()
+        var entity = await _dbContext.TripBookings
             .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
 
         if (entity == null)
@@ -301,7 +305,7 @@ internal sealed class Trips : ITrips, IDisposable
 
     public async Task<bool> UpdateTrip(TripDto dto, CancellationToken cancellationToken)
     {
-        var entity = await _dbContext.Set<Trip>().FindAsync([dto.Id], cancellationToken);
+        var entity = await _dbContext.Trips.FindAsync([dto.Id], cancellationToken);
         if (entity == null) return false;
 
         var count = 0;
@@ -323,25 +327,28 @@ internal sealed class Trips : ITrips, IDisposable
 
     public async Task<TripChatDto[]> GetChat(Guid tripId, Guid userId, CancellationToken cancellationToken)
     {
-        var entities = await _dbContext.Set<TripChat>()
+        var entities = await _dbContext.TripChats
+            .AsNoTracking()
             .Include(e => e.User)
             .Where(e => e.TripId == tripId)
             .OrderByDescending(e => e.CreatedOn)
             .ToArrayAsync(cancellationToken);
 
-        if (entities.Length < 1) return Array.Empty<TripChatDto>();
+        if (entities.Length < 1) return [];
 
         var dc = new GermanDateTimeConverter();
 
-        return entities.Select(e => e.ToDto(userId, dc)).ToArray();
+        return [.. entities.Select(e => e.ToDto(userId, dc))];
     }
 
     public async Task<bool> CreateChatMessage(Guid id, Guid userId, string message, CancellationToken cancellationToken)
     {
-        var trip = await _dbContext.Set<Trip>().FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        var trip = await _dbContext.Trips
+            .AsNoTracking()
+            .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
         if (trip == null || trip.IsExpired) return false;
 
-        var count = await _dbContext.Set<TripChat>().CountAsync(e => e.TripId == id, cancellationToken);
+        var count = await _dbContext.TripChats.CountAsync(e => e.TripId == id, cancellationToken);
         if (count >= 10_000) return false;
 
         var entity = new TripChat
@@ -360,45 +367,42 @@ internal sealed class Trips : ITrips, IDisposable
 
     public async Task<bool> DeleteTrip(Guid id, CancellationToken cancellationToken)
     {
-        var trip = await _dbContext.Set<Trip>().FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        var trip = await _dbContext.Trips
+            .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+
         if (trip == null) return false;
 
-        var bookings = await _dbContext.Set<TripBooking>().Where(e => e.TripId == id).ToArrayAsync(cancellationToken);
+        var bookings = await _dbContext.TripBookings.Where(e => e.TripId == id).ToArrayAsync(cancellationToken);
         if (bookings.Length > 0)
         {
-            _dbContext.Set<TripBooking>().RemoveRange(bookings);
+            _dbContext.RemoveRange(bookings);
         }
 
-        var chats = await _dbContext.Set<TripChat>().Where(e => e.TripId == id).ToArrayAsync(cancellationToken);
+        var chats = await _dbContext.TripChats.Where(e => e.TripId == id).ToArrayAsync(cancellationToken);
         if (chats.Length > 0)
         {
-            _dbContext.Set<TripChat>().RemoveRange(chats);
+            _dbContext.RemoveRange(chats);
         }
 
-        _dbContext.Set<Trip>().Remove(trip);
+        _dbContext.Remove(trip);
 
         return await _dbContext.SaveChangesAsync(cancellationToken) > 0;
     }
 
     public async Task<PublicTripDto[]> GetPublicTrips(CancellationToken cancellationToken)
     {
-        var dbSetTrip = _dbContext.Set<Trip>();
-        var now = DateTimeOffset.UtcNow;
-
         var dc = new GermanDateTimeConverter();
 
         // Club regulation
-        var start = dc.ToUtc(new DateOnly(now.Year - 1, 10, 1));
+        var start = dc.ToUtc(new DateOnly(DateTimeOffset.UtcNow.Year - 1, 10, 1));
 
-        var trips = await dbSetTrip
+        var trips = await _dbContext.Trips
             .AsNoTracking()
             .Where(e => e.Start >= start && e.IsPublic)
             .OrderBy(e => e.Start)
             .ToArrayAsync(cancellationToken);
 
-        return trips
-            .Select(e => e.ToPublicDto(dc))
-            .ToArray();
+        return [.. trips.Select(e => e.ToPublicDto(dc))];
     }
 
     public async Task<string> GetPublicTripsAsIcs(CancellationToken cancellationToken)

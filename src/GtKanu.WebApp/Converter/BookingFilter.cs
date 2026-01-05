@@ -24,7 +24,7 @@ public sealed class BookingFilter
             date = date.AddMonths(1);
         }
         items.Reverse();
-        return items.ToArray();
+        return [.. items];
     }
 
     public string ToDateFormatString(DateTime date)

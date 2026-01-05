@@ -16,7 +16,7 @@ public class CreateFoodBookingModel : PageModel
 {
     private readonly IIdentities _identityRepository;
     private readonly IFoods _foods;
-    private readonly IBookings _bookings;
+    private readonly IFoodBookings _bookings;
 
     [Display(Name = "Getränk/Speise/Spende")]
     [BindProperty, RequiredField]
@@ -37,7 +37,7 @@ public class CreateFoodBookingModel : PageModel
     public CreateFoodBookingModel(
         IIdentities identityRepository,
         IFoods foods, 
-        IBookings bookings)
+        IFoodBookings bookings)
     {
         _identityRepository = identityRepository;
         _foods = foods;

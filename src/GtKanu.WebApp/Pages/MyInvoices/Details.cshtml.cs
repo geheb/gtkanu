@@ -12,8 +12,8 @@ namespace GtKanu.WebApp.Pages.MyInvoices;
 public class DetailsModel : PageModel
 {
     private readonly IIdentities _identityRepository;
-    private readonly IInvoices _invoices;
-    private readonly IBookings _bookings;
+    private readonly IFoodInvoices _invoices;
+    private readonly IFoodBookings _bookings;
 
     public string? Recipient { get; set; } = "n.v.";
     public string? Description { get; set; } = "n.v.";
@@ -23,8 +23,8 @@ public class DetailsModel : PageModel
 
     public DetailsModel(
         IIdentities identityRepository,
-        IInvoices invoices,
-        IBookings bookings)
+        IFoodInvoices invoices,
+        IFoodBookings bookings)
     {
         _identityRepository = identityRepository;
         _invoices = invoices;

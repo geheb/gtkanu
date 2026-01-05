@@ -16,8 +16,8 @@ public sealed class CreateInvoiceModel : PageModel
 {
     private static readonly DateTime _fixedStartDate = new(2022, 5, 1, 0, 0, 0, 0, DateTimeKind.Utc);
 
-    private readonly IBookings _bookings;
-    private readonly IInvoices _invoices;
+    private readonly IFoodBookings _bookings;
+    private readonly IFoodInvoices _invoices;
 
     [Display(Name = "Beschreibung")]
     [BindProperty, RequiredField, TextLengthField]
@@ -33,8 +33,8 @@ public sealed class CreateInvoiceModel : PageModel
     public string? BookingDateTo { get; set; }
 
     public CreateInvoiceModel(
-        IBookings bookings,
-        IInvoices invoices)
+        IFoodBookings bookings,
+        IFoodInvoices invoices)
     {
         _bookings = bookings;
         _invoices = invoices;

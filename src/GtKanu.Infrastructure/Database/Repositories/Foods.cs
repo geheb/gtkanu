@@ -18,8 +18,7 @@ internal sealed class Foods : IFoods
 
     public async Task<FoodListDto[]> GetFoodList(CancellationToken cancellationToken)
     {
-        var dbSet = _dbContext.Set<FoodList>();
-        var entities = await dbSet
+        var entities = await _dbContext.FoodLists
             .AsNoTracking()
             .Select(e => new 
             { 
@@ -31,30 +30,26 @@ internal sealed class Foods : IFoods
 
         var dc = new GermanDateTimeConverter();
 
-        return entities.Select(e => e.list.ToDto(e.count, dc)).ToArray();
+        return [.. entities.Select(e => e.list.ToDto(e.count, dc))];
     }
 
     public async Task<FoodDto[]> GetFoods(Guid foodListId, CancellationToken cancellationToken)
     {
-        var dbSet = _dbContext.Set<Food>();
-
-        var entities = await dbSet
+        var entities = await _dbContext.Foods
             .AsNoTracking()
             .Where(e => e.FoodListId == foodListId)
             .OrderBy(e => e.Type).ThenBy(e => e.Name)
             .ToArrayAsync(cancellationToken);
 
-        return entities.Select(e => e.ToDto()).ToArray();
+        return [.. entities.Select(e => e.ToDto())];
     }
 
     public async Task<bool> DeleteFood(Guid id, CancellationToken cancellationToken)
     {
-        var dbSet = _dbContext.Set<Food>();
-
-        var entity = await dbSet.FindAsync([id], cancellationToken);
+        var entity = await _dbContext.Foods.FindAsync([id], cancellationToken);
         if (entity == null) return false;
 
-        dbSet.Remove(entity);
+        _dbContext.Remove(entity);
         return await _dbContext.SaveChangesAsync(cancellationToken) > 0;
     }
 
@@ -64,9 +59,7 @@ internal sealed class Foods : IFoods
         entity.FromDto(dto);
         entity.Id = _dbContext.GeneratePk();
 
-        var dbSet = _dbContext.Set<FoodList>();
-
-        dbSet.Add(entity);
+        _dbContext.Add(entity);
 
         dto.Id = entity.Id;
 
@@ -75,10 +68,9 @@ internal sealed class Foods : IFoods
 
     public async Task<FoodDto[]> GetLatestFoods(CancellationToken cancellationToken)
     {
-        var dbSet = _dbContext.Set<FoodList>();
         var now = DateTimeOffset.UtcNow;
 
-        var latestList = await dbSet
+        var latestList = await _dbContext.FoodLists
             .AsNoTracking()
             .Where(e => e.ValidFrom <= now)
             .OrderByDescending(e => e.ValidFrom)
@@ -86,18 +78,16 @@ internal sealed class Foods : IFoods
 
         if (latestList == null)
         {
-            return Array.Empty<FoodDto>();
+            return [];
         }
 
-        var dbSetFood = _dbContext.Set<Food>();
-
-        var entities = await dbSetFood
+        var entities = await _dbContext.Foods
             .AsNoTracking()
             .Where(e => e.FoodListId == latestList.Id)
             .OrderBy(e => e.Type).ThenBy(e => e.Name)
             .ToArrayAsync(cancellationToken);
 
-        return entities.Select(e => e.ToDto()).ToArray();
+        return [.. entities.Select(e => e.ToDto())];
     }
 
     public async Task<bool> Create(FoodDto dto, CancellationToken cancellationToken)
@@ -106,18 +96,14 @@ internal sealed class Foods : IFoods
         entity.FromDto(dto);
         entity.Id = _dbContext.GeneratePk();
 
-        var dbSet = _dbContext.Set<Food>();
-
-        dbSet.Add(entity);
+        _dbContext.Add(entity);
 
         return await _dbContext.SaveChangesAsync(cancellationToken) > 0;
     }
 
-    public async Task<FoodListDto?> Find(Guid id, CancellationToken cancellationToken)
+    public async Task<FoodListDto?> FindFoodList(Guid id, CancellationToken cancellationToken)
     {
-        var dbSet = _dbContext.Set<FoodList>();
-
-        var entity = await dbSet.FindAsync([id], cancellationToken);
+        var entity = await _dbContext.FoodLists.FindAsync([id], cancellationToken);
         if (entity == null) return null;
 
         return entity.ToDto(null, new());
@@ -125,9 +111,7 @@ internal sealed class Foods : IFoods
 
     public async Task<bool> Update(FoodListDto dto, CancellationToken cancellationToken)
     {
-        var dbSet = _dbContext.Set<FoodList>();
-
-        var entity = await dbSet.FindAsync([dto.Id], cancellationToken);
+        var entity = await _dbContext.FoodLists.FindAsync([dto.Id], cancellationToken);
         if (entity == null) return false;
 
         var count = 0;

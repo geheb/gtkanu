@@ -1,5 +1,4 @@
 using GtKanu.Application.Repositories;
-using GtKanu.Infrastructure.Database.Entities;
 
 namespace GtKanu.Infrastructure.Database.Repositories;
 
@@ -13,16 +12,16 @@ internal sealed class UnitOfWork : IUnitOfWork
     private WikiArticleRepository? _wikiArticle;
 
     public IMailings Mailings =>
-        _mailings ??= new(_timeProvider, _dbContext.Set<Mailing>());
+        _mailings ??= new(_timeProvider, _dbContext.Mailings);
 
     public IEmailQueues EmailQueue =>
-        _emailQueue ??= new(_timeProvider, _dbContext.Set<EmailQueue>());
+        _emailQueue ??= new(_timeProvider, _dbContext.EmailQueues);
 
     public IMyMailings MyMailings =>
-        _myMailings ??= new(_timeProvider, _dbContext.Set<MyMailing>());
+        _myMailings ??= new(_timeProvider, _dbContext.MyMailings);
 
     public IWikiArticles WikiArticles =>
-        _wikiArticle ??= new(_timeProvider, _dbContext.Set<WikiArticle>());
+        _wikiArticle ??= new(_timeProvider, _dbContext.WikiArticles);
 
     public UnitOfWork(
         TimeProvider timeProvider,

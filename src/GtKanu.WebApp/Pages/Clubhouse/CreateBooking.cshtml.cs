@@ -12,12 +12,12 @@ namespace GtKanu.WebApp.Pages.Clubhouse;
 [Authorize(Roles = "administrator,housemanager")]
 public class CreateBookingModel : PageModel
 {
-    private readonly IClubhouse _clubhouse;
+    private readonly IClubhouseBookings _clubhouse;
 
     [BindProperty]
     public ClubhouseBookingInput Input { get; set; } = new();
 
-    public CreateBookingModel(IClubhouse clubhouse)
+    public CreateBookingModel(IClubhouseBookings clubhouse)
     {
         _clubhouse = clubhouse;
         var dc = new GermanDateTimeConverter();

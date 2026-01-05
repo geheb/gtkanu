@@ -11,14 +11,14 @@ namespace GtKanu.WebApp.Pages.Clubhouse;
 [Authorize(Roles = "administrator,housemanager")]
 public class EditBookingModel : PageModel
 {
-    private readonly IClubhouse _clubhouse;
+    private readonly IClubhouseBookings _clubhouse;
 
     [BindProperty]
     public ClubhouseBookingInput Input { get; set; } = new();
 
     public bool IsDisabled { get; set; }
 
-    public EditBookingModel(IClubhouse clubhouse)
+    public EditBookingModel(IClubhouseBookings clubhouse)
     {
         _clubhouse = clubhouse;
     }

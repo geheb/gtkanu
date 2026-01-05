@@ -10,11 +10,11 @@ namespace GtKanu.WebApp.Pages.Clubhouse;
 [Authorize(Roles = "administrator,housemanager")]
 public class IndexModel : PageModel
 {
-    private readonly IClubhouse _clubhouse;
+    private readonly IClubhouseBookings _clubhouse;
 
     public ClubhouseBookingDto[] Items { get; set; } = [];
 
-    public IndexModel(IClubhouse clubhouse)
+    public IndexModel(IClubhouseBookings clubhouse)
     {
         _clubhouse = clubhouse;
     }
@@ -22,6 +22,6 @@ public class IndexModel : PageModel
     public async Task OnGetAsync(int filter, CancellationToken cancellationToken)
     {
         var showExpired = filter == 1;
-        Items = await _clubhouse.GetBookingList(showExpired, cancellationToken);
+        Items = await _clubhouse.GetAll(showExpired, cancellationToken);
     }
 }

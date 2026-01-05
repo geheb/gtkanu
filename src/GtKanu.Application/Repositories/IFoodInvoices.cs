@@ -2,7 +2,7 @@ using GtKanu.Application.Models;
 
 namespace GtKanu.Application.Repositories;
 
-public interface IInvoices
+public interface IFoodInvoices
 {
     Task<InvoicePeriodDto[]> GetPeriods(CancellationToken cancellationToken);
     Task<InvoiceDto[]> GetByPeriod(Guid id, CancellationToken cancellationToken);

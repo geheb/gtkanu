@@ -13,7 +13,7 @@ namespace GtKanu.WebApp.Pages.Foods;
 [Authorize(Roles = "administrator,treasurer", Policy = Policies.TwoFactorAuth)]
 public class IndexModel : PageModel
 {
-    private readonly IBookings _bookings;
+    private readonly IFoodBookings _bookings;
 
     public BookingFoodDto[] Bookings { get; set; } = [];
     public SelectListItem[] FilterItems { get; set; } = [];
@@ -24,7 +24,7 @@ public class IndexModel : PageModel
     public decimal DishesTotal { get; set; }
     public decimal DonationTotal { get; set; }
 
-    public IndexModel(IBookings bookings)
+    public IndexModel(IFoodBookings bookings)
     {
         _bookings = bookings;
     }

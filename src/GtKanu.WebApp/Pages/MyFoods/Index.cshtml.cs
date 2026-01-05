@@ -15,7 +15,7 @@ namespace GtKanu.WebApp.Pages.MyFoods;
 [Authorize(Roles = "administrator,member")]
 public class IndexModel : PageModel
 {
-    private readonly IBookings _bookings;
+    private readonly IFoodBookings _bookings;
 
     public BookingFoodDto[] Bookings { get; set; } = [];
     public decimal Total { get; set; }
@@ -26,7 +26,7 @@ public class IndexModel : PageModel
 
     public SelectListItem[] FilterItems { get; set; } = [];
 
-    public IndexModel(IBookings bookings)
+    public IndexModel(IFoodBookings bookings)
     {
         _bookings = bookings;
     }
