@@ -147,11 +147,11 @@ internal sealed class Boats : IBoats, IDisposable
             .ToArrayAsync(cancellationToken);
 
         var dc = new GermanDateTimeConverter();
-
-        var newest = entities.Where(r => r.Start >= now).OrderBy(r => r.Start);
-        var oldest = entities.Where(r => r.Start < now).OrderByDescending(r => r.Start);
-
-        return [.. newest.Concat(oldest).Select(e => e.ToDto(dc))];
+        return
+        [
+            .. entities.Where(r => r.Start >= now).OrderBy(r => r.Start).Select(e => e.ToDto(dc)),
+            .. entities.Where(r => r.Start < now).OrderByDescending(r => r.Start).Select(e => e.ToDto(dc))
+        ];
     }
 
     public async Task<BoatRentalDto?> GetLastRental(Guid boatId, CancellationToken cancellationToken)
@@ -239,11 +239,11 @@ internal sealed class Boats : IBoats, IDisposable
             .ToArrayAsync(cancellationToken);
 
         var dc = new GermanDateTimeConverter();
-
         var now = DateTimeOffset.UtcNow;
-        var newest = entities.Where(r => r.Start >= now).OrderBy(r => r.Start);
-        var oldest = entities.Where(r => r.Start < now).OrderByDescending(r => r.Start);
-        
-        return [.. newest.Concat(oldest).Select(e => e.ToMyListDto(dc))];
+        return
+        [
+            .. entities.Where(r => r.Start >= now).OrderBy(r => r.Start).Select(e => e.ToMyListDto(dc)),
+            .. entities.Where(r => r.Start < now).OrderByDescending(r => r.Start).Select(e => e.ToMyListDto(dc))
+        ];
     }
 }
