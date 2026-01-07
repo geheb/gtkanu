@@ -92,7 +92,7 @@ internal sealed class FoodInvoices : IFoodInvoices
 
         using var trans = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
 
-        var period = new InvoicePeriod
+        var period = new FoodInvoicePeriod
         {
             Id = _dbContext.GeneratePk(),
             Description = description,
@@ -116,7 +116,7 @@ internal sealed class FoodInvoices : IFoodInvoices
 
             decimal total = bookings.Sum(b => b.Food!.Price * b.Count);
 
-            var invoice = new Invoice
+            var invoice = new FoodInvoice
             {
                 Id = _dbContext.GeneratePk(),
                 CreatedOn = DateTimeOffset.UtcNow,

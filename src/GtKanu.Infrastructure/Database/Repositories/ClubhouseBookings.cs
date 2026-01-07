@@ -1,3 +1,4 @@
+using FluentResults;
 using GtKanu.Application.Converter;
 using GtKanu.Application.Models;
 using GtKanu.Application.Repositories;
@@ -93,7 +94,11 @@ internal sealed class ClubhouseBookings : IClubhouseBookings
 
         var dc = new GermanDateTimeConverter();
 
-        return [.. entities.Select(e => e.ToDto(dc))];
+        return
+        [
+            .. entities.Where(e => e.Start >= now).OrderBy(e => e.Start).Select(e => e.ToDto(dc)),
+            .. entities.Where(r => r.Start < now).OrderByDescending(r => r.Start).Select(e => e.ToDto(dc)),
+        ];
     }
 
     public async Task<bool> DeleteBooking(Guid id, CancellationToken cancellationToken)

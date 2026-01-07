@@ -62,7 +62,7 @@ internal sealed class Identities : IIdentities
 
     public async Task<IdentityDto[]> GetAll(CancellationToken cancellationToken)
     {
-        var entities = await _dbContext.Identities
+        var entities = await _dbContext.IdentityUsers
             .AsNoTracking()
             .Include(e => e.UserRoles!).ThenInclude(e => e.Role)
             .Where(e => e.LeftOn == null)
@@ -75,7 +75,7 @@ internal sealed class Identities : IIdentities
 
     public async Task<IdentityDto?> Find(Guid id, CancellationToken cancellationToken)
     {
-        var entity = await _dbContext.Identities
+        var entity = await _dbContext.IdentityUsers
             .AsNoTracking()
             .Include(e => e.UserRoles!).ThenInclude(e => e.Role)
             .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
@@ -85,7 +85,7 @@ internal sealed class Identities : IIdentities
 
     public async Task<Result> Update(IdentityDto dto, CancellationToken cancellationToken)
     {
-        var entity = await _dbContext.Identities.FirstOrDefaultAsync(e => e.Id == dto.Id, cancellationToken);
+        var entity = await _dbContext.IdentityUsers.FirstOrDefaultAsync(e => e.Id == dto.Id, cancellationToken);
         if (entity is null)
         {
             return _userNotFound;
@@ -188,7 +188,7 @@ internal sealed class Identities : IIdentities
 
     public async Task<Result> Remove(Guid id, CancellationToken cancellationToken)
     {
-        var entity = await _dbContext.Identities.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        var entity = await _dbContext.IdentityUsers.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
         if (entity is null)
         {
             return _userNotFound;
@@ -200,8 +200,13 @@ internal sealed class Identities : IIdentities
             return Result.Fail(result.Errors.Select(e => e.Description));
         }
 
+        if (await _userManager.GetTwoFactorEnabledAsync(entity))
+        {
+            await _userManager.SetTwoFactorEnabledAsync(entity, false);
+        }
+
         var roles = await _userManager.GetRolesAsync(entity);
-        if (roles.Any())
+        if (roles.Count > 0)
         {
             result = await _userManager.RemoveFromRolesAsync(entity, roles);
             if (!result.Succeeded)
@@ -211,11 +216,17 @@ internal sealed class Identities : IIdentities
         }
 
         entity.Email = entity.UserName + "@removed";
+        entity.EmailConfirmed = false;
         entity.DebtorNumber = null;
         entity.AddressNumber = null;
         entity.LeftOn = _timeProvider.GetUtcNow();
         entity.Name = new string(entity.Name?.Split(' ', '-').Select(u => u[0]).ToArray()) + "*";
         entity.Mailings = null;
+        entity.PhoneNumber = null;
+        entity.PhoneNumberConfirmed = false;
+        entity.LastLogin = null;
+        entity.LockoutEnd = null;
+        entity.AccessFailedCount = 0;
 
         result = await _userManager.UpdateAsync(entity);
         if (!result.Succeeded)
@@ -228,7 +239,7 @@ internal sealed class Identities : IIdentities
 
     public async Task<Result> UpdateLoginSucceeded(Guid id, CancellationToken cancellationToken)
     {
-        var entity = await _dbContext.Identities.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        var entity = await _dbContext.IdentityUsers.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
         if (entity is null)
         {
             return _userNotFound;

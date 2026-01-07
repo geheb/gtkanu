@@ -10,7 +10,7 @@ internal sealed class Food
     public int Type { get; set; }
     public Guid? FoodListId { get; set; }
     public FoodList? FoodList { get; set; }
-    public ICollection<Booking>? Bookings { get; set; }
+    public ICollection<FoodBooking>? Bookings { get; set; }
 
     internal FoodDto ToDto() => new()
     {

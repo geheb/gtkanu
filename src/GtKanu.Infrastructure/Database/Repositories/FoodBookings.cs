@@ -145,7 +145,7 @@ internal sealed class FoodBookings : IFoodBookings
             return false;
         }
 
-        var entity = new Booking
+        var entity = new FoodBooking
         {
             Id = _dbContext.GeneratePk(),
             UserId = userId,

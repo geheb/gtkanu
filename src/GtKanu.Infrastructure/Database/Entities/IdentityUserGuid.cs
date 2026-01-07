@@ -15,8 +15,8 @@ internal sealed class IdentityUserGuid : IdentityUser<Guid>
     public string? Mailings { get; set; }
 
     internal ICollection<IdentityUserRoleGuid>? UserRoles { get; set; }
-    internal ICollection<Booking>? Bookings { get; set; }
-    internal ICollection<Invoice>? Invoices { get; set; }
+    internal ICollection<FoodBooking>? FoodBookings { get; set; }
+    internal ICollection<FoodInvoice>? FoodInvoices { get; set; }
     internal ICollection<Trip>? Trips { get; set; }
     internal ICollection<TripBooking>? TripBookings { get; set; }
     internal ICollection<WikiArticle>? WikiArticles { get; set; }

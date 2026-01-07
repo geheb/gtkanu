@@ -1,24 +1,23 @@
 using GtKanu.Infrastructure.Database.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace GtKanu.Infrastructure.Database;
 
 internal sealed class AppDbContext :
     IdentityDbContext<IdentityUserGuid, IdentityRoleGuid, Guid, IdentityUserClaimGuid, IdentityUserRoleGuid, IdentityUserLoginGuid, IdentityRoleClaimGuid, IdentityUserTokenGuid>
 {
-    const string KeyType = "binary(16)";
     public DbSet<Boat> Boats => Set<Boat>();
     public DbSet<BoatRental> BoatRentals => Set<BoatRental>();
     public DbSet<Food> Foods => Set<Food>();
     public DbSet<FoodList> FoodLists => Set<FoodList>();
-    public DbSet<Booking> FoodBookings => Set<Booking>();
+    public DbSet<FoodBooking> FoodBookings => Set<FoodBooking>();
     public DbSet<ClubhouseBooking> ClubhouseBookings => Set<ClubhouseBooking>();
     public DbSet<EmailQueue> EmailQueues => Set<EmailQueue>();
-    public DbSet<IdentityUserGuid> Identities => Set<IdentityUserGuid>();
-    public DbSet<Invoice> FoodInvoices => Set<Invoice>();
-    public DbSet<InvoicePeriod> FoodInvoicePeriods => Set<InvoicePeriod>();
+    public DbSet<IdentityUserGuid> IdentityUsers => Set<IdentityUserGuid>();
+    public DbSet<FoodInvoice> FoodInvoices => Set<FoodInvoice>();
+    public DbSet<FoodInvoicePeriod> FoodInvoicePeriods => Set<FoodInvoicePeriod>();
     public DbSet<Mailing> Mailings => Set<Mailing>();
     public DbSet<MyMailing> MyMailings => Set<MyMailing>();
     public DbSet<Trip> Trips => Set<Trip>();
@@ -38,15 +37,23 @@ internal sealed class AppDbContext :
 
     public Guid GeneratePk() => Guid.CreateVersion7();
 
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        configurationBuilder
+            .Properties<Guid>()
+            .HaveMaxLength(32);
+
+        configurationBuilder
+            .Properties<DateTimeOffset>()
+            .HaveConversion<DateTimeOffsetToUtcConverter>();
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.HasCharSet(CharSet.Utf8Mb4, DelegationModes.ApplyToDatabases);
-
         modelBuilder.Entity<IdentityUserGuid>(eb =>
         {
-            eb.Property(e => e.Id).HasColumnType(KeyType);
             eb.Property(e => e.Name).HasMaxLength(256);
             eb.Property(e => e.DebtorNumber).HasMaxLength(256);
             eb.Property(e => e.AddressNumber).HasMaxLength(256);
@@ -56,52 +63,44 @@ internal sealed class AppDbContext :
                 .HasForeignKey(e => e.UserId)
                 .IsRequired();
 
-            eb.ToTable("users");
+            eb.ToTable("identity_users");
         });
 
         modelBuilder.Entity<IdentityRoleGuid>(eb =>
         {
-            eb.Property(e => e.Id).HasColumnType(KeyType);
-
             eb.HasMany(e => e.UserRoles)
                 .WithOne(e => e.Role)
                 .HasForeignKey(e => e.RoleId)
                 .IsRequired();
 
-            eb.ToTable("roles");
+            eb.ToTable("identity_roles");
         });
 
         modelBuilder.Entity<IdentityUserRoleGuid>(eb =>
         {
-            eb.Property(e => e.UserId).HasColumnType(KeyType);
-            eb.Property(e => e.RoleId).HasColumnType(KeyType);
-            eb.ToTable("user_roles");
+            eb.ToTable("identity_user_roles");
         });
 
         modelBuilder.Entity<IdentityUserLoginGuid>(eb =>
         {
-            eb.Property(e => e.UserId).HasColumnType(KeyType);
-            eb.ToTable("user_logins");
+            eb.ToTable("identity_user_logins");
         });
 
         modelBuilder.Entity<IdentityUserTokenGuid>(eb =>
         {
-            eb.Property(e => e.UserId).HasColumnType(KeyType);
-            eb.ToTable("user_tokens");
+            eb.ToTable("identity_user_tokens");
         });
 
         modelBuilder.Entity<IdentityUserClaimGuid>(eb =>
         {
-            eb.Property(e => e.Id).UseMySqlIdentityColumn();
-            eb.Property(e => e.UserId).HasColumnType(KeyType);
-            eb.ToTable("user_claims");
+            eb.Property(e => e.Id).ValueGeneratedOnAdd();
+            eb.ToTable("identity_user_claims");
         });
 
         modelBuilder.Entity<IdentityRoleClaimGuid>(eb =>
         {
-            eb.Property(e => e.Id).UseMySqlIdentityColumn();
-            eb.Property(e => e.RoleId).HasColumnType(KeyType);
-            eb.ToTable("role_claims");
+            eb.Property(e => e.Id).ValueGeneratedOnAdd();
+            eb.ToTable("identity_role_claims");
         });
 
         modelBuilder.ApplyConfiguration(new RoleSeeder());
@@ -109,7 +108,7 @@ internal sealed class AppDbContext :
         modelBuilder.Entity<EmailQueue>(eb =>
         {
             eb.ToTable("email_queue");
-            eb.Property(e => e.Id).HasColumnType(KeyType).ValueGeneratedNever();
+            eb.Property(e => e.Id).ValueGeneratedNever();
             eb.Property(e => e.Created).IsRequired();
             eb.Property(e => e.Recipient).IsRequired();
             eb.Property(e => e.Subject).IsRequired();
@@ -121,11 +120,10 @@ internal sealed class AppDbContext :
         modelBuilder.Entity<Food>(eb =>
         {
             eb.ToTable("foods");
-            eb.Property(e => e.Id).HasColumnType(KeyType).ValueGeneratedNever();
+            eb.Property(e => e.Id).ValueGeneratedNever();
             eb.Property(e => e.Name).IsRequired().HasMaxLength(128);
-            eb.Property(e => e.Price).HasColumnType("decimal(6,2)").IsRequired();
+            eb.Property(e => e.Price).IsRequired();
             eb.Property(e => e.Type).IsRequired();
-            eb.Property(e => e.FoodListId).HasColumnType(KeyType);
 
             eb.HasOne(e => e.FoodList)
                 .WithMany(e => e.Foods)
@@ -137,26 +135,23 @@ internal sealed class AppDbContext :
         modelBuilder.Entity<FoodList>(eb =>
         {
             eb.ToTable("food_lists");
-            eb.Property(e => e.Id).HasColumnType(KeyType).ValueGeneratedNever();
+            eb.Property(e => e.Id).ValueGeneratedNever();
             eb.Property(e => e.Name).IsRequired().HasMaxLength(128);
             eb.Property(e => e.ValidFrom).IsRequired();
 
             eb.HasIndex(e => e.ValidFrom);
         });
 
-        modelBuilder.Entity<Booking>(eb =>
+        modelBuilder.Entity<FoodBooking>(eb =>
         {
-            eb.ToTable("bookings");
-            eb.Property(e => e.Id).HasColumnType(KeyType).ValueGeneratedNever();
-            eb.Property(e => e.UserId).HasColumnType(KeyType);
-            eb.Property(e => e.FoodId).HasColumnType(KeyType);
+            eb.ToTable("food_bookings");
+            eb.Property(e => e.Id).ValueGeneratedNever();
             eb.Property(e => e.Status).IsRequired();
             eb.Property(e => e.Count).IsRequired();
             eb.Property(e => e.BookedOn).IsRequired();
-            eb.Property(e => e.InvoiceId).HasColumnType(KeyType);
 
             eb.HasOne(e => e.User)
-                .WithMany(e => e.Bookings)
+                .WithMany(e => e.FoodBookings)
                 .HasForeignKey(e => e.UserId)
                 .OnDelete(DeleteBehavior.NoAction)
                 .IsRequired(false);
@@ -176,11 +171,10 @@ internal sealed class AppDbContext :
             eb.HasIndex(e => new { e.UserId, e.BookedOn});
         });
 
-        modelBuilder.Entity<Invoice>(eb =>
+        modelBuilder.Entity<FoodInvoice>(eb =>
         {
-            eb.ToTable("invoices");
-            eb.Property(e => e.Id).HasColumnType(KeyType).ValueGeneratedNever();
-            eb.Property(e => e.UserId).HasColumnType(KeyType);
+            eb.ToTable("food_invoices");
+            eb.Property(e => e.Id).ValueGeneratedNever();
             eb.Property(e => e.CreatedOn).IsRequired();
             eb.Property(e => e.Total).HasColumnType("decimal(6,2)").IsRequired();
             eb.Property(e => e.Status).IsRequired();
@@ -192,16 +186,16 @@ internal sealed class AppDbContext :
                 .IsRequired(false);
 
             eb.HasOne(e => e.User)
-                .WithMany(e => e.Invoices)
+                .WithMany(e => e.FoodInvoices)
                 .HasForeignKey(e => e.UserId)
                 .OnDelete(DeleteBehavior.NoAction)
                 .IsRequired(false);
         });
 
-        modelBuilder.Entity<InvoicePeriod>(eb =>
+        modelBuilder.Entity<FoodInvoicePeriod>(eb =>
         {
-            eb.ToTable("invoice_periods");
-            eb.Property(e => e.Id).HasColumnType(KeyType).ValueGeneratedNever();
+            eb.ToTable("food_invoice_periods");
+            eb.Property(e => e.Id).ValueGeneratedNever();
             eb.Property(e => e.Description).IsRequired();
             eb.Property(e => e.From).IsRequired();
             eb.Property(e => e.To).IsRequired();
@@ -212,8 +206,7 @@ internal sealed class AppDbContext :
         modelBuilder.Entity<Trip>(eb =>
         {
             eb.ToTable("trips");
-            eb.Property(e => e.Id).HasColumnType(KeyType).ValueGeneratedNever();
-            eb.Property(e => e.UserId).HasColumnType(KeyType);
+            eb.Property(e => e.Id).ValueGeneratedNever();
             eb.Property(e => e.Start).IsRequired();
             eb.Property(e => e.End).IsRequired();
             eb.Property(e => e.Target).IsRequired();
@@ -233,9 +226,7 @@ internal sealed class AppDbContext :
         modelBuilder.Entity<TripBooking>(eb =>
         {
             eb.ToTable("trip_bookings");
-            eb.Property(e => e.Id).HasColumnType(KeyType).ValueGeneratedNever();
-            eb.Property(e => e.UserId).HasColumnType(KeyType);
-            eb.Property(e => e.TripId).HasColumnType(KeyType);
+            eb.Property(e => e.Id).ValueGeneratedNever();
             eb.Property(e => e.BookedOn).IsRequired();
             eb.Property(e => e.Name).HasMaxLength(256);
 
@@ -255,8 +246,7 @@ internal sealed class AppDbContext :
         modelBuilder.Entity<WikiArticle>(eb =>
         {
             eb.ToTable("wiki_articles");
-            eb.Property(e => e.Id).HasColumnType(KeyType).ValueGeneratedNever();
-            eb.Property(e => e.UserId).HasColumnType(KeyType);
+            eb.Property(e => e.Id).ValueGeneratedNever();
             eb.Property(e => e.Created).IsRequired();
             eb.Property(e => e.Identifier).IsRequired().HasMaxLength(16);
             eb.Property(e => e.Title).IsRequired().HasMaxLength(256);
@@ -274,9 +264,7 @@ internal sealed class AppDbContext :
         modelBuilder.Entity<TripChat>(eb =>
         {
             eb.ToTable("trip_chats");
-            eb.Property(e => e.Id).HasColumnType(KeyType).ValueGeneratedNever();
-            eb.Property(e => e.UserId).HasColumnType(KeyType);
-            eb.Property(e => e.TripId).HasColumnType(KeyType);
+            eb.Property(e => e.Id).ValueGeneratedNever();
             eb.Property(e => e.CreatedOn).IsRequired();
             eb.Property(e => e.Message).IsRequired().HasMaxLength(256);
 
@@ -296,7 +284,7 @@ internal sealed class AppDbContext :
         modelBuilder.Entity<Vehicle>(eb =>
         {
             eb.ToTable("vehicles");
-            eb.Property(e => e.Id).HasColumnType(KeyType).ValueGeneratedNever();
+            eb.Property(e => e.Id).ValueGeneratedNever();
             eb.Property(e => e.Name).IsRequired().HasMaxLength(64);
             eb.Property(e => e.Identifier).IsRequired().HasMaxLength(12);
 
@@ -310,9 +298,7 @@ internal sealed class AppDbContext :
         modelBuilder.Entity<VehicleBooking>(eb =>
         {
             eb.ToTable("vehicle_bookings");
-            eb.Property(e => e.Id).HasColumnType(KeyType).ValueGeneratedNever();
-            eb.Property(e => e.UserId).HasColumnType(KeyType);
-            eb.Property(e => e.VehicleId).HasColumnType(KeyType);
+            eb.Property(e => e.Id).ValueGeneratedNever();
             eb.Property(e => e.Start).IsRequired();
             eb.Property(e => e.End).IsRequired();
             eb.Property(e => e.BookedOn).IsRequired();
@@ -334,9 +320,8 @@ internal sealed class AppDbContext :
         modelBuilder.Entity<Tryout>(eb =>
         {
             eb.ToTable("tryouts");
-            eb.Property(e => e.Id).HasColumnType(KeyType).ValueGeneratedNever();
+            eb.Property(e => e.Id).ValueGeneratedNever();
             eb.Property(e => e.Type).IsRequired().HasDefaultValue("Anfängertraining").HasMaxLength(64);
-            eb.Property(e => e.UserId).HasColumnType(KeyType);
             eb.Property(e => e.Date).IsRequired();
             eb.Property(e => e.MaxBookings).IsRequired();
             eb.Property(e => e.BookingStart).IsRequired();
@@ -352,9 +337,7 @@ internal sealed class AppDbContext :
         modelBuilder.Entity<TryoutBooking>(eb =>
         {
             eb.ToTable("tryout_bookings");
-            eb.Property(e => e.Id).HasColumnType(KeyType).ValueGeneratedNever();
-            eb.Property(e => e.UserId).HasColumnType(KeyType);
-            eb.Property(e => e.TryoutId).HasColumnType(KeyType);
+            eb.Property(e => e.Id).ValueGeneratedNever();
             eb.Property(e => e.BookedOn).IsRequired();
             eb.Property(e => e.Name).HasMaxLength(256);
 
@@ -374,7 +357,7 @@ internal sealed class AppDbContext :
         modelBuilder.Entity<Boat>(eb =>
         {
             eb.ToTable("boats");
-            eb.Property(e => e.Id).HasColumnType(KeyType).ValueGeneratedNever();
+            eb.Property(e => e.Id).ValueGeneratedNever();
             eb.Property(e => e.Name).IsRequired().HasMaxLength(64);
             eb.Property(e => e.Identifier).IsRequired().HasMaxLength(8);
             eb.Property(e => e.Location).IsRequired().HasMaxLength(64);
@@ -389,9 +372,7 @@ internal sealed class AppDbContext :
         modelBuilder.Entity<BoatRental>(eb =>
         {
             eb.ToTable("boat_rentals");
-            eb.Property(e => e.Id).HasColumnType(KeyType).ValueGeneratedNever();
-            eb.Property(e => e.UserId).HasColumnType(KeyType);
-            eb.Property(e => e.BoatId).HasColumnType(KeyType);
+            eb.Property(e => e.Id).ValueGeneratedNever();
             eb.Property(e => e.Start).IsRequired();
             eb.Property(e => e.End).IsRequired();
             eb.Property(e => e.Purpose).IsRequired().HasMaxLength(128);
@@ -412,7 +393,7 @@ internal sealed class AppDbContext :
         modelBuilder.Entity<ClubhouseBooking>(eb =>
         {
             eb.ToTable("clubhouse_bookings");
-            eb.Property(e => e.Id).HasColumnType(KeyType).ValueGeneratedNever();
+            eb.Property(e => e.Id).ValueGeneratedNever();
             eb.Property(e => e.Start).IsRequired();
             eb.Property(e => e.End).IsRequired();
             eb.Property(e => e.Title).IsRequired().HasMaxLength(128);
@@ -421,9 +402,7 @@ internal sealed class AppDbContext :
         modelBuilder.Entity<TryoutChat>(eb =>
         {
             eb.ToTable("tryout_chats");
-            eb.Property(e => e.Id).HasColumnType(KeyType).ValueGeneratedNever();
-            eb.Property(e => e.UserId).HasColumnType(KeyType);
-            eb.Property(e => e.TryoutId).HasColumnType(KeyType);
+            eb.Property(e => e.Id).ValueGeneratedNever();
             eb.Property(e => e.CreatedOn).IsRequired();
             eb.Property(e => e.Message).IsRequired().HasMaxLength(256);
 
@@ -443,7 +422,7 @@ internal sealed class AppDbContext :
         modelBuilder.Entity<Mailing>(eb =>
         {
             eb.ToTable("mailings");
-            eb.Property(e => e.Id).HasColumnType(KeyType).ValueGeneratedNever();
+            eb.Property(e => e.Id).ValueGeneratedNever();
             eb.Property(e => e.Created).IsRequired();
             eb.Property(e => e.Subject).IsRequired();
             eb.Property(e => e.HtmlBody).IsRequired();
@@ -452,7 +431,7 @@ internal sealed class AppDbContext :
         modelBuilder.Entity<MyMailing>(eb =>
         {
             eb.ToTable("my_mailings");
-            eb.Property(e => e.Id).HasColumnType(KeyType).ValueGeneratedNever();
+            eb.Property(e => e.Id).ValueGeneratedNever();
             eb.Property(e => e.Created).IsRequired();
 
             eb.HasOne(e => e.Mailing)
@@ -467,5 +446,13 @@ internal sealed class AppDbContext :
                 .OnDelete(DeleteBehavior.NoAction)
                 .IsRequired(false);
         });
+    }
+
+    private sealed class DateTimeOffsetToUtcConverter : ValueConverter<DateTimeOffset, DateTime>
+    {
+        public DateTimeOffsetToUtcConverter() :
+            base(v => v.UtcDateTime, v => new DateTimeOffset(v, TimeSpan.Zero))
+        {
+        }
     }
 }

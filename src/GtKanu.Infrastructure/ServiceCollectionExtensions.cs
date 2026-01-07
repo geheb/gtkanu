@@ -11,17 +11,24 @@ using GtKanu.Infrastructure.Email;
 using GtKanu.Infrastructure.User;
 using GtKanu.Infrastructure.Worker;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
 
 public static class ServiceCollectionExtensions
 {
-    public static void AddMySqlContext(this IServiceCollection services, IConfiguration configuration)
+    public static void AddSqliteContext(this IServiceCollection services, IConfiguration configuration)
     {
-        var assemblyName = typeof(AppDbContext).GetTypeInfo().Assembly.GetName().Name;
+        var connectionStringBuilder = new SqliteConnectionStringBuilder(configuration.GetConnectionString("Sqlite"));
+        var file = new FileInfo(connectionStringBuilder.DataSource);
+        if (file.Directory?.Exists == false)
+        {
+            file.Directory.Create();
+        }
+
+        var connectionString = connectionStringBuilder.ToString();
 
         services.AddDbContext<AppDbContext>(options =>
         {
@@ -30,14 +37,7 @@ public static class ServiceCollectionExtensions
                 CoreEventId.RowLimitingOperationWithoutOrderByWarning,
                 CoreEventId.DistinctAfterOrderByWithoutRowLimitingOperatorWarning));
 
-            options.UseMySql(
-                configuration.GetConnectionString("MySql"),
-                MariaDbServerVersion.LatestSupportedServerVersion,
-                mysqlOptions =>
-                {
-                    mysqlOptions.MaxBatchSize(100);
-                    mysqlOptions.MigrationsAssembly(assemblyName);
-                });
+            options.UseSqlite(connectionString);
         });
     }
 
@@ -75,10 +75,13 @@ public static class ServiceCollectionExtensions
 
         services.Configure<SmtpConnectionOptions>(config.GetSection("Smtp"));
         services.AddSingleton<IEmailValidatorService, EmailValidatorService>();
+        services.AddSingleton<IpReputationChecker>();
         services.AddSingleton<SmtpDispatcher>();
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<ILoginService, LoginService>();
+
+        services.AddScoped<MySqlMigration>();
         
 
         services.AddHostedService<HostedWorker>();

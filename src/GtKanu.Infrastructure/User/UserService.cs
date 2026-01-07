@@ -38,6 +38,8 @@ internal sealed class UserService : IUserService
             return Result.Fail(result.Errors.Select(r => r.Description));
         }
 
+        await _userManager.SetLockoutEndDateAsync(user, null);
+
         return Result.Ok();
     }
 
@@ -64,7 +66,6 @@ internal sealed class UserService : IUserService
 
         return Result.Ok();
     }
-
 
     public async Task<Result> VerifyPassword(Guid id, string currentPassword)
     {

@@ -25,7 +25,8 @@ void ConfigureApp(WebApplicationBuilder builder)
     var config = builder.Configuration;
     var services = builder.Services;
 
-    services.AddMySqlContext(config);
+    services.AddHealthChecks();
+    services.AddSqliteContext(config);
     services.AddMemoryCache();
 
     services.AddIdentityStore();   
@@ -149,6 +150,7 @@ void ConfigurePipeline(WebApplication app)
     // Configure the HTTP request pipeline.
     app.UseExceptionHandler("/Error/500");
 
+    app.UseMiddleware<BotBlockerMiddleware>();
     app.UseMiddleware<CspMiddleware>();
 
     app.UseStatusCodePagesWithReExecute("/Error/{0}");
@@ -161,6 +163,8 @@ void ConfigurePipeline(WebApplication app)
     app.UseAuthorization();
 
     app.UseNodeGenerator();
+
+    app.MapHealthChecks("/healthz");
 }
 
 try

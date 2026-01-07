@@ -53,6 +53,9 @@ public sealed class HostedWorker : BackgroundService
             _logger.LogInformation("apply pending migrations '{Migrations}'", string.Join(",", migrations));
             await dbContext.Database.MigrateAsync(cancellationToken);
         }
+
+        var mysql = scope.ServiceProvider.GetRequiredService<MySqlMigration>();
+        await mysql.Migrate(cancellationToken);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)

@@ -8,6 +8,7 @@
     <File Path="README.md" />
   </Folder>
   <Project Path="src/GtKanu.Application/GtKanu.Application.csproj" />
+  <Project Path="src/GtKanu.Aspire/GtKanu.Aspire.csproj" />
   <Project Path="src/GtKanu.Infrastructure/GtKanu.Infrastructure.csproj" />
   <Project Path="src/GtKanu.WebApp/GtKanu.WebApp.csproj" />
 </Solution>
