@@ -16,6 +16,8 @@ public class EditBookingModel : PageModel
     [BindProperty]
     public ClubhouseBookingInput Input { get; set; } = new();
 
+    public string? Details { get; private set; }
+
     public bool IsDisabled { get; set; }
 
     public EditBookingModel(IClubhouseBookings clubhouse)
@@ -63,6 +65,12 @@ public class EditBookingModel : PageModel
         return RedirectToPage("Index");
     }
 
+    public async Task<IActionResult> OnPostDeleteBookingAsync(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await _clubhouse.DeleteBooking(id, cancellationToken);
+        return new JsonResult(result);
+    }
+
     private async Task<ClubhouseBookingDto?> UpdateView(Guid id, CancellationToken cancellationToken)
     {
         var booking = await _clubhouse.FindBooking(id, cancellationToken);
@@ -73,6 +81,8 @@ public class EditBookingModel : PageModel
             ModelState.AddModelError(string.Empty, "Fehler beim Laden der Buchung.");
             return null;
         }
+
+        Details = booking.Title;
 
         return ModelState.IsValid ? booking : null;
     }

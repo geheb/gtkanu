@@ -3,6 +3,9 @@
 @{
     ViewData["Title"] = Model.GetNode().Title;
     ViewData["HasFooter"] = true;
+
+    Guid.TryParse(Request.RouteValues["id"] as string, out var id);
+    var indexUrl = Url.PageLink("Index");
 }
 
 @await Html.PartialAsync("_Header")
@@ -10,7 +13,30 @@
 <section class="section">
     <div class="container">
 
-        @Html.CreateBreadcrumb()
+        <div class="columns is-gapless is-mobile">
+            <div class="column is-flex is-align-items-center">@Html.CreateBreadcrumb()</div>
+            <div class="column is-narrow">
+                <div class="dropdown is-hoverable is-right">
+                    <div class="dropdown-trigger">
+                        <button class="button" aria-haspopup="true" aria-controls="user-action">
+                            <span class="icon is-small">
+                                <i class="fa-solid fa-ellipsis-vertical"></i>
+                            </span>
+                        </button>
+                    </div>
+                    <div class="dropdown-menu" id="user-action" role="menu">
+                        <div class="dropdown-content">
+                            <a class="dropdown-item open-modal" href="#"
+                               data-target="#deleteBookingModal"
+                               data-info="@Model.Details"
+                               data-url="@(Url.PageLink(string.Empty, "deletebooking", new { id }))">
+                                Buchung löschen
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="columns">
             <div class="column is-half">
@@ -61,3 +87,38 @@
 </section>
 
 @await Html.PartialAsync("_Footer")
+
+@Html.CreateModalTemplateWithOkCancel(
+  "deleteBookingModal",
+  "Buchung löschen",
+  @"Möchtest du wirklich die Buchung ""<span class=""modal-item""></span>"" löschen?")
+
+@section Scripts
+{
+    <script type="text/javascript">
+        $(function () {
+
+            handleModal({
+                id: '#deleteBookingModal',
+                token: {@Html.AjaxCsrfToken()},
+                init: {
+                    datainfo: 'info',
+                    action: function(target, data) {
+                        $(target).find('.modal-item').text(data);
+                    }
+                },
+                confirm: {
+                    dataurl: 'url',
+                    post: function () {
+                        sleep(1000).then(() => window.location.replace('@indexUrl'));
+                        return true;
+                    },
+                    toast: {
+                        success: 'Buchung wurde gelöscht.',
+                        failed: 'Buchung konnte nicht gelöscht werden.'
+                    }
+                }
+            });
+        });
+    </script>
+}
