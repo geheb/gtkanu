@@ -90,7 +90,7 @@ internal sealed class FoodInvoices : IFoodInvoices
 
         if (!userIds.Any()) return 0;
 
-        using var trans = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+        await using var trans = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
 
         var period = new FoodInvoicePeriod
         {

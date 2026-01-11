@@ -25,6 +25,7 @@ void ConfigureApp(WebApplicationBuilder builder)
     var config = builder.Configuration;
     var services = builder.Services;
 
+    services.AddSerilog();
     services.AddHealthChecks();
     services.AddSqliteContext(config);
     services.AddMemoryCache();
@@ -162,6 +163,8 @@ void ConfigurePipeline(WebApplication app)
     app.UseAuthentication();
     app.UseAuthorization();
 
+    app.MapRazorPages();
+
     app.UseNodeGenerator();
 
     app.MapHealthChecks("/healthz");
@@ -184,17 +187,10 @@ try
 
     var builder = WebApplication.CreateBuilder(args);
 
-    builder.Host.UseSerilog((context, services, configuration) => configuration
-        .ReadFrom.Configuration(context.Configuration)
-        .ReadFrom.Services(services)
-        .Enrich.FromLogContext()
-        .WriteTo.Console());
-
     ConfigureApp(builder);
-    using var app = builder.Build();
+
+    await using var app = builder.Build();
     ConfigurePipeline(app);
-    app.MapRazorPages();
-    app.MapControllers();
 
     await app.RunAsync();
 }

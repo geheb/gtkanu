@@ -35,6 +35,6 @@ builder.AddProject<Projects.GtKanu_WebApp>("webapp")
         c.EnvironmentVariables["BOOTSTRAP__SUPERUSER__PASSWORD"] = superUserSecret;
     });
 
-using var app = builder.Build();
+await using var app = builder.Build();
 
 await app.RunAsync();
