@@ -7,6 +7,10 @@ namespace GtKanu.WebApp.Pages.Mailings;
 
 public sealed class MailingInput
 {
+    public int State_CreatedCount { get; set; }
+    public int State_SentCount { get; set; }
+
+
     [Display(Name = "Antwort-Adresse")]
     [EmailField, EmailLengthField]
     public string? ReplyAddress { get; set; }

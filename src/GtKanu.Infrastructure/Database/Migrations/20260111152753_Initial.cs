@@ -59,7 +59,8 @@ namespace GtKanu.Infrastructure.Database.Migrations
                     HtmlBody = table.Column<string>(type: "TEXT", nullable: false),
                     IsPrio = table.Column<bool>(type: "INTEGER", nullable: false),
                     ReplyAddress = table.Column<string>(type: "TEXT", nullable: true),
-                    LastError = table.Column<string>(type: "TEXT", nullable: true)
+                    LastError = table.Column<string>(type: "TEXT", nullable: true),
+                    CorrelationId = table.Column<Guid>(type: "TEXT", maxLength: 32, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -646,6 +647,11 @@ namespace GtKanu.Infrastructure.Database.Migrations
                 name: "IX_boat_rentals_UserId",
                 table: "boat_rentals",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_email_queue_CorrelationId",
+                table: "email_queue",
+                column: "CorrelationId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_email_queue_NextSchedule_Sent_IsPrio_Created",

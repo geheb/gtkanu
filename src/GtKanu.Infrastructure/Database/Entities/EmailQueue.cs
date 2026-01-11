@@ -27,6 +27,8 @@ internal sealed class EmailQueue : IEntity, IDtoMapper<EmailQueueDto>
 
     public string? LastError { get; set; }
 
+    public Guid? CorrelationId { get; set; }
+
     public void FromDto(EmailQueueDto model)
     {
         Id = model.Id;
@@ -35,6 +37,7 @@ internal sealed class EmailQueue : IEntity, IDtoMapper<EmailQueueDto>
         HtmlBody = model.HtmlBody;
         IsPrio = model.IsPrio;
         ReplyAddress = model.ReplyAddress;
+        CorrelationId = model.CorrelationId;
     }
 
     public EmailQueueDto ToDto(GermanDateTimeConverter dc) => new()
@@ -45,5 +48,6 @@ internal sealed class EmailQueue : IEntity, IDtoMapper<EmailQueueDto>
         HtmlBody = HtmlBody,
         IsPrio = IsPrio,
         ReplyAddress = ReplyAddress,
+        CorrelationId = CorrelationId,
     };
 }

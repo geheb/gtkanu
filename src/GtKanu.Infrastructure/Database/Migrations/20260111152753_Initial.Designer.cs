@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GtKanu.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260106190736_Initial")]
+    [Migration("20260111152753_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -123,6 +123,10 @@ namespace GtKanu.Infrastructure.Database.Migrations
                         .HasMaxLength(32)
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("CorrelationId")
+                        .HasMaxLength(32)
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("Created")
                         .HasColumnType("TEXT");
 
@@ -157,6 +161,8 @@ namespace GtKanu.Infrastructure.Database.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CorrelationId");
 
                     b.HasIndex("NextSchedule", "Sent", "IsPrio", "Created");
 
@@ -1069,7 +1075,7 @@ namespace GtKanu.Infrastructure.Database.Migrations
                         .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("GtKanu.Infrastructure.Database.Entities.IdentityUserGuid", "User")
-                        .WithMany("Bookings")
+                        .WithMany("FoodBookings")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.NoAction);
 
@@ -1088,7 +1094,7 @@ namespace GtKanu.Infrastructure.Database.Migrations
                         .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("GtKanu.Infrastructure.Database.Entities.IdentityUserGuid", "User")
-                        .WithMany("Invoices")
+                        .WithMany("FoodInvoices")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.NoAction);
 
@@ -1318,9 +1324,9 @@ namespace GtKanu.Infrastructure.Database.Migrations
                 {
                     b.Navigation("BoatRentals");
 
-                    b.Navigation("Bookings");
+                    b.Navigation("FoodBookings");
 
-                    b.Navigation("Invoices");
+                    b.Navigation("FoodInvoices");
 
                     b.Navigation("MyMailings");
 

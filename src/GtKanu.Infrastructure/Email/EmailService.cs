@@ -126,9 +126,7 @@ internal sealed class EmailService : IEmailService
 
         var htmlBody = _emailTemplateRenderer.Render(EmailTemplate.Mailing, templateModel);
 
-        var users = (await _identityRepository.GetAll(cancellationToken))
-            .Where(u => u.IsEmailConfirmed)
-            .ToArray();
+        var users = await _identityRepository.GetAll(cancellationToken);
 
         var recipients = new Dictionary<string, IdentityDto?>(StringComparer.OrdinalIgnoreCase);
         if (mailing.Value.IsMemberOnly)
@@ -163,6 +161,7 @@ internal sealed class EmailService : IEmailService
                 ReplyAddress = mailing.Value.ReplyAddress,
                 Subject = mailing.Value.Subject,
                 HtmlBody = htmlBody,
+                CorrelationId = mailing.Value.Id,
             };
             _unitOfWork.EmailQueue.Create(emailQueue);
 

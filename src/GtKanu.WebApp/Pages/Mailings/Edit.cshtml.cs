@@ -43,7 +43,11 @@ public class EditModel : PageModel
             ModelState.AddModelError(string.Empty, "Das Mailing ist bereits abgeschlossen.");
         }
 
+        var sentCount = await _unitOfWork.EmailQueue.CountSentByCorrelationId(id, cancellationToken);
+
         Input.From(dto.Value);
+        Input.State_CreatedCount = dto.Value.EmailCount;
+        Input.State_SentCount = sentCount;
     }
 
     public async Task<IActionResult> OnPostAsync(Guid id, int action, CancellationToken cancellationToken)

@@ -14,6 +14,8 @@ public struct EmailQueueDto : IDto
 
     public bool IsPrio { get; set; }
 
+    public Guid? CorrelationId { get; set; }
+
     public EmailItem ToEmailItem() => new()
     {
         Subject = Subject!,

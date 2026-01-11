@@ -1,4 +1,5 @@
 using FluentResults;
+using GtKanu.Application.Converter;
 using GtKanu.Application.Models;
 using GtKanu.Application.Repositories;
 using GtKanu.Infrastructure.Database.Entities;
@@ -21,7 +22,6 @@ internal sealed class EmailQueueRepository : Repository<EmailQueue, EmailQueueDt
             .AsNoTracking()
             .Where(e => (e.NextSchedule <= now || e.NextSchedule == null) && e.Sent == null)
             .OrderByDescending(e => e.IsPrio).ThenBy(e => e.Created)
-            .Select(e => new { e.Id, e.Subject, e.Recipient, e.HtmlBody, e.ReplyAddress })
             .Take(count)
             .ToArrayAsync(cancellationToken);
 
@@ -31,20 +31,19 @@ internal sealed class EmailQueueRepository : Repository<EmailQueue, EmailQueueDt
         }
 
         var result = new List<EmailQueueDto>();
+        var dc = new GermanDateTimeConverter();
 
         foreach (var e in entities)
         {
-            result.Add(new() 
-            { 
-                Id = e.Id, 
-                Subject = e.Subject, 
-                Recipient = e.Recipient, 
-                HtmlBody = e.HtmlBody,
-                ReplyAddress = e.ReplyAddress
-            });
+            result.Add(e.ToDto(dc));
         }
 
         return [.. result];
+    }
+
+    public async Task<int> CountSentByCorrelationId(Guid id, CancellationToken cancellationToken)
+    {
+        return await _dbSet.CountAsync(e => e.CorrelationId == id && e.Sent != null);
     }
 
     public async Task<Result> UpdateSent(Guid[] ids, CancellationToken cancellationToken)

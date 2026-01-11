@@ -9,4 +9,5 @@ public interface IEmailQueues
     Task<EmailQueueDto[]> GetNextToSend(int count, CancellationToken cancellationToken);
     Task<Result> UpdateSent(Guid[] ids, CancellationToken cancellationToken);
     Task<Result> UpdateNextSchedule(Guid id, string lastError, CancellationToken cancellationToken);
+    Task<int> CountSentByCorrelationId(Guid id, CancellationToken cancellationToken);
 }
