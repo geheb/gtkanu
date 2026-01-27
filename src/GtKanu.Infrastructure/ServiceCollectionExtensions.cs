@@ -81,9 +81,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<ILoginService, LoginService>();
 
-        services.AddScoped<MySqlMigration>();
-        
-
         services.AddHostedService<HostedWorker>();
     }
 }
