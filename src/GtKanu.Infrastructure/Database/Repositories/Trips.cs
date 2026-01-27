@@ -394,7 +394,7 @@ internal sealed class Trips : ITrips, IDisposable
         var dc = new GermanDateTimeConverter();
 
         // Club regulation
-        var start = dc.ToUtc(new DateOnly(DateTimeOffset.UtcNow.Year - 1, 10, 1));
+        var start = dc.ToUtc(new DateOnly(DateTimeOffset.UtcNow.Year - 2, 10, 1));
 
         var trips = await _dbContext.Trips
             .AsNoTracking()
