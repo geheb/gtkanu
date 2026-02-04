@@ -1,14 +1,17 @@
 namespace GtKanu.Infrastructure.AspNetCore.Middlewares;
 
-using System.Net;
+using GtKanu.Application.Converter;
 using GtKanu.Infrastructure.Email;
+using Microsoft.AspNetCore.Connections.Features;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
+using System.Net;
 
 public sealed class BotBlockerMiddleware
 {
     private readonly RequestDelegate _next;
+    private readonly GermanDateTimeConverter _dateTimeConverter = new();
 
     public BotBlockerMiddleware(RequestDelegate next)
     {
@@ -17,6 +20,13 @@ public sealed class BotBlockerMiddleware
 
     public async Task Invoke(HttpContext context)
     {
+        var now = _dateTimeConverter.ToLocal(DateTimeOffset.UtcNow);
+        var isWorkingTime = now.Hour >= 6 && now.Hour <= 21;
+        if (isWorkingTime)
+        {
+            return;
+        }
+
         var address = context.Connection.RemoteIpAddress;
         if (address is null || IPAddress.IsLoopback(address))
         {
@@ -24,13 +34,11 @@ public sealed class BotBlockerMiddleware
             return;
         }
 
+        var cache = context.RequestServices.GetRequiredService<IMemoryCache>();
         var key = "bot-" + address;
 
-        var memoryCache = context.RequestServices.GetRequiredService<IMemoryCache>();
-        if (memoryCache.TryGetValue(key, out int notFoundCounter) && notFoundCounter >= 7)
+        if (await HandleBanned(key, context, cache))
         {
-            context.Response.StatusCode = StatusCodes.Status418ImATeapot;
-            await context.Response.WriteAsync("(”’\\(*o*)/”’) You are banned on this site!", context.RequestAborted);
             return;
         }
 
@@ -38,17 +46,60 @@ public sealed class BotBlockerMiddleware
 
         if (context.Response.StatusCode == StatusCodes.Status404NotFound)
         {
-            var expirationMinutes = new Random().Next(60, 180);
-
-            var reputationChecker = context.RequestServices.GetRequiredService<IpReputationChecker>();
-            if (await reputationChecker.IsListed(address))
+            var checker = context.RequestServices.GetRequiredService<IpReputationChecker>();
+            if (await HandleListed(key, context, address, cache, checker))
             {
-                memoryCache.Set(key, int.MaxValue, DateTimeOffset.UtcNow.AddMinutes(expirationMinutes));
-            }
-            else
-            {
-                memoryCache.Set(key, ++notFoundCounter, DateTimeOffset.UtcNow.AddHours(1));
+                await HandleBanned(key, context, cache);
             }
         }
+    }
+
+    private static async Task<bool> HandleListed(string key, HttpContext context, IPAddress address, IMemoryCache cache, IpReputationChecker checker)
+    {
+        if (await checker.IsListed(address))
+        {
+            cache.Set(key, 7, DateTimeOffset.UtcNow.AddHours(1));
+            return true;
+        }
+        else
+        {
+            var nextCounter = cache.TryGetValue(key, out int counter)
+                ? counter + 1
+                : 1;
+
+            cache.Set(key, nextCounter, DateTimeOffset.UtcNow.AddHours(1));
+
+            return false;
+        }
+    }
+
+    private static async Task<bool> HandleBanned(string key, HttpContext context, IMemoryCache cache)
+    {
+        if (!cache.TryGetValue(key, out int counter) || counter < 7)
+        {
+            return false;
+        }
+
+        context.Response.StatusCode = StatusCodes.Status418ImATeapot;
+        context.Response.Headers["Connection"] = "close";
+
+        if (counter == 7)
+        {
+            cache.Set(key, counter + 1, DateTimeOffset.UtcNow.AddHours(1));
+            await context.Response.WriteAsync("You are banned on this site!", context.RequestAborted);
+            return true;
+        }
+
+        var connection = context.Features.Get<IConnectionLifetimeFeature>();
+        if (connection is not null)
+        {
+            connection.Abort();
+        }
+        else
+        {
+            context.Abort();
+        }
+
+        return true;
     }
 }
