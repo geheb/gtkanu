@@ -15,5 +15,4 @@ A web app for organising kanu club.
 * ASP.NET Core Razor Pages
 * Template Engine with Scriban
 * Logging via Serilog
-* MySQL Entity Framework Core
-
+* SQLite Persistence with Dapper ORM
