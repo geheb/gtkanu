@@ -8,6 +8,7 @@ using GtKanu.Infrastructure.Database;
 using GtKanu.Infrastructure.Database.Entities;
 using GtKanu.Infrastructure.Database.Repositories;
 using GtKanu.Infrastructure.Email;
+using GtKanu.Infrastructure.Security;
 using GtKanu.Infrastructure.User;
 using GtKanu.Infrastructure.Worker;
 using Microsoft.AspNetCore.Identity;
@@ -76,6 +77,7 @@ public static class ServiceCollectionExtensions
         services.Configure<SmtpConnectionOptions>(config.GetSection("Smtp"));
         services.AddSingleton<IEmailValidatorService, EmailValidatorService>();
         services.AddSingleton<IpReputationChecker>();
+        services.AddSingleton<BlacklistCache>();
         services.AddSingleton<SmtpDispatcher>();
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<IUserService, UserService>();

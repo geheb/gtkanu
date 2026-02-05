@@ -2,6 +2,7 @@ namespace GtKanu.Infrastructure.Email;
 
 using System.Globalization;
 using GtKanu.Application.Services;
+using GtKanu.Infrastructure.Security;
 
 internal sealed class EmailValidatorService : IEmailValidatorService
 {

@@ -1,13 +1,12 @@
-namespace GtKanu.Infrastructure.AspNetCore.Middlewares;
+namespace GtKanu.Infrastructure.Security;
 
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Primitives;
 using System.Text;
 
 public sealed class CspMiddleware
 {
+    private static readonly string _headerValues;
     private readonly RequestDelegate _next;
-    private static readonly StringValues _headerValues;
 
     static CspMiddleware()
     {
@@ -22,7 +21,6 @@ public sealed class CspMiddleware
     public async Task Invoke(HttpContext context)
     {
         context.Response.Headers.ContentSecurityPolicy = _headerValues;
-
         await _next(context);
     }
 

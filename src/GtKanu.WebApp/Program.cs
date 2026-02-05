@@ -3,10 +3,10 @@ using GtKanu.Infrastructure.AspNetCore.Annotations;
 using GtKanu.Infrastructure.AspNetCore.Bindings;
 using GtKanu.Infrastructure.AspNetCore.Constants;
 using GtKanu.Infrastructure.AspNetCore.Filters;
-using GtKanu.Infrastructure.AspNetCore.Middlewares;
 using GtKanu.Infrastructure.AspNetCore.Routing;
 using GtKanu.Infrastructure.Database;
 using GtKanu.Infrastructure.Email;
+using GtKanu.Infrastructure.Security;
 using GtKanu.Infrastructure.User;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -151,7 +151,7 @@ void ConfigurePipeline(WebApplication app)
     // Configure the HTTP request pipeline.
     app.UseExceptionHandler("/Error/500");
 
-    app.UseMiddleware<BotBlockerMiddleware>();
+    app.UseMiddleware<BlockerMiddleware>();
     app.UseMiddleware<CspMiddleware>();
 
     app.UseStatusCodePagesWithReExecute("/Error/{0}");

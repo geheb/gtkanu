@@ -1,4 +1,4 @@
-namespace GtKanu.Infrastructure.Email;
+namespace GtKanu.Infrastructure.Security;
 
 using System.Globalization;
 using System.Net;
@@ -11,11 +11,13 @@ using Microsoft.Extensions.Logging;
 
 internal sealed class IpReputationChecker
 {
+    private static readonly string _prefix = Guid.NewGuid().ToString("N");
     private static readonly string[] Servers = ["zen.spamhaus.org", "bl.blocklist.de"];
+
     private readonly LookupClient _lookupClient;
     private readonly Microsoft.Extensions.Logging.ILogger _logger;
     private readonly IMemoryCache _memoryCache;
-
+    
     public IpReputationChecker(
         ILogger<IpReputationChecker> logger,
         IMemoryCache memoryCache)
@@ -29,12 +31,17 @@ internal sealed class IpReputationChecker
         _memoryCache = memoryCache;
     }
 
-    public async Task<bool> IsListed(IPAddress address)
+    public async Task<bool> GetBlacklisted(IPAddress address)
     {
-        if (IPAddress.IsLoopback(address) ||
-            (address.AddressFamily is not AddressFamily.InterNetwork and not AddressFamily.InterNetworkV6))
+        if (IPAddress.IsLoopback(address))
         {
             return false;
+        }
+
+        var key = _prefix + address;
+        if (_memoryCache.TryGetValue(key, out bool isListed))
+        {
+            return isListed; 
         }
 
         string ipAddressReversed;
@@ -46,12 +53,6 @@ internal sealed class IpReputationChecker
         else
         {
             ipAddressReversed = string.Join(".", address.GetAddressBytes().Reverse());
-        }
-
-        var key = "blacklist-" + address;
-        if (_memoryCache.TryGetValue(key, out bool isListed))
-        {
-            return isListed;
         }
 
         foreach (var server in Servers)
@@ -74,7 +75,6 @@ internal sealed class IpReputationChecker
             }
 
             _logger.LogInformation("Address {Address} is listed at {Server}", address, server);
-
             _memoryCache.Set(key, true, DateTimeOffset.UtcNow.AddHours(1));
             return true;
         }
@@ -85,7 +85,7 @@ internal sealed class IpReputationChecker
 
     public async Task<bool> IsListedMx(string domain, CancellationToken cancellationToken)
     {
-        var key = "mx-" + domain;
+        var key = _prefix + domain;
 
         if (_memoryCache.TryGetValue(key, out bool isListed))
         {
@@ -125,7 +125,7 @@ internal sealed class IpReputationChecker
 
             foreach (var addr in addressList)
             {
-                if (await IsListed(addr))
+                if (await GetBlacklisted(addr))
                 {
                     _memoryCache.Set(key, true, DateTimeOffset.UtcNow.AddHours(1));
                     return true;
