@@ -29,7 +29,7 @@ public sealed class BlockerMiddleware
         int score;
         if (string.IsNullOrWhiteSpace(userAgent))
         {
-            score = blacklist.Set(address);
+            score = blacklist.Set(address, null, 7);
             if (await TryCreateBannedResponse(context, score))
             {
                 return;
@@ -51,7 +51,11 @@ public sealed class BlockerMiddleware
             var checker = context.RequestServices.GetRequiredService<IpReputationChecker>();
             if (await checker.GetBlacklisted(address))
             {
-                blacklist.Set(address, userAgent);
+                blacklist.Set(address, userAgent, 7);
+            }
+            else
+            {
+                blacklist.Set(address, userAgent, 1);
             }
         }
     }

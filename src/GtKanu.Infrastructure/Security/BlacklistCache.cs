@@ -14,17 +14,23 @@ public sealed class BlacklistCache
 
     public BlacklistCache(IMemoryCache cache) => _cache = cache;
 
-    public int Set(IPAddress address, string? name = null)
+    public int Set(IPAddress address, string? name, int minScore)
     {
         var key = CreateKey(address, name);
         if (!_cache.TryGetValue(key, out int score))
         {
-            score = 1;
+            score = 0;
+        }
+
+        if (score < minScore)
+        {
+            score = minScore;
         }
         else
         {
             score++;
         }
+
         _cache.Set(key, score, DateTimeOffset.UtcNow.AddHours(1));
         return score;
     }
