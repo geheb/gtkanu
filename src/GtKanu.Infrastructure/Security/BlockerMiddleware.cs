@@ -26,21 +26,17 @@ public sealed class BlockerMiddleware
         var blacklist = context.RequestServices.GetRequiredService<BlacklistCache>();
 
         string? userAgent = context.Request.Headers.UserAgent;
-        int score;
         if (string.IsNullOrWhiteSpace(userAgent))
         {
-            score = blacklist.Set(address, null, 7);
-            if (await TryCreateBannedResponse(context, score))
-            {
-                return;
-            }
-            await _next(context);
+            var botItem = blacklist.Update(address, null, true);
+            await CreateBannedResponse(context, botItem.Count > 3);
             return;
         }
 
-        score = blacklist.Get(address, userAgent);
-        if (await TryCreateBannedResponse(context, score))
-        { 
+        var item = blacklist.Get(address, userAgent);
+        if (item?.IsSuspicious == true)
+        {
+            await CreateBannedResponse(context, item.IsCulprit);
             return;
         }
 
@@ -49,25 +45,18 @@ public sealed class BlockerMiddleware
         if (context.Response.StatusCode == StatusCodes.Status404NotFound)
         {
             var checker = context.RequestServices.GetRequiredService<IpReputationChecker>();
-            if (await checker.GetBlacklisted(address))
-            {
-                blacklist.Set(address, userAgent, 7);
-            }
-            else
-            {
-                blacklist.Set(address, userAgent, 1);
-            }
+            var isListed = await checker.IsListed(address);
+            blacklist.Update(address, userAgent, isListed);
         }
     }
 
-    private static async Task<bool> TryCreateBannedResponse(HttpContext context, int score)
+    private static async Task CreateBannedResponse(HttpContext context, bool shouldAbortConnection)
     {
-        if (score < 7)
-        {
-            return false;
-        }
+        context.Response.StatusCode = StatusCodes.Status418ImATeapot;
+        context.Response.Headers["Connection"] = "close";
+        await context.Response.WriteAsync("You are banned on this site!", context.RequestAborted);
 
-        if (score > 7)
+        if (shouldAbortConnection)
         {
             var connection = context.Features.Get<IConnectionLifetimeFeature>();
             if (connection is not null)
@@ -79,12 +68,5 @@ public sealed class BlockerMiddleware
                 context.Abort();
             }
         }
-        else
-        {
-            context.Response.StatusCode = StatusCodes.Status418ImATeapot;
-            context.Response.Headers["Connection"] = "close";
-            await context.Response.WriteAsync("You are banned on this site!", context.RequestAborted);
-        }
-        return true;
     }
 }

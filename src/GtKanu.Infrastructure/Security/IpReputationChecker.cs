@@ -31,7 +31,7 @@ internal sealed class IpReputationChecker
         _memoryCache = memoryCache;
     }
 
-    public async Task<bool> GetBlacklisted(IPAddress address)
+    public async Task<bool> IsListed(IPAddress address)
     {
         if (IPAddress.IsLoopback(address))
         {
@@ -125,7 +125,7 @@ internal sealed class IpReputationChecker
 
             foreach (var addr in addressList)
             {
-                if (await GetBlacklisted(addr))
+                if (await IsListed(addr))
                 {
                     _memoryCache.Set(key, true, DateTimeOffset.UtcNow.AddHours(1));
                     return true;
