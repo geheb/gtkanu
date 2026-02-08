@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 
 internal sealed class IpReputationChecker
 {
-    private static readonly string _prefix = Guid.NewGuid().ToString("N");
+    private static readonly string _prefix = Guid.NewGuid().ToString("N")[..8];
     private static readonly string[] Servers = ["zen.spamhaus.org", "bl.blocklist.de"];
 
     private readonly LookupClient _lookupClient;

@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
-using System.Data.Common;
 using System.IO.Hashing;
 using System.Net;
 using System.Text;
@@ -9,18 +8,14 @@ namespace GtKanu.Infrastructure.Security;
 
 public sealed class BlacklistCache
 {
-    private static readonly string _prefix = Guid.NewGuid().ToString("N");
+    private static readonly string _prefix = Guid.NewGuid().ToString("N")[..8];
 
     private readonly IMemoryCache _cache;
     private readonly TimeProvider _timeProvider;
 
-    public sealed class Item
+    public readonly record struct Item(string Key, uint Count, DateTimeOffset LastCall, double AvgSeconds)
     {
-        public uint Count { get; set; }
-        public DateTimeOffset LastCall { get; set; }
-        public double AvgSeconds { get; set; }
-        public bool IsSuspicious => Count >= 7 && AvgSeconds < 1.0;
-        public bool IsCulprit => Count >= 13 && AvgSeconds < 1.0;
+        public bool IsSuspicious => Count >= 7 && AvgSeconds <= 0.5;
     }
 
     public BlacklistCache(IMemoryCache cache, TimeProvider timeProvider)
@@ -29,53 +24,48 @@ public sealed class BlacklistCache
         _timeProvider = timeProvider;
     }
 
-    public Item? Get(IPAddress address, string? name)
+    public Item? Get(IPAddress address, string? userAgent) =>
+        _cache.TryGetValue<Item>(CreateKey(address, userAgent), out var item)
+        ? item
+        : null;
+
+    public void Update(IPAddress address, string? userAgent, bool isListed)
     {
-        var key = CreateKey(address, name);
-        if (!_cache.TryGetValue<Item>(key, out var item) || item is null)
+        var key = CreateKey(address, userAgent);
+        if (!_cache.TryGetValue<Item>(key, out var item))
         {
-            return null;
+            item = new Item(key, isListed ? 4u : 1u, _timeProvider.GetUtcNow(), 0.0);
+            _cache.Set(item.Key, item, DateTimeOffset.UtcNow.AddHours(1));
+            return;
         }
-        return item;
+
+        item = Create(item, isListed);
+        _cache.Set(item.Key, item, DateTimeOffset.UtcNow.AddHours(1));
     }
 
-    public Item Update(IPAddress address, string? name, bool isHighScore)
+    private Item Create(Item item, bool isListed)
     {
-        var key = CreateKey(address, name);
-        if (!_cache.TryGetValue<Item>(key, out var item) || item is null)
-        {
-            item = new Item();
-        }
-
         var now = _timeProvider.GetUtcNow();
-
-        if (item.Count++ == 0 || (now - item.LastCall).TotalSeconds > 6.0)
+        var diff = (now - item.LastCall).TotalSeconds;
+        var count = isListed ? item.Count + 4 : item.Count + 1;
+        if (diff > 10.0)
         {
-            item.LastCall = now;
-            item.AvgSeconds = 0.0;
+            return new(item.Key, count, now, 0.0);
         }
         else
         {
-            if (isHighScore)
-            {
-                item.Count += 3;
-            }
-            var diff = (now - item.LastCall).TotalSeconds;
-
-            item.LastCall = now;
-            item.AvgSeconds = item.AvgSeconds > 0.0 ? (item.AvgSeconds + diff) / 2.0 : diff;
+            var avg = item.AvgSeconds == 0.0 ? diff : (item.AvgSeconds + diff) / 2.0;
+            return new(item.Key, count, now, avg);
         }
-        _cache.Set(key, item, DateTimeOffset.UtcNow.AddHours(1));
-        return item;
     }
 
-    private static string CreateKey(IPAddress address, string? name)
+    private static string CreateKey(IPAddress address, string? userAgent)
     {
         var addr = address.GetAddressBytes();
-        var id = name is null
+        var id = userAgent is null
             ? []
-            : XxHash128.Hash(Encoding.UTF8.GetBytes(name));
+            : XxHash64.Hash(Encoding.UTF8.GetBytes(userAgent));
 
-        return _prefix + Convert.ToBase64String([.. addr, .. id]);
+        return _prefix + Convert.ToHexStringLower([.. addr, .. id]);
     }
 }

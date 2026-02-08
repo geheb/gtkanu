@@ -151,7 +151,6 @@ void ConfigurePipeline(WebApplication app)
     // Configure the HTTP request pipeline.
     app.UseExceptionHandler("/Error/500");
 
-    app.UseMiddleware<BlockerMiddleware>();
     app.UseMiddleware<CspMiddleware>();
 
     app.UseStatusCodePagesWithReExecute("/Error/{0}");
@@ -161,6 +160,10 @@ void ConfigurePipeline(WebApplication app)
     app.UseRouting();
 
     app.UseAuthentication();
+
+    // important to detect if logged in
+    app.UseMiddleware<BlockerMiddleware>();
+
     app.UseAuthorization();
 
     app.MapRazorPages();
