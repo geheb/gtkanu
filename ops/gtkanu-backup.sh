@@ -5,7 +5,7 @@ trap 'rm -rf -- "$TEMPDIR"' EXIT
 BACKUPFILE="gtkanu.7z"
 
 echo "create backup"
-7z a -mhe=on "$TEMPDIR/$BACKUPFILE" /opt/gtkanu/ -p"***"
+7z a -mhe=on "$TEMPDIR/$BACKUPFILE" /opt/gtkanu/ -p"***" > /dev/null 2>&1
 
 SHAREID="***"
 PASS="***"
