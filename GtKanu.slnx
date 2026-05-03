@@ -11,4 +11,7 @@
   <Project Path="src/GtKanu.Aspire/GtKanu.Aspire.csproj" />
   <Project Path="src/GtKanu.Infrastructure/GtKanu.Infrastructure.csproj" />
   <Project Path="src/GtKanu.WebApp/GtKanu.WebApp.csproj" />
+  <Project Path="tests/GtKanu.Application.Tests/GtKanu.Application.Tests.csproj" />
+  <Project Path="tests/GtKanu.Infrastructure.Tests/GtKanu.Infrastructure.Tests.csproj" />
+  <Project Path="tests/GtKanu.WebApp.Tests/GtKanu.WebApp.Tests.csproj" />
 </Solution>

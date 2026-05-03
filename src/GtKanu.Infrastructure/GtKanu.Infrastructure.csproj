@@ -43,4 +43,10 @@
     <Folder Include="Database\Migrations\" />
   </ItemGroup>
 
+  <ItemGroup>
+	<InternalsVisibleTo Include="$(AssemblyName).Tests" />
+	<InternalsVisibleTo Include="GtKanu.WebApp.Tests" />
+	<InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+  </ItemGroup>
+
 </Project>

@@ -76,7 +76,7 @@ public static class ServiceCollectionExtensions
 
         services.Configure<SmtpConnectionOptions>(config.GetSection("Smtp"));
         services.AddSingleton<IEmailValidatorService, EmailValidatorService>();
-        services.AddSingleton<IpReputationChecker>();
+        services.AddSingleton<IIpReputationChecker, IpReputationChecker>();
         services.AddSingleton<BlacklistCache>();
         services.AddSingleton<SmtpDispatcher>();
         services.AddScoped<IEmailService, EmailService>();

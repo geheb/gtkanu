@@ -9,7 +9,7 @@ using DnsClient.Internal;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
-internal sealed class IpReputationChecker
+internal sealed class IpReputationChecker : IIpReputationChecker
 {
     private static readonly string _prefix = Guid.NewGuid().ToString("N")[..8];
     private static readonly string[] Servers = ["zen.spamhaus.org", "bl.blocklist.de"];
