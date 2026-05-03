@@ -20,7 +20,7 @@ internal sealed class VehicleBooking
     public string? Purpose { get; set; }
 
     [NotMapped]
-    public bool IsExpired => End < DateTimeOffset.UtcNow;
+    public bool IsExpired => End < DateTimeOffset.UtcNow.AddMinutes(-1);
 
     internal VehicleBookingDto ToDto(GermanDateTimeConverter dc) => new()
     {

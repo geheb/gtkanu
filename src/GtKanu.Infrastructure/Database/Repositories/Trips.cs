@@ -62,12 +62,13 @@ internal sealed class Trips : ITrips, IDisposable
 
     public async Task<TripListDto[]> GetTripList(bool showExpired, CancellationToken cancellationToken)
     {
-        var now = DateTimeOffset.UtcNow;
+        var now = DateTimeOffset.UtcNow.AddMinutes(-1);
 
+        // see also variable IsExpired
         var trips = await _dbContext.Trips
             .AsNoTracking()
             .Include(e => e.User)
-            .Where(e => (showExpired ? e.Start < now : e.End > now))
+            .Where(e => (showExpired ? e.End < now : e.End >= now))
             .Select(e => new 
             { 
                 trip = e, 
@@ -105,8 +106,8 @@ internal sealed class Trips : ITrips, IDisposable
 
         return
         [
-            .. result.Where(r => r.Start >= now).OrderBy(r => r.Start),
-            .. result.Where(r => r.Start < now).OrderByDescending(r => r.Start),
+            .. result.Where(r => r.End >= now).OrderBy(r => r.Start),
+            .. result.Where(r => r.End < now).OrderByDescending(r => r.Start),
         ];
     }
 

@@ -17,7 +17,7 @@ internal sealed class Tryout
     public string? Description { get; set; }
 
     [NotMapped]
-    public bool IsExpired => DateTimeOffset.UtcNow > Date;
+    public bool IsExpired => Date < DateTimeOffset.UtcNow.AddMinutes(-1);
 
     internal ICollection<TryoutBooking>? TryoutBookings { get; set; }
     internal ICollection<TryoutChat>? TryoutChats { get; set; }
@@ -62,7 +62,7 @@ internal sealed class Tryout
             ChatMessageCount = chatMessageCount,
             BookingUsers = bookingUsers,
             MaxBookings = MaxBookings,
-            IsExpired = Date < DateTimeOffset.UtcNow,
+            IsExpired = Date < DateTimeOffset.UtcNow.AddMinutes(-1),
             Description = Description,
             CanAccept = canBook && bookingCount < MaxBookings,
         };
@@ -91,7 +91,7 @@ internal sealed class Tryout
             BookingCancelledOn = booking?.CancelledOn is not null ? dc.ToLocal(booking.CancelledOn.Value) : null,
             CanAccept = canBook && bookingCount < MaxBookings,
             CanDelete = booking is not null && booking.ConfirmedOn is null,
-            IsExpired = Date < DateTimeOffset.UtcNow,
+            IsExpired = Date < DateTimeOffset.UtcNow.AddMinutes(-1),
         };
     }
 }

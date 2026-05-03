@@ -13,7 +13,7 @@ internal sealed class ClubhouseBooking
     public string? Description { get; set; }
 
     [NotMapped]
-    public bool IsExpired => End < DateTimeOffset.UtcNow;
+    public bool IsExpired => End < DateTimeOffset.UtcNow.AddMinutes(-1);
 
     internal ClubhouseBookingDto ToDto(GermanDateTimeConverter dc) => new()
     {

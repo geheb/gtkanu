@@ -130,7 +130,7 @@ internal sealed class Vehicles : IVehicles, IDisposable
 
     public async Task<VehicleBookingDto[]> GetBookings(bool showExpired, Guid? userId, CancellationToken cancellationToken)
     {
-        var now = DateTimeOffset.UtcNow;
+        var now = DateTimeOffset.UtcNow.AddMinutes(-1);
         VehicleBooking[] entities;
 
         if (userId is not null)
@@ -148,7 +148,7 @@ internal sealed class Vehicles : IVehicles, IDisposable
                 .AsNoTracking()
                 .Include(e => e.Vehicle)
                 .Include(e => e.User)
-                .Where(e => showExpired ? e.End < now : e.End > now)
+                .Where(e => showExpired ? e.End < now : e.End >= now)
                 .ToArrayAsync(cancellationToken);
         }
 
@@ -158,8 +158,8 @@ internal sealed class Vehicles : IVehicles, IDisposable
         
         return 
         [
-            .. result.Where(r => r.Start >= now).OrderBy(r => r.Start),
-            .. result.Where(r => r.Start < now).OrderByDescending(r => r.Start)
+            .. result.Where(r => r.End >= now).OrderBy(r => r.Start),
+            .. result.Where(r => r.End < now).OrderByDescending(r => r.Start)
         ];
     }
 

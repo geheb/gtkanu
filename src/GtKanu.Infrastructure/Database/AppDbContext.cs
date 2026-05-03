@@ -1,6 +1,7 @@
 using GtKanu.Infrastructure.Database.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace GtKanu.Infrastructure.Database;
@@ -8,6 +9,8 @@ namespace GtKanu.Infrastructure.Database;
 internal sealed class AppDbContext :
     IdentityDbContext<IdentityUserGuid, IdentityRoleGuid, Guid, IdentityUserClaimGuid, IdentityUserRoleGuid, IdentityUserLoginGuid, IdentityRoleClaimGuid, IdentityUserTokenGuid>
 {
+    private static readonly IDbConnectionInterceptor _connectionInterceptor = new SQLiteInterceptor();
+
     public DbSet<Boat> Boats => Set<Boat>();
     public DbSet<BoatRental> BoatRentals => Set<BoatRental>();
     public DbSet<Food> Foods => Set<Food>();
@@ -36,6 +39,12 @@ internal sealed class AppDbContext :
     }
 
     public Guid GeneratePk() => Guid.CreateVersion7();
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        base.OnConfiguring(optionsBuilder);
+        optionsBuilder.AddInterceptors(_connectionInterceptor);
+    }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {

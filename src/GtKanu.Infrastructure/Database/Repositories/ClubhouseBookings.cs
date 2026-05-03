@@ -84,11 +84,12 @@ internal sealed class ClubhouseBookings : IClubhouseBookings
 
     public async Task<ClubhouseBookingDto[]> GetAll(bool showExpired, CancellationToken cancellationToken)
     {
-        var now = DateTimeOffset.UtcNow;
+        var now = DateTimeOffset.UtcNow.AddMinutes(-1);
 
+        // see also variable IsExpired
         var entities = await _dbContext.ClubhouseBookings
             .AsNoTracking()
-            .Where(e => (showExpired ? e.Start < now : e.End > now))
+            .Where(e => (showExpired ? e.End < now : e.End >= now))
             .OrderByDescending(e => e.Start)
             .ToArrayAsync(cancellationToken);
 
@@ -96,8 +97,8 @@ internal sealed class ClubhouseBookings : IClubhouseBookings
 
         return
         [
-            .. entities.Where(e => e.Start >= now).OrderBy(e => e.Start).Select(e => e.ToDto(dc)),
-            .. entities.Where(r => r.Start < now).OrderByDescending(r => r.Start).Select(e => e.ToDto(dc)),
+            .. entities.Where(e => e.End >= now).OrderBy(e => e.Start).Select(e => e.ToDto(dc)),
+            .. entities.Where(r => r.End < now).OrderByDescending(r => r.Start).Select(e => e.ToDto(dc)),
         ];
     }
 

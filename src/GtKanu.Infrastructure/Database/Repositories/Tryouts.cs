@@ -76,12 +76,12 @@ internal sealed class Tryouts : ITryouts, IDisposable
 
     public async Task<TryoutListDto[]> GetTryoutList(bool showExpired, bool includeUserList, CancellationToken cancellationToken)
     {
-        var now = DateTimeOffset.UtcNow;
+        var now = DateTimeOffset.UtcNow.AddMinutes(-1);
 
         var tryouts = await _dbContext.Tryouts
             .AsNoTracking()
             .Include(e => e.User)
-            .Where(e => (showExpired ? e.Date < now : e.Date > now))
+            .Where(e => (showExpired ? e.Date < now : e.Date >= now))
             .Select(e => new 
             { 
                 tryout = e, 
