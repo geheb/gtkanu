@@ -1,4 +1,3 @@
-using Dapper;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using System.Data.Common;
@@ -18,13 +17,15 @@ internal sealed class SQLiteInterceptor : DbConnectionInterceptor
 
     public override async Task ConnectionOpenedAsync(DbConnection connection, ConnectionEndEventData eventData, CancellationToken cancellationToken = default)
     {
-        await base.ConnectionOpenedAsync(connection, eventData, cancellationToken);
-        await connection.ExecuteAsync(_pragmas);
+        await using var command = connection.CreateCommand();
+        command.CommandText = _pragmas;
+        await command.ExecuteNonQueryAsync(cancellationToken);
     }
 
     public override void ConnectionOpened(DbConnection connection, ConnectionEndEventData eventData)
     {
-        base.ConnectionOpened(connection, eventData);
-        connection.Execute(_pragmas);
+        using var command = connection.CreateCommand();
+        command.CommandText = _pragmas;
+        command.ExecuteNonQuery();
     }
 }

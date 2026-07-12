@@ -1,6 +1,5 @@
 namespace GtKanu.Infrastructure.Tests.Services;
 
-using FluentAssertions;
 using GtKanu.Application.Services;
 using GtKanu.Infrastructure.Email;
 using GtKanu.Infrastructure.Security;

@@ -1,6 +1,5 @@
 namespace GtKanu.Infrastructure.Tests.Database;
 
-using FluentAssertions;
 using GtKanu.Infrastructure.Database;
 
 public class AppDbContextTests : IDisposable

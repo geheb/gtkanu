@@ -1,7 +1,6 @@
 namespace GtKanu.Infrastructure.Tests.Extensions;
 
 using System.Linq.Expressions;
-using FluentAssertions;
 using GtKanu.Infrastructure.Extensions;
 
 public class PropertyExtensionsTests

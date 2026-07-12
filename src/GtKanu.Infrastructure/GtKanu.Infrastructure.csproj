@@ -9,7 +9,6 @@
   </ItemGroup>
 
   <ItemGroup>
-	<PackageReference Include="Dapper" />
 	<PackageReference Include="DnsClient" />
 	<PackageReference Include="FluentResults" />
 	<PackageReference Include="Ical.Net" />
@@ -17,6 +16,7 @@
 	<PackageReference Include="Microsoft.AspNetCore.Identity.UI" />
 	<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
 	<PackageReference Include="Scriban" />
+	<PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" />
 	<PackageReference Include="System.IO.Hashing" />
   </ItemGroup>
 

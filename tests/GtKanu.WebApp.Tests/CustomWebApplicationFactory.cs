@@ -17,13 +17,14 @@ public sealed class CustomWebApplicationFactory : WebApplicationFactory<Program>
         """<input[^>]*name=["]?__RequestVerificationToken["]?[^>]*value=["]?([^"\s>]*)["]?[^>]*>""",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-    private readonly string _certPath;
-    private readonly string _keysDir;
+    private static readonly string _certPath;
+    private static readonly string _keysDir;
 
-    public CustomWebApplicationFactory()
+    static CustomWebApplicationFactory()
     {
-        _certPath = Path.Combine(Path.GetTempPath(), "gtkanu-test.pfx");
-        _keysDir = Path.Combine(Path.GetTempPath(), "gtkanu-test-keys");
+        var name = Guid.NewGuid().ToString("N");
+        _certPath = Path.Combine(Path.GetTempPath(), $"gtkanu-{name}.pfx");
+        _keysDir = Path.Combine(Path.GetTempPath(), $"gtkanu-{name}-keys");
 
         if (!File.Exists(_certPath))
         {

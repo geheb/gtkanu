@@ -1,6 +1,5 @@
 namespace GtKanu.Infrastructure.Tests.Services;
 
-using FluentAssertions;
 using GtKanu.Infrastructure.Security;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging.Abstractions;

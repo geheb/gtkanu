@@ -15,6 +15,8 @@ internal sealed class EmailQueue : IEntity, IDtoMapper<EmailQueueDto>
 
     public DateTimeOffset? NextSchedule { get; set; }
 
+    public int? RetryCount { get; set; }
+
     public string? Recipient { get; set; }
 
     public string? Subject { get; set; }

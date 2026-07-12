@@ -1,7 +1,6 @@
 namespace GtKanu.WebApp.Tests;
 
 using System.Net;
-using FluentAssertions;
 
 public class IntegrationTests : IClassFixture<CustomWebApplicationFactory>
 {

@@ -20,7 +20,7 @@ internal sealed class EmailQueueRepository : Repository<EmailQueue, EmailQueueDt
 
         var entities = await _dbSet
             .AsNoTracking()
-            .Where(e => (e.NextSchedule <= now || e.NextSchedule == null) && e.Sent == null)
+            .Where(e => (e.NextSchedule == null || e.NextSchedule <= now) && e.Sent == null && (e.RetryCount == null || e.RetryCount < 7))
             .OrderByDescending(e => e.IsPrio).ThenBy(e => e.Created)
             .Take(count)
             .ToArrayAsync(cancellationToken);
@@ -78,7 +78,19 @@ internal sealed class EmailQueueRepository : Repository<EmailQueue, EmailQueueDt
         }
 
         entity.LastError = lastError;
-        entity.NextSchedule = _timeProvider.GetUtcNow().AddHours(1);
+
+        if (entity.RetryCount is null || entity.RetryCount == 0)
+        {
+            entity.RetryCount = 1;
+            entity.NextSchedule = _timeProvider.GetUtcNow().AddHours(1);
+        }
+        else
+        {
+            var pow = Math.Pow(2, entity.RetryCount.Value);
+            entity.RetryCount++;
+            var delay = _timeProvider.GetUtcNow().AddHours(pow);
+            entity.NextSchedule = delay;
+        }
 
         return Result.Ok();
     }

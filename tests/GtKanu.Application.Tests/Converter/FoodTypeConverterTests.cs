@@ -1,6 +1,5 @@
 namespace GtKanu.Application.Tests.Converter;
 
-using FluentAssertions;
 using GtKanu.Application.Converter;
 using GtKanu.Application.Models;
 

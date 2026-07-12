@@ -1,6 +1,5 @@
 namespace GtKanu.Application.Tests.Models;
 
-using FluentAssertions;
 using GtKanu.Application.Models;
 
 public class BookingFoodDtoTests

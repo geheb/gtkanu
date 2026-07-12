@@ -1,6 +1,5 @@
 namespace GtKanu.Infrastructure.Tests.Database;
 
-using GtKanu.Application.Models;
 using GtKanu.Infrastructure.Database.Entities;
 using GtKanu.Infrastructure.Database.Repositories;
 
@@ -68,6 +67,33 @@ public class EmailQueueRepositoryTests : IDisposable
 
         var result = await repo.GetNextToSend(2, CancellationToken.None);
         result.Should().HaveCount(2);
+    }
+
+    [Fact]
+    public async Task GetNextToSend_ShouldRespectCountToRetryCount()
+    {
+        using var context = _factory.CreateContext();
+        var timeProvider = TimeProvider.System;
+        var repo = new EmailQueueRepository(timeProvider, context.EmailQueues);
+
+        var now = timeProvider.GetUtcNow();
+        for (int i = 0; i < 5; i++)
+        {
+            context.EmailQueues.Add(new EmailQueue
+            {
+                Id = Guid.NewGuid(),
+                Created = now,
+                Recipient = $"{i}@a.de",
+                Subject = $"S{i}",
+                HtmlBody = "B",
+                NextSchedule = now.AddMinutes(-1),
+                RetryCount = 3 + i
+            });
+        }
+        await context.SaveChangesAsync();
+
+        var result = await repo.GetNextToSend(5, CancellationToken.None);
+        result.Should().HaveCount(4);
     }
 
     [Fact]
